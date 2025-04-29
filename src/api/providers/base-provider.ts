@@ -75,12 +75,6 @@ export abstract class BaseProvider implements ApiHandler {
 		if (key === undefined) {
 			return defaultValue
 		}
-		const value = process.env[key as string];
-		if (value === undefined) {
-			if (defaultValue !== undefined) {
-				return defaultValue;
-			}
-		}
-		return value;
+		return process.env[key as string] ?? defaultValue
 	}
 }
