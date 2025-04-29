@@ -19,6 +19,7 @@ import { getModelParams, SingleCompletionHandler } from "../index"
 import { DEFAULT_HEADERS, DEEP_SEEK_DEFAULT_TEMPERATURE } from "./constants"
 import { BaseProvider } from "./base-provider"
 import { getModels } from "./fetchers/cache"
+import { getEnvVar } from "./base-provider"
 
 const OPENROUTER_DEFAULT_PROVIDER_NAME = "[default]"
 
@@ -61,7 +62,7 @@ export class OpenRouterHandler extends BaseProvider implements SingleCompletionH
 		this.options = options
 
 		const baseURL = this.options.openRouterBaseUrl || "https://openrouter.ai/api/v1"
-		const apiKey = this.options.openRouterApiKey ?? "not-provided"
+		const apiKey = getEnvVar(options.openRouterApiKeyEnvVar, options.openRouterApiKey) ?? "not-provided"
 
 		this.client = new OpenAI({ baseURL, apiKey, defaultHeaders: DEFAULT_HEADERS })
 	}
