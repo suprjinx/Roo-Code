@@ -28,7 +28,7 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 			}
 			break
 		case "anthropic":
-			if (!apiConfiguration.apiKey) {
+			if (!(apiConfiguration.apiKey || apiConfiguration.apiKeyEnvVar)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
@@ -58,7 +58,9 @@ export function validateApiConfiguration(apiConfiguration?: ApiConfiguration): s
 			}
 			break
 		case "openai":
-			if (!apiConfiguration.openAiBaseUrl || !apiConfiguration.openAiApiKey || !apiConfiguration.openAiModelId) {
+			if (!apiConfiguration.openAiBaseUrl 
+				|| !(apiConfiguration.openAiApiKey || apiConfiguration.openAiApiKeyEnvVar) 
+				|| !apiConfiguration.openAiModelId) {
 				return i18next.t("settings:validation.openAi")
 			}
 			break

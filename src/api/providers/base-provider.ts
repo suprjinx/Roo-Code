@@ -63,4 +63,24 @@ export abstract class BaseProvider implements ApiHandler {
 		// Add a fudge factor to account for the fact that tiktoken is not always accurate
 		return Math.ceil(totalTokens * TOKEN_FUDGE_FACTOR)
 	}
+
+	/**
+	 * Read an environment variable, returning a default value if not set
+	 * @param key The environment variable key
+	 * @param defaultValue The default value to return if the variable is not set
+	 * @returns The value of the environment variable or the default value
+	 * @throws Error if the variable is not set and no default value is provided
+	 */
+	getEnvVar(key: string | undefined, defaultValue?: string | undefined): string | undefined {
+		if (key === undefined) {
+			return defaultValue
+		}
+		const value = process.env[key as string];
+		if (value === undefined) {
+			if (defaultValue !== undefined) {
+				return defaultValue;
+			}
+		}
+		return value;
+	}
 }

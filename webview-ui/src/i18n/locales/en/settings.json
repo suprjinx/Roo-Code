@@ -106,6 +106,7 @@
 		"openRouterApiKey": "OpenRouter API Key",
 		"getOpenRouterApiKey": "Get OpenRouter API Key",
 		"apiKeyStorageNotice": "API keys are stored securely in VSCode's Secret Storage",
+		"apiKeyEnvVarNotice": "API key is stored in an environment variable. This is useful when the secret is dynamic.",
 		"glamaApiKey": "Glama API Key",
 		"getGlamaApiKey": "Get Glama API Key",
 		"useCustomBaseUrl": "Use custom base URL",
@@ -115,6 +116,7 @@
 		"getRequestyApiKey": "Get Requesty API Key",
 		"openRouterTransformsText": "Compress prompts and message chains to the context size (<a>OpenRouter Transforms</a>)",
 		"anthropicApiKey": "Anthropic API Key",
+		"anthropicApiKeyEnvVar": "Anthropic API Key (Env Var)",
 		"getAnthropicApiKey": "Get Anthropic API Key",
 		"anthropicUseAuthToken": "Pass Anthropic API Key as Authorization header instead of X-Api-Key",
 		"deepSeekApiKey": "DeepSeek API Key",
@@ -442,7 +444,7 @@
 		"maxThinkingTokens": "Max Thinking Tokens"
 	},
 	"validation": {
-		"apiKey": "You must provide a valid API key.",
+		"apiKey": "You must provide a valid API key or ENV VAR name.",
 		"awsRegion": "You must choose a region to use with Amazon Bedrock.",
 		"googleCloud": "You must provide a valid Google Cloud Project ID and Region.",
 		"modelId": "You must provide a valid model ID.",
@@ -456,6 +458,7 @@
 	},
 	"placeholders": {
 		"apiKey": "Enter API Key...",
+		"apiKeyEnvVar": "Enter ENV VAR holding API Key...",
 		"profileName": "Enter profile name",
 		"accessKey": "Enter Access Key...",
 		"secretKey": "Enter Secret Key...",

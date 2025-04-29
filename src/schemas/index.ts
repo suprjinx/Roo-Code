@@ -317,6 +317,7 @@ export const providerSettingsSchema = z.object({
 	// Anthropic
 	apiModelId: z.string().optional(),
 	apiKey: z.string().optional(),
+	apiKeyEnvVar: z.string().optional(),
 	anthropicBaseUrl: z.string().optional(),
 	anthropicUseAuthToken: z.boolean().optional(),
 	// Glama
@@ -349,6 +350,7 @@ export const providerSettingsSchema = z.object({
 	// OpenAI
 	openAiBaseUrl: z.string().optional(),
 	openAiApiKey: z.string().optional(),
+	openAiApiKeyEnvVar: z.string().optional(),
 	openAiHostHeader: z.string().optional(),
 	openAiLegacyFormat: z.boolean().optional(),
 	openAiR1FormatEnabled: z.boolean().optional(),
@@ -419,6 +421,7 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	// Anthropic
 	apiModelId: undefined,
 	apiKey: undefined,
+	apiKeyEnvVar: undefined,
 	anthropicBaseUrl: undefined,
 	anthropicUseAuthToken: undefined,
 	// Glama
@@ -451,6 +454,7 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	// OpenAI
 	openAiBaseUrl: undefined,
 	openAiApiKey: undefined,
+	openAiApiKeyEnvVar: undefined,
 	openAiHostHeader: undefined,
 	openAiLegacyFormat: undefined,
 	openAiR1FormatEnabled: undefined,
