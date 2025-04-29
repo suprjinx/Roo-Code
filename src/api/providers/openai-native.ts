@@ -12,6 +12,7 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { calculateApiCostOpenAI } from "../../utils/cost"
+import { getEnvVar } from "./base-provider"
 
 const OPENAI_NATIVE_DEFAULT_TEMPERATURE = 0
 
@@ -28,7 +29,7 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 	constructor(options: ApiHandlerOptions) {
 		super()
 		this.options = options
-		const apiKey = this.options.openAiNativeApiKey ?? "not-provided"
+		const apiKey = getEnvVar(options.openAiNativeApiKeyEnvVar, options.openAiNativeApiKey) ?? "not-provided"
 		this.client = new OpenAI({ apiKey })
 	}
 

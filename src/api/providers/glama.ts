@@ -8,6 +8,7 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream } from "../transform/stream"
 import { SingleCompletionHandler } from "../"
 import { BaseProvider } from "./base-provider"
+import { getEnvVar } from "./base-provider"
 
 const GLAMA_DEFAULT_TEMPERATURE = 0
 
@@ -19,7 +20,7 @@ export class GlamaHandler extends BaseProvider implements SingleCompletionHandle
 		super()
 		this.options = options
 		const baseURL = "https://glama.ai/api/gateway/openai/v1"
-		const apiKey = this.options.glamaApiKey ?? "not-provided"
+		const apiKey = getEnvVar(options.glamaApiKeyEnvVar, options.glamaApiKey) ?? "not-provided"
 		this.client = new OpenAI({ baseURL, apiKey })
 	}
 

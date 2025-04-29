@@ -8,6 +8,7 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { SingleCompletionHandler } from "../index"
 import { DEFAULT_HEADERS } from "./constants"
 import { BaseProvider } from "./base-provider"
+import { getEnvVar } from "./base-provider"
 
 const XAI_DEFAULT_TEMPERATURE = 0
 
@@ -17,10 +18,11 @@ export class XAIHandler extends BaseProvider implements SingleCompletionHandler 
 
 	constructor(options: ApiHandlerOptions) {
 		super()
+		const apiKey = getEnvVar(options.xaiApiKeyEnvVar, options.xaiApiKey) ?? "not-provided"
 		this.options = options
 		this.client = new OpenAI({
 			baseURL: "https://api.x.ai/v1",
-			apiKey: this.options.xaiApiKey ?? "not-provided",
+			apiKey: apiKey,
 			defaultHeaders: DEFAULT_HEADERS,
 		})
 	}

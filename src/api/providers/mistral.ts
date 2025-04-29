@@ -14,6 +14,7 @@ import {
 import { convertToMistralMessages } from "../transform/mistral-format"
 import { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
+import { getEnvVar } from "./base-provider"
 
 const MISTRAL_DEFAULT_TEMPERATURE = 0
 
@@ -23,7 +24,7 @@ export class MistralHandler extends BaseProvider implements SingleCompletionHand
 
 	constructor(options: ApiHandlerOptions) {
 		super()
-		if (!options.mistralApiKey) {
+		if ((!(options.mistralApiKey || options.mistralApiKeyEnvVar))) {
 			throw new Error("Mistral API key is required")
 		}
 
@@ -35,9 +36,10 @@ export class MistralHandler extends BaseProvider implements SingleCompletionHand
 
 		const baseUrl = this.getBaseUrl()
 		console.debug(`[Roo Code] MistralHandler using baseUrl: ${baseUrl}`)
+		const apiKey = getEnvVar(options.mistralApiKeyEnvVar, options.mistralApiKey) ?? "not-provided"
 		this.client = new Mistral({
 			serverURL: baseUrl,
-			apiKey: this.options.mistralApiKey,
+			apiKey: apiKey,
 		})
 	}
 

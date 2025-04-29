@@ -7,6 +7,7 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { SingleCompletionHandler } from "../"
 import { BaseProvider } from "./base-provider"
+import { getEnvVar } from "./base-provider"
 
 interface UnboundUsage extends OpenAI.CompletionUsage {
 	cache_creation_input_tokens?: number
@@ -21,7 +22,7 @@ export class UnboundHandler extends BaseProvider implements SingleCompletionHand
 		super()
 		this.options = options
 		const baseURL = "https://api.getunbound.ai/v1"
-		const apiKey = this.options.unboundApiKey ?? "not-provided"
+		const apiKey = getEnvVar(options.unboundApiKeyEnvVar, options.unboundApiKey) ?? "not-provided"
 		this.client = new OpenAI({ baseURL, apiKey })
 	}
 

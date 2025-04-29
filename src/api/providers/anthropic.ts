@@ -12,6 +12,7 @@ import { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "./constants"
 import { SingleCompletionHandler, getModelParams } from "../index"
+import { getEnvVar } from "./base-provider"
 
 export class AnthropicHandler extends BaseProvider implements SingleCompletionHandler {
 	private options: ApiHandlerOptions
@@ -26,7 +27,7 @@ export class AnthropicHandler extends BaseProvider implements SingleCompletionHa
 
 		this.client = new Anthropic({
 			baseURL: this.options.anthropicBaseUrl || undefined,
-			[apiKeyFieldName]: this.getEnvVar(this.options.apiKeyEnvVar, this.options.apiKey)
+			[apiKeyFieldName]: getEnvVar(options.apiKeyEnvVar, options.apiKey)
 		})
 	}
 

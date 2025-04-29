@@ -18,6 +18,7 @@ import {
 } from "../transform/gemini-format"
 import type { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
+import { getEnvVar } from "./base-provider"
 
 const CACHE_TTL = 5
 
@@ -37,8 +38,9 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 
 	constructor(options: ApiHandlerOptions) {
 		super()
+		const apiKey = getEnvVar(options.geminiApiKeyEnvVar, options.geminiApiKey) ?? "not-provided"
 		this.options = options
-		this.client = new GoogleGenAI({ apiKey: options.geminiApiKey ?? "not-provided" })
+		this.client = new GoogleGenAI({ apiKey: apiKey })
 		this.contentCaches = new NodeCache({ stdTTL: 5 * 60, checkperiod: 5 * 60 })
 	}
 

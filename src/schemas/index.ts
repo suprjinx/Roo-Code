@@ -324,8 +324,10 @@ export const providerSettingsSchema = z.object({
 	glamaModelId: z.string().optional(),
 	glamaModelInfo: modelInfoSchema.nullish(),
 	glamaApiKey: z.string().optional(),
+	glamaApiKeyEnvVar: z.string().optional(),
 	// OpenRouter
 	openRouterApiKey: z.string().optional(),
+	openRouterApiKeyEnvVar: z.string().optional(),
 	openRouterModelId: z.string().optional(),
 	openRouterModelInfo: modelInfoSchema.nullish(),
 	openRouterBaseUrl: z.string().optional(),
@@ -378,25 +380,32 @@ export const providerSettingsSchema = z.object({
 	lmStudioSpeculativeDecodingEnabled: z.boolean().optional(),
 	// Gemini
 	geminiApiKey: z.string().optional(),
+	geminiApiKeyEnvVar: z.string().optional(),
 	googleGeminiBaseUrl: z.string().optional(),
 	// OpenAI Native
 	openAiNativeApiKey: z.string().optional(),
+	openAiNativeApiKeyEnvVar: z.string().optional(),
 	// Mistral
 	mistralApiKey: z.string().optional(),
+	mistralApiKeyEnvVar: z.string().optional(),
 	mistralCodestralUrl: z.string().optional(),
 	// DeepSeek
 	deepSeekBaseUrl: z.string().optional(),
 	deepSeekApiKey: z.string().optional(),
+	deepSeekApiKeyEnvVar: z.string().optional(),
 	// Unbound
 	unboundApiKey: z.string().optional(),
+	unboundApiKeyEnvVar: z.string().optional(),
 	unboundModelId: z.string().optional(),
 	unboundModelInfo: modelInfoSchema.nullish(),
 	// Requesty
 	requestyApiKey: z.string().optional(),
+	requestyApiKeyEnvVar: z.string().optional(),
 	requestyModelId: z.string().optional(),
 	requestyModelInfo: modelInfoSchema.nullish(),
 	// X.AI (Grok)
 	xaiApiKey: z.string().optional(),
+	xaiApiKeyEnvVar: z.string().optional(),
 	// Claude 3.7 Sonnet Thinking
 	modelMaxTokens: z.number().optional(),
 	modelMaxThinkingTokens: z.number().optional(),
@@ -428,8 +437,10 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	glamaModelId: undefined,
 	glamaModelInfo: undefined,
 	glamaApiKey: undefined,
+	glamaApiKeyEnvVar: undefined,
 	// OpenRouter
 	openRouterApiKey: undefined,
+	openRouterApiKeyEnvVar: undefined,
 	openRouterModelId: undefined,
 	openRouterModelInfo: undefined,
 	openRouterBaseUrl: undefined,
@@ -474,21 +485,27 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	lmStudioSpeculativeDecodingEnabled: undefined,
 	// Gemini
 	geminiApiKey: undefined,
+	geminiApiKeyEnvVar: undefined,
 	googleGeminiBaseUrl: undefined,
 	// OpenAI Native
 	openAiNativeApiKey: undefined,
+	openAiNativeApiKeyEnvVar: undefined,
 	// Mistral
 	mistralApiKey: undefined,
+	mistralApiKeyEnvVar: undefined,
 	mistralCodestralUrl: undefined,
 	// DeepSeek
 	deepSeekBaseUrl: undefined,
 	deepSeekApiKey: undefined,
+	deepSeekApiKeyEnvVar: undefined,
 	// Unbound
 	unboundApiKey: undefined,
+	unboundApiKeyEnvVar: undefined,
 	unboundModelId: undefined,
 	unboundModelInfo: undefined,
 	// Requesty
 	requestyApiKey: undefined,
+	requestyApiKeyEnvVar: undefined,
 	requestyModelId: undefined,
 	requestyModelInfo: undefined,
 	// Claude 3.7 Sonnet Thinking
@@ -506,6 +523,7 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	fakeAi: undefined,
 	// X.AI (Grok)
 	xaiApiKey: undefined,
+	xaiApiKeyEnvVar: undefined,
 }
 
 export const PROVIDER_SETTINGS_KEYS = Object.keys(providerSettingsRecord) as Keys<ProviderSettings>[]

@@ -5,6 +5,7 @@ import { calculateApiCostOpenAI, parseApiPrice } from "../../utils/cost"
 import { ApiStreamUsageChunk } from "../transform/stream"
 import { OpenAiHandler, OpenAiHandlerOptions } from "./openai"
 import OpenAI from "openai"
+import { getEnvVar } from "./base-provider"
 
 // Requesty usage includes an extra field for Anthropic use cases.
 // Safely cast the prompt token details section to the appropriate structure.
@@ -18,12 +19,13 @@ interface RequestyUsage extends OpenAI.CompletionUsage {
 
 export class RequestyHandler extends OpenAiHandler {
 	constructor(options: OpenAiHandlerOptions) {
-		if (!options.requestyApiKey) {
+		if ((!(options.requestyApiKey || options.requestyApiKeyEnvVar))) {
 			throw new Error("Requesty API key is required. Please provide it in the settings.")
 		}
+		const apiKey = getEnvVar(options.requestyApiKeyEnvVar, options.requestyApiKey) ?? "not-provided"
 		super({
 			...options,
-			openAiApiKey: options.requestyApiKey,
+			openAiApiKey: apiKey,
 			openAiModelId: options.requestyModelId ?? requestyDefaultModelId,
 			openAiBaseUrl: "https://router.requesty.ai/v1",
 			openAiCustomModelInfo: options.requestyModelInfo ?? requestyDefaultModelInfo,

@@ -1,13 +1,14 @@
 import { OpenAiHandler, OpenAiHandlerOptions } from "./openai"
 import { deepSeekModels, deepSeekDefaultModelId, ModelInfo } from "../../shared/api"
 import { ApiStreamUsageChunk } from "../transform/stream" // Import for type
+import { getEnvVar } from "./base-provider"
 import { getModelParams } from "../index"
 
 export class DeepSeekHandler extends OpenAiHandler {
 	constructor(options: OpenAiHandlerOptions) {
 		super({
 			...options,
-			openAiApiKey: options.deepSeekApiKey ?? "not-provided",
+			openAiApiKey: getEnvVar(options.deepSeekApiKeyEnvVar, options.deepSeekApiKey) ?? "not-provided",
 			openAiModelId: options.apiModelId ?? deepSeekDefaultModelId,
 			openAiBaseUrl: options.deepSeekBaseUrl ?? "https://api.deepseek.com",
 			openAiStreamingEnabled: true,

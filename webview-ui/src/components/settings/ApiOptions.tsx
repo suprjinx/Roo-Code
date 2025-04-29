@@ -380,7 +380,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.openRouterApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.openRouterApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("openRouterApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.openRouterApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.openRouterApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.openRouterApiKey || apiConfiguration?.openRouterApiKeyEnvVar)) && (
 						<VSCodeButtonLink
 							href={getOpenRouterAuthUrl(uriScheme)}
 							style={{ width: "100%" }}
@@ -452,7 +463,7 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyEnvVarNotice")}
 					</div>
-					{!apiConfiguration?.apiKey && (
+					{(!(apiConfiguration?.apiKey || apiConfiguration?.apiKeyEnvVar)) && (
 						<VSCodeButtonLink href="https://console.anthropic.com/settings/keys" appearance="secondary">
 							{t("settings:providers.getAnthropicApiKey")}
 						</VSCodeButtonLink>
@@ -506,7 +517,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.glamaApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.glamaApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("glamaApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.glamaApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.glamaApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.glamaApiKey || apiConfiguration?.glamaApiKeyEnvVar )) && (
 						<VSCodeButtonLink
 							href={getGlamaAuthUrl(uriScheme)}
 							style={{ width: "100%" }}
@@ -535,7 +557,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.requestyApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.requestyApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("requestyApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.requestyApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.requestyApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.requestyApiKey || apiConfiguration?.requestyApiKeyEnvVar)) && (
 						<VSCodeButtonLink
 							href={getRequestyAuthUrl(uriScheme)}
 							style={{ width: "100%" }}
@@ -559,7 +592,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.openAiNativeApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.openAiNativeApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("openAiNativeApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.openAiNativeApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.openAiNativeApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.openAiNativeApiKey || apiConfiguration?.openAiApiKeyEnvVar)) && (
 						<VSCodeButtonLink href="https://platform.openai.com/api-keys" appearance="secondary">
 							{t("settings:providers.getOpenAiApiKey")}
 						</VSCodeButtonLink>
@@ -580,7 +624,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.mistralApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.mistralApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("mistralApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.mistralApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.mistralApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.mistralApiKey || apiConfiguration?.mistralApiKeyEnvVar)) && (
 						<VSCodeButtonLink href="https://console.mistral.ai/" appearance="secondary">
 							{t("settings:providers.getMistralApiKey")}
 						</VSCodeButtonLink>
@@ -784,7 +839,18 @@ const ApiOptions = ({
 					<div className="text-sm text-vscode-descriptionForeground -mt-2">
 						{t("settings:providers.apiKeyStorageNotice")}
 					</div>
-					{!apiConfiguration?.geminiApiKey && (
+					<VSCodeTextField
+						value={apiConfiguration?.geminiApiKeyEnvVar || ""}
+						type="text"
+						onInput={handleInputChange("geminiApiKeyEnvVar")}
+						placeholder={t("settings:placeholders.geminiApiKeyEnvVar")}
+						className="w-full">
+						<label className="block font-medium mb-1">{t("settings:providers.geminiApiKeyEnvVar")}</label>
+					</VSCodeTextField>
+					<div className="text-sm text-vscode-descriptionForeground -mt-2">
+						{t("settings:providers.apiKeyEnvVarNotice")}
+					</div>
+					{(!(apiConfiguration?.geminiApiKey || apiConfiguration?.geminiApiKeyEnvVar)) && (
 						<VSCodeButtonLink href="https://ai.google.dev/" appearance="secondary">
 							{t("settings:providers.getGeminiApiKey")}
 						</VSCodeButtonLink>

@@ -16,6 +16,7 @@ import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
 import { XmlMatcher } from "../../utils/xml-matcher"
 import { DEFAULT_HEADERS, DEEP_SEEK_DEFAULT_TEMPERATURE } from "./constants"
+import { getEnvVar } from "./base-provider"
 
 export const AZURE_AI_INFERENCE_PATH = "/models/chat/completions"
 
@@ -30,7 +31,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		this.options = options
 
 		const baseURL = this.options.openAiBaseUrl ?? "https://api.openai.com/v1"
-		const apiKey = this.getEnvVar(this.options.openAiApiKeyEnvVar, this.options.openAiApiKey) ?? "not-provided"
+		const apiKey = getEnvVar(options.openAiApiKeyEnvVar, options.openAiApiKey) ?? "not-provided"
 		const isAzureAiInference = this._isAzureAiInference(this.options.openAiBaseUrl)
 		const urlHost = this._getUrlHost(this.options.openAiBaseUrl)
 		const isAzureOpenAi = urlHost === "azure.com" || urlHost.endsWith(".azure.com") || options.openAiUseAzure
