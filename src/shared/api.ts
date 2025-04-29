@@ -497,7 +497,8 @@ export const vertexModels = {
 		maxTokens: 65_535,
 		contextWindow: 1_048_576,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
+		isPromptCacheOptional: true,
 		inputPrice: 2.5,
 		outputPrice: 15,
 	},
@@ -521,7 +522,8 @@ export const vertexModels = {
 		maxTokens: 8192,
 		contextWindow: 1_048_576,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
+		isPromptCacheOptional: true,
 		inputPrice: 0.15,
 		outputPrice: 0.6,
 	},
@@ -545,7 +547,8 @@ export const vertexModels = {
 		maxTokens: 8192,
 		contextWindow: 1_048_576,
 		supportsImages: true,
-		supportsPromptCache: false,
+		supportsPromptCache: true,
+		isPromptCacheOptional: true,
 		inputPrice: 0.075,
 		outputPrice: 0.3,
 	},
@@ -1446,3 +1449,13 @@ export const COMPUTER_USE_MODELS = new Set([
 	"anthropic/claude-3.7-sonnet:beta",
 	"anthropic/claude-3.7-sonnet:thinking",
 ])
+
+const routerNames = ["openrouter", "requesty", "glama", "unbound"] as const
+
+export type RouterName = (typeof routerNames)[number]
+
+export const isRouterName = (value: string): value is RouterName => routerNames.includes(value as RouterName)
+
+export type ModelRecord = Record<string, ModelInfo>
+
+export type RouterModels = Record<RouterName, ModelRecord>
