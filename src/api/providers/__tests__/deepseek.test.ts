@@ -147,6 +147,29 @@ describe("DeepSeekHandler", () => {
 				}),
 			)
 		})
+
+		describe("deepseekApiKeyEnvVar", () => {
+			beforeEach(() => {
+				process.env["TEST_ENV_VAR"] = "api-key-from-env"
+				mockOptions = {
+					deepSeekApiKeyEnvVar: "TEST_ENV_VAR",
+					apiModelId: "deepseek-chat",
+					deepSeekBaseUrl: "https://api.deepseek.com",
+				}
+				handler = new DeepSeekHandler(mockOptions)
+				mockCreate.mockClear()
+			})
+
+			it("uses apiKey envvar for token if available", () => {
+				expect(handler).toBeInstanceOf(DeepSeekHandler)
+					// The custom base URL is passed to OpenAI client
+				expect(OpenAI).toHaveBeenCalledWith(
+					expect.objectContaining({
+						apiKey: "api-key-from-env"
+					}),
+				)
+			})
+		})
 	})
 
 	describe("getModel", () => {

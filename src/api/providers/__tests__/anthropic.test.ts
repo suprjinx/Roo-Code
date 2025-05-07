@@ -131,6 +131,29 @@ describe("AnthropicHandler", () => {
 			expect(mockAnthropicConstructor.mock.lastCall[0].authToken).toEqual("test-api-key")
 			expect(mockAnthropicConstructor.mock.lastCall[0].apiKey).toBeUndefined()
 		})
+
+		describe("apiKeyEnvVar", () => {
+			beforeEach(() => {
+				process.env["TEST_ENV_VAR"] = "api-key-from-env"
+				mockOptions = {
+					apiKeyEnvVar: "TEST_ENV_VAR",
+					apiModelId: "claude-3-5-sonnet-20241022",
+				}
+				handler = new AnthropicHandler(mockOptions)
+				mockCreate.mockClear()
+				mockAnthropicConstructor.mockClear()
+			})
+
+			it("uses apiKey envvar for token if available", () => {
+				const handlerWithCustomUrl = new AnthropicHandler({
+					...mockOptions,
+				})
+				expect(handlerWithCustomUrl).toBeInstanceOf(AnthropicHandler)
+				expect(mockAnthropicConstructor).toHaveBeenCalledTimes(1)
+				expect(mockAnthropicConstructor.mock.lastCall[0].apiKey).toEqual("api-key-from-env")
+				expect(mockAnthropicConstructor.mock.lastCall[0].authToken).toBeUndefined()
+			})
+		})
 	})
 
 	describe("createMessage", () => {
