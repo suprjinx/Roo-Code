@@ -4,14 +4,17 @@ import * as path from "path"
 import * as vscode from "vscode"
 import { isBinaryFile } from "isbinaryfile"
 
-import { openFile } from "../../integrations/misc/open-file"
-import { UrlContentFetcher } from "../../services/browser/UrlContentFetcher"
-import { mentionRegexGlobal } from "../../shared/context-mentions"
+import { mentionRegexGlobal, unescapeSpaces } from "../../shared/context-mentions"
 
-import { extractTextFromFile } from "../../integrations/misc/extract-text"
-import { diagnosticsToProblemsString } from "../../integrations/diagnostics"
 import { getCommitInfo, getWorkingState } from "../../utils/git"
 import { getWorkspacePath } from "../../utils/path"
+
+import { openFile } from "../../integrations/misc/open-file"
+import { extractTextFromFile } from "../../integrations/misc/extract-text"
+import { diagnosticsToProblemsString } from "../../integrations/diagnostics"
+
+import { UrlContentFetcher } from "../../services/browser/UrlContentFetcher"
+
 import { FileContextTracker } from "../context-tracking/FileContextTracker"
 
 export async function openMention(mention?: string): Promise<void> {
@@ -25,7 +28,8 @@ export async function openMention(mention?: string): Promise<void> {
 	}
 
 	if (mention.startsWith("/")) {
-		const relPath = mention.slice(1)
+		// Slice off the leading slash and unescape any spaces in the path
+		const relPath = unescapeSpaces(mention.slice(1))
 		const absPath = path.resolve(cwd, relPath)
 		if (mention.endsWith("/")) {
 			vscode.commands.executeCommand("revealInExplorer", vscode.Uri.file(absPath))
@@ -158,7 +162,9 @@ export async function parseMentions(
 }
 
 async function getFileOrFolderContent(mentionPath: string, cwd: string): Promise<string> {
-	const absPath = path.resolve(cwd, mentionPath)
+	// Unescape spaces in the path before resolving it
+	const unescapedPath = unescapeSpaces(mentionPath)
+	const absPath = path.resolve(cwd, unescapedPath)
 
 	try {
 		const stats = await fs.stat(absPath)
@@ -270,3 +276,6 @@ export async function getLatestTerminalOutput(): Promise<string> {
 		await vscode.env.clipboard.writeText(originalClipboard)
 	}
 }
+
+// Export processUserContentMentions from its own file
+export { processUserContentMentions } from "./processUserContentMentions"

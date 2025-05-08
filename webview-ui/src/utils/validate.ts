@@ -24,6 +24,11 @@ export function validateApiConfiguration(apiConfiguration: ApiConfiguration): st
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
+		case "litellm":
+			if (!apiConfiguration.litellmApiKey) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
 		case "anthropic":
 			if (!(apiConfiguration.apiKey || apiConfiguration.apiKeyEnvVar)) {
 				return i18next.t("settings:validation.apiKey")
@@ -136,6 +141,9 @@ export function validateModelId(apiConfiguration: ApiConfiguration, routerModels
 			break
 		case "requesty":
 			modelId = apiConfiguration.requestyModelId
+			break
+		case "litellm":
+			modelId = apiConfiguration.litellmModelId
 			break
 	}
 
