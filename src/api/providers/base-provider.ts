@@ -28,18 +28,3 @@ export abstract class BaseProvider implements ApiHandler {
 		return countTokens(content, { useWorker: true })
 	}
 }
-
-/**
- * Read an environment variable value, returning a default value if not set. If neither key nor default is set,
- * returns undefined
- * @param key The environment variable key
- * @param defaultValue The default value to return if the variable is not set
- * @returns The value of the environment variable or the default value
- */
-export function getEnvVar(key: string | undefined, defaultValue?: string | undefined): string | undefined {
-	if (key === undefined) {
-		return defaultValue
-	}
-	return process.env[key as string] ?? defaultValue
-}
-

@@ -6,7 +6,6 @@ import { calculateApiCostOpenAI } from "../../utils/cost"
 import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
 import { OpenAiHandler, OpenAiHandlerOptions } from "./openai"
 import { getModels } from "./fetchers/cache"
-import { getEnvVar } from "./base-provider"
 
 // Requesty usage includes an extra field for Anthropic use cases.
 // Safely cast the prompt token details section to the appropriate structure.
@@ -28,7 +27,7 @@ export class RequestyHandler extends OpenAiHandler {
 
 		super({
 			...options,
-			openAiApiKey: getEnvVar(options.requestyApiKeyEnvVar, options.requestyApiKey),
+			openAiApiKey: options.requestyApiKey,
 			openAiModelId: options.requestyModelId ?? requestyDefaultModelId,
 			openAiBaseUrl: "https://router.requesty.ai/v1",
 		})

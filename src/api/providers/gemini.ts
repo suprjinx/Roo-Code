@@ -19,7 +19,6 @@ import {
 } from "../transform/gemini-format"
 import type { ApiStream } from "../transform/stream"
 import { BaseProvider } from "./base-provider"
-import { getEnvVar } from "./base-provider"
 
 const CACHE_TTL = 5
 
@@ -48,7 +47,7 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 
 		const project = this.options.vertexProjectId ?? "not-provided"
 		const location = this.options.vertexRegion ?? "not-provided"
-		const apiKey = getEnvVar(options.geminiApiKeyEnvVar, options.geminiApiKey) ?? "not-provided"
+		const apiKey = this.options.geminiApiKey ?? "not-provided"
 
 		this.client = this.options.vertexJsonCredentials
 			? new GoogleGenAI({

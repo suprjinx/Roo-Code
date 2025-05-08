@@ -7,7 +7,6 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { addCacheControlDirectives } from "../transform/caching"
 import { SingleCompletionHandler } from "../index"
 import { RouterProvider } from "./router-provider"
-import { getEnvVar } from "./base-provider"
 
 const DEFAULT_HEADERS = {
 	"X-Unbound-Metadata": JSON.stringify({ labels: [{ key: "app", value: "roo-code" }] }),
@@ -24,7 +23,7 @@ export class UnboundHandler extends RouterProvider implements SingleCompletionHa
 			options,
 			name: "unbound",
 			baseURL: "https://api.getunbound.ai/v1",
-			apiKey: getEnvVar(options.unboundApiKeyEnvVar, options.unboundApiKey),
+			apiKey: options.unboundApiKey,
 			modelId: options.unboundModelId,
 			defaultModelId: unboundDefaultModelId,
 			defaultModelInfo: unboundDefaultModelInfo,

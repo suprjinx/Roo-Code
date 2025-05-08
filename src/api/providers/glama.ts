@@ -8,7 +8,6 @@ import { convertToOpenAiMessages } from "../transform/openai-format"
 import { addCacheControlDirectives } from "../transform/caching"
 import { SingleCompletionHandler } from "../index"
 import { RouterProvider } from "./router-provider"
-import { getEnvVar } from "./base-provider"
 
 const GLAMA_DEFAULT_TEMPERATURE = 0
 
@@ -22,7 +21,7 @@ export class GlamaHandler extends RouterProvider implements SingleCompletionHand
 			options,
 			name: "unbound",
 			baseURL: "https://glama.ai/api/gateway/openai/v1",
-			apiKey: getEnvVar(options.glamaApiKeyEnvVar, options.glamaApiKey),
+			apiKey: options.glamaApiKey,
 			modelId: options.glamaModelId,
 			defaultModelId: glamaDefaultModelId,
 			defaultModelInfo: glamaDefaultModelInfo,
