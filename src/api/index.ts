@@ -121,10 +121,13 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			options.xaiApiKey = getEnvVar(options.xaiApiKeyEnvVar, options.xaiApiKey)
 			return new XAIHandler(options)
 		case "groq":
+			options.groqApiKey = getEnvVar(options.groqApiKeyEnvVar, options.groqApiKey)
 			return new GroqHandler(options)
 		case "chutes":
+			options.chutesApiKey = getEnvVar(options.chutesApiKeyEnvVar, options.chutesApiKey)
 			return new ChutesHandler(options)
 		case "litellm":
+			options.litellmApiKey = getEnvVar(options.litellmApiKeyEnvVar, options.litellmApiKey)
 			return new LiteLLMHandler(options)
 		default:
 			options.apiKey = getEnvVar(options.apiKeyEnvVar, options.apiKey)
