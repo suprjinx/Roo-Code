@@ -439,11 +439,14 @@ export const providerSettingsSchema = z.object({
 	xaiApiKeyEnvVar: z.string().optional(),
 	// Groq
 	groqApiKey: z.string().optional(),
+	groqApiKeyEnvVar: z.string().optional(),
 	// Chutes AI
 	chutesApiKey: z.string().optional(),
+	chutesApiKeyEnvVar: z.string().optional(),
 	// LiteLLM
 	litellmBaseUrl: z.string().optional(),
 	litellmApiKey: z.string().optional(),
+	litellmApiKeyEnvVar: z.string().optional(),
 	litellmModelId: z.string().optional(),
 	// Claude 3.7 Sonnet Thinking
 	modelMaxTokens: z.number().optional(),
@@ -563,11 +566,14 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	xaiApiKeyEnvVar: undefined,
 	// Groq
 	groqApiKey: undefined,
+	groqApiKeyEnvVar: undefined,
 	// Chutes AI
 	chutesApiKey: undefined,
+	chutesApiKeyEnvVar: undefined,
 	// LiteLLM
 	litellmBaseUrl: undefined,
 	litellmApiKey: undefined,
+	litellmApiKeyEnvVar: undefined,
 	litellmModelId: undefined,
 }
 
