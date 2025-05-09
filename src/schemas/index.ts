@@ -369,6 +369,7 @@ const anthropicSchema = z.object({
 const glamaSchema = z.object({
 	glamaModelId: z.string().optional(),
 	glamaApiKey: z.string().optional(),
+	glamaApiKeyEnvVar: z.string().optional(),
 })
 
 const openRouterSchema = z.object({
