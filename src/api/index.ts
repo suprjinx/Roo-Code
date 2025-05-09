@@ -1,7 +1,7 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import { BetaThinkingConfigParam } from "@anthropic-ai/sdk/resources/beta/messages/index.mjs"
 
-import { ApiConfiguration, ModelInfo, ApiHandlerOptions } from "../shared/api"
+import { ProviderSettings, ModelInfo, ApiHandlerOptions } from "../shared/api"
 import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "./providers/constants"
 import { GlamaHandler } from "./providers/glama"
 import { AnthropicHandler } from "./providers/anthropic"
@@ -62,7 +62,7 @@ export function getEnvVar(key: string | undefined, defaultValue?: string | undef
 	return process.env[key as string] ?? defaultValue
 }
 
-export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
+export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 	const { apiProvider, ...options } = configuration
 
 	switch (apiProvider) {
