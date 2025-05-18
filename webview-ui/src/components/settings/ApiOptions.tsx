@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react"
+import { convertHeadersToObject } from "./utils/headers"
 import { useDebounce } from "react-use"
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 
@@ -47,11 +48,11 @@ import { ModelInfoView } from "./ModelInfoView"
 import { ApiErrorMessage } from "./ApiErrorMessage"
 import { ThinkingBudget } from "./ThinkingBudget"
 import { ReasoningEffort } from "./ReasoningEffort"
-import { PromptCachingControl } from "./PromptCachingControl"
 import { DiffSettingsControl } from "./DiffSettingsControl"
 import { TemperatureControl } from "./TemperatureControl"
 import { RateLimitSecondsControl } from "./RateLimitSecondsControl"
 import { BedrockCustomArn } from "./providers/BedrockCustomArn"
+import { buildDocLink } from "@src/utils/docLinks"
 
 export interface ApiOptionsProps {
 	uriScheme: string | undefined
@@ -86,25 +87,6 @@ const ApiOptions = ({
 	}, [apiConfiguration?.openAiHeaders, customHeaders])
 
 	// Helper to convert array of tuples to object (filtering out empty keys).
-	const convertHeadersToObject = (headers: [string, string][]): Record<string, string> => {
-		const result: Record<string, string> = {}
-
-		// Process each header tuple.
-		for (const [key, value] of headers) {
-			const trimmedKey = key.trim()
-
-			// Skip empty keys.
-			if (!trimmedKey) {
-				continue
-			}
-
-			// For duplicates, the last one in the array wins.
-			// This matches how HTTP headers work in general.
-			result[trimmedKey] = value.trim()
-		}
-
-		return result
-	}
 
 	// Debounced effect to update the main configuration when local
 	// customHeaders state stabilizes.
@@ -272,8 +254,9 @@ const ApiOptions = ({
 			openai: "openai-compatible",
 		}
 
+		const slug = slugs[selectedProvider] || selectedProvider
 		return {
-			url: `https://docs.roocode.com/providers/${slugs[selectedProvider] || selectedProvider}`,
+			url: buildDocLink(`providers/${slug}`, "provider_docs"),
 			name,
 		}
 	}, [selectedProvider])
@@ -482,13 +465,6 @@ const ApiOptions = ({
 
 			{REASONING_MODELS.has(selectedModelId) && (
 				<ReasoningEffort
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-				/>
-			)}
-
-			{selectedModelInfo && selectedModelInfo.supportsPromptCache && selectedModelInfo.isPromptCacheOptional && (
-				<PromptCachingControl
 					apiConfiguration={apiConfiguration}
 					setApiConfigurationField={setApiConfigurationField}
 				/>
