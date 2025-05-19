@@ -44,7 +44,7 @@ export const XAI = ({ apiConfiguration, setApiConfigurationField }: XAIProps) =>
 				value={apiConfiguration?.xaiApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("xaiApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.xaiApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.xaiApiKeyEnvVar")}</label>
 			</VSCodeTextField>

@@ -62,7 +62,7 @@ export const Requesty = ({
 				value={apiConfiguration?.requestyApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("requestyApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.requestyApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.requestyApiKeyEnvVar")}</label>
 			</VSCodeTextField>

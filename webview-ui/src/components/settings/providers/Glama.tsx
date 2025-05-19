@@ -48,7 +48,7 @@ export const Glama = ({ apiConfiguration, setApiConfigurationField, routerModels
 				value={apiConfiguration?.glamaApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("glamaApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.glamaApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.glamaApiKeyEnvVar")}</label>
 			</VSCodeTextField>

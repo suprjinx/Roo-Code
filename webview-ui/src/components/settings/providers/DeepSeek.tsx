@@ -44,7 +44,7 @@ export const DeepSeek = ({ apiConfiguration, setApiConfigurationField }: DeepSee
 				value={apiConfiguration?.deepSeekApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("deepSeekApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.deepSeekApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.deepSeekApiKeyEnvVar")}</label>
 			</VSCodeTextField>

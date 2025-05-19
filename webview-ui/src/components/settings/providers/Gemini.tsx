@@ -49,7 +49,7 @@ export const Gemini = ({ apiConfiguration, setApiConfigurationField }: GeminiPro
 				value={apiConfiguration?.geminiApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("geminiApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.geminiApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.geminiApiKeyEnvVar")}</label>
 			</VSCodeTextField>

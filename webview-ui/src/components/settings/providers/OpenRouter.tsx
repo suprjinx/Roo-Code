@@ -85,7 +85,7 @@ export const OpenRouter = ({
 				value={apiConfiguration?.openRouterApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("openRouterApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.openRouterApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.openRouterApiKeyEnvVar")}</label>
 			</VSCodeTextField>

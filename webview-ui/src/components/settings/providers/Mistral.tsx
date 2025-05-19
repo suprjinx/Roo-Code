@@ -45,7 +45,7 @@ export const Mistral = ({ apiConfiguration, setApiConfigurationField }: MistralP
 				value={apiConfiguration?.mistralApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("mistralApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.mistralApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.mistralApiKeyEnvVar")}</label>
 			</VSCodeTextField>

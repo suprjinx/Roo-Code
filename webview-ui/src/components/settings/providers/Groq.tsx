@@ -44,7 +44,7 @@ export const Groq = ({ apiConfiguration, setApiConfigurationField }: GroqProps) 
 				value={apiConfiguration?.groqApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("groqApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.groqApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.groqApiKeyEnvVar")}</label>
 			</VSCodeTextField>

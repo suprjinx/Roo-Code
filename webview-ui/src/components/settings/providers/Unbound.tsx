@@ -140,7 +140,7 @@ export const Unbound = ({ apiConfiguration, setApiConfigurationField, routerMode
 				value={apiConfiguration?.unboundApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("unboundApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.unboundApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.unboundApiKeyEnvVar")}</label>
 			</VSCodeTextField>

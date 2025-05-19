@@ -71,7 +71,7 @@ export const OpenAI = ({ apiConfiguration, setApiConfigurationField }: OpenAIPro
 				value={apiConfiguration?.openAiNativeApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("openAiNativeApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.openAiNativeApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.openAiNativeApiKeyEnvVar")}</label>
 			</VSCodeTextField>

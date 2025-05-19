@@ -54,7 +54,7 @@ export const LiteLLM = ({ apiConfiguration, setApiConfigurationField, routerMode
 				value={apiConfiguration?.litellmApiKeyEnvVar || ""}
 				type="text"
 				onInput={handleInputChange("litellmApiKeyEnvVar")}
-				placeholder={t("settings:placeholders.litellmApiKeyEnvVar")}
+				placeholder={t("settings:placeholders.apiKeyEnvVar")}
 				className="w-full">
 				<label className="block font-medium mb-1">{t("settings:providers.litellmApiKeyEnvVar")}</label>
 			</VSCodeTextField>
