@@ -70,6 +70,8 @@ type GlobalSettings = {
 	alwaysAllowSubtasks?: boolean | undefined
 	alwaysAllowExecute?: boolean | undefined
 	allowedCommands?: string[] | undefined
+	allowedMaxRequests?: number | undefined
+	autoCondenseContextPercent?: number | undefined
 	browserToolEnabled?: boolean | undefined
 	browserViewportSize?: string | undefined
 	screenshotQuality?: number | undefined
@@ -380,6 +382,7 @@ type ClineMessage = {
 				| "mistake_limit_reached"
 				| "browser_action_launch"
 				| "use_mcp_server"
+				| "auto_approval_max_req_reached"
 		  )
 		| undefined
 	say?:
@@ -405,6 +408,7 @@ type ClineMessage = {
 				| "checkpoint_saved"
 				| "rooignore_error"
 				| "diff_error"
+				| "condense_context"
 		  )
 		| undefined
 	text?: string | undefined
@@ -421,6 +425,14 @@ type ClineMessage = {
 		| {
 				icon?: string | undefined
 				text?: string | undefined
+		  }
+		| undefined
+	contextCondense?:
+		| {
+				cost: number
+				prevContextTokens: number
+				newContextTokens: number
+				summary: string
 		  }
 		| undefined
 }
@@ -455,6 +467,7 @@ type RooCodeEvents = {
 							| "mistake_limit_reached"
 							| "browser_action_launch"
 							| "use_mcp_server"
+							| "auto_approval_max_req_reached"
 					  )
 					| undefined
 				say?:
@@ -480,6 +493,7 @@ type RooCodeEvents = {
 							| "checkpoint_saved"
 							| "rooignore_error"
 							| "diff_error"
+							| "condense_context"
 					  )
 					| undefined
 				text?: string | undefined
@@ -496,6 +510,14 @@ type RooCodeEvents = {
 					| {
 							icon?: string | undefined
 							text?: string | undefined
+					  }
+					| undefined
+				contextCondense?:
+					| {
+							cost: number
+							prevContextTokens: number
+							newContextTokens: number
+							summary: string
 					  }
 					| undefined
 			}
@@ -783,6 +805,8 @@ type IpcMessage =
 								alwaysAllowSubtasks?: boolean | undefined
 								alwaysAllowExecute?: boolean | undefined
 								allowedCommands?: string[] | undefined
+								allowedMaxRequests?: number | undefined
+								autoCondenseContextPercent?: number | undefined
 								browserToolEnabled?: boolean | undefined
 								browserViewportSize?: string | undefined
 								screenshotQuality?: number | undefined
@@ -924,6 +948,7 @@ type IpcMessage =
 												| "mistake_limit_reached"
 												| "browser_action_launch"
 												| "use_mcp_server"
+												| "auto_approval_max_req_reached"
 										  )
 										| undefined
 									say?:
@@ -949,6 +974,7 @@ type IpcMessage =
 												| "checkpoint_saved"
 												| "rooignore_error"
 												| "diff_error"
+												| "condense_context"
 										  )
 										| undefined
 									text?: string | undefined
@@ -965,6 +991,14 @@ type IpcMessage =
 										| {
 												icon?: string | undefined
 												text?: string | undefined
+										  }
+										| undefined
+									contextCondense?:
+										| {
+												cost: number
+												prevContextTokens: number
+												newContextTokens: number
+												summary: string
 										  }
 										| undefined
 								}
@@ -1246,6 +1280,8 @@ type TaskCommand =
 					alwaysAllowSubtasks?: boolean | undefined
 					alwaysAllowExecute?: boolean | undefined
 					allowedCommands?: string[] | undefined
+					allowedMaxRequests?: number | undefined
+					autoCondenseContextPercent?: number | undefined
 					browserToolEnabled?: boolean | undefined
 					browserViewportSize?: string | undefined
 					screenshotQuality?: number | undefined
@@ -1383,6 +1419,7 @@ type TaskEvent =
 									| "mistake_limit_reached"
 									| "browser_action_launch"
 									| "use_mcp_server"
+									| "auto_approval_max_req_reached"
 							  )
 							| undefined
 						say?:
@@ -1408,6 +1445,7 @@ type TaskEvent =
 									| "checkpoint_saved"
 									| "rooignore_error"
 									| "diff_error"
+									| "condense_context"
 							  )
 							| undefined
 						text?: string | undefined
@@ -1424,6 +1462,14 @@ type TaskEvent =
 							| {
 									icon?: string | undefined
 									text?: string | undefined
+							  }
+							| undefined
+						contextCondense?:
+							| {
+									cost: number
+									prevContextTokens: number
+									newContextTokens: number
+									summary: string
 							  }
 							| undefined
 					}
@@ -1497,6 +1543,13 @@ type TaskEvent =
 			]
 	  }
 
+declare const Package: {
+	readonly publisher: string
+	readonly name: string
+	readonly version: string
+	readonly outputChannel: string
+	readonly sha: string | undefined
+}
 /**
  * ProviderName
  */
@@ -1709,6 +1762,7 @@ export {
 	IpcMessageType,
 	IpcOrigin,
 	type IpcServerEvents,
+	Package,
 	type ProviderName,
 	type ProviderSettings,
 	type ProviderSettingsEntry,

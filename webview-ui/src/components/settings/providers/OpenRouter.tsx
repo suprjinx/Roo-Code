@@ -127,7 +127,6 @@ export const OpenRouter = ({
 						<Trans
 							i18nKey="settings:providers.openRouterTransformsText"
 							components={{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
 								a: <a href="https://openrouter.ai/docs/transforms" />,
 							}}
 						/>
