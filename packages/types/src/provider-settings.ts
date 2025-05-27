@@ -73,6 +73,7 @@ const apiModelIdProviderModelSchema = baseProviderSettingsSchema.extend({
 
 const anthropicSchema = apiModelIdProviderModelSchema.extend({
 	apiKey: z.string().optional(),
+	anthropicApiKeyUseEnvVar: z.boolean().optional(),
 	anthropicBaseUrl: z.string().optional(),
 	anthropicUseAuthToken: z.boolean().optional(),
 })
@@ -262,6 +263,7 @@ export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
 	// Anthropic
 	"apiModelId",
 	"apiKey",
+	"anthropicApiKeyUseEnvVar",
 	"anthropicBaseUrl",
 	"anthropicUseAuthToken",
 	// Glama

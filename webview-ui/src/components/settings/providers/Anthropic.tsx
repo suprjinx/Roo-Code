@@ -18,6 +18,7 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 	const { t } = useAppTranslation()
 
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
+	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar)
 
 	const handleInputChange = useCallback(
 		<K extends keyof ProviderSettings, E>(
@@ -30,6 +31,11 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 		[setApiConfigurationField],
 	)
 
+	const handleUseApiKeyEnvVarChange = (checked: boolean) => {
+		setUseApiKeyEnvVar(checked)
+		setApiConfigurationField("anthropicApiKeyUseEnvVar", checked)
+	}
+
 	return (
 		<>
 			<VSCodeTextField
@@ -37,13 +43,21 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 				type="password"
 				onInput={handleInputChange("apiKey")}
 				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full">
+				className="w-full"
+				disabled={useApiKeyEnvVar}
+				>
 				<label className="block font-medium mb-1">{t("settings:providers.anthropicApiKey")}</label>
 			</VSCodeTextField>
 			<div className="text-sm text-vscode-descriptionForeground -mt-2">
 				{t("settings:providers.apiKeyStorageNotice")}
 			</div>
-			{!apiConfiguration?.apiKey && (
+			<Checkbox
+				checked={useApiKeyEnvVar}
+				onChange={handleUseApiKeyEnvVarChange}
+				className="mb-2">
+				{t("settings:providers.apiKeyUseEnvVar", { name: "ANTHROPIC_API_KEY"})}
+			</Checkbox>
+			{(!(apiConfiguration?.apiKey || apiConfiguration?.anthropicApiKeyUseEnvVar)) && (
 				<VSCodeButtonLink href="https://console.anthropic.com/settings/keys" appearance="secondary">
 					{t("settings:providers.getAnthropicApiKey")}
 				</VSCodeButtonLink>

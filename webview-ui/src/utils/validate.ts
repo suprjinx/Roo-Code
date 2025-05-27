@@ -32,7 +32,7 @@ export function validateApiConfiguration(apiConfiguration: ProviderSettings): st
 			}
 			break
 		case "anthropic":
-			if (!apiConfiguration.apiKey) {
+			if (!(apiConfiguration.apiKey || apiConfiguration.anthropicApiKeyUseEnvVar)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
