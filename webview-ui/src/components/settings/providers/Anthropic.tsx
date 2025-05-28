@@ -12,11 +12,13 @@ import { inputEventTransform, noTransform } from "../transforms"
 type AnthropicProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
+	env?: Record<string, string | undefined>
 }
 
-export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: AnthropicProps) => {
+export const Anthropic = ({ apiConfiguration, setApiConfigurationField, env = {}}: AnthropicProps) => {
 	const { t } = useAppTranslation()
-
+	
+	const apiKeyEnvVarExists = !!env["ANTHROPIC_API_KEY"]
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
 	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar)
 
@@ -36,11 +38,13 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 		setApiConfigurationField("anthropicApiKeyUseEnvVar", checked)
 	}
 
+	console.log("Environment from ApiOptions at Anthropic:", env)
+
 	return (
 		<>
 			<VSCodeTextField
-				value={apiConfiguration?.apiKey || ""}
-				type="password"
+				value={env["ANTHROPIC_API_KEY"]}
+				type="text"
 				onInput={handleInputChange("apiKey")}
 				placeholder={t("settings:placeholders.apiKey")}
 				className="w-full"
@@ -54,7 +58,8 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 			<Checkbox
 				checked={useApiKeyEnvVar}
 				onChange={handleUseApiKeyEnvVarChange}
-				className="mb-2">
+				className="mb-2"
+				disabled={!apiKeyEnvVarExists}>
 				{t("settings:providers.apiKeyUseEnvVar", { name: "ANTHROPIC_API_KEY"})}
 			</Checkbox>
 			{(!(apiConfiguration?.apiKey || apiConfiguration?.anthropicApiKeyUseEnvVar)) && (

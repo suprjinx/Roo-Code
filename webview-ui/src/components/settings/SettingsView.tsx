@@ -114,6 +114,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const confirmDialogHandler = useRef<() => void>()
 
 	const [cachedState, setCachedState] = useState(extensionState)
+	const [env, setEnv] = useState<Record<string, string | undefined>>({})
 
 	const {
 		alwaysAllowReadOnly,
@@ -407,6 +408,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			if (message.type === "action" && message.action === "didBecomeVisible") {
 				scrollToActiveTab()
 			}
+			if (message.type === "env") {
+				setEnv(message.env)
+			}
 		}
 
 		window.addEventListener("message", handleMessage)
@@ -551,6 +555,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 									setApiConfigurationField={setApiConfigurationField}
 									errorMessage={errorMessage}
 									setErrorMessage={setErrorMessage}
+									env={env}
 								/>
 							</Section>
 						</div>
