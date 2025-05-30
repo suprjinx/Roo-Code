@@ -329,10 +329,7 @@ const ApiOptions = ({
 			)}
 
 			{selectedProvider === "anthropic" && (
-				<Anthropic 
-					apiConfiguration={apiConfiguration} 
-					setApiConfigurationField={setApiConfigurationField} 
-					env={env} />
+				<Anthropic apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField}/>
 			)}
 
 			{selectedProvider === "openai-native" && (

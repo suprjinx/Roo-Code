@@ -395,12 +395,6 @@ export class ClineProvider
 		// and executes code based on the message that is recieved
 		this.setWebviewMessageListener(webviewView.webview)
 
-		// Send process.env to the webview
-		webviewView.webview.postMessage({
-			type: "env",
-			env: process.env,
-		});
-
 		// Subscribe to code index status updates if the manager exists
 		if (this.codeIndexManager) {
 			this.codeIndexStatusSubscription = this.codeIndexManager.onProgressUpdate((update: IndexProgressUpdate) => {
@@ -720,6 +714,7 @@ export class ClineProvider
 				window.IMAGES_BASE_URI = "${imagesUri}"
 				window.AUDIO_BASE_URI = "${audioUri}"
 				window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
+				window.PROCESS_ENV = ${JSON.stringify(process.env)}
 			</script>
             <title>Roo Code</title>
           </head>

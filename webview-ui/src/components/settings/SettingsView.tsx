@@ -408,9 +408,6 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			if (message.type === "action" && message.action === "didBecomeVisible") {
 				scrollToActiveTab()
 			}
-			if (message.type === "env") {
-				setEnv(message.env)
-			}
 		}
 
 		window.addEventListener("message", handleMessage)

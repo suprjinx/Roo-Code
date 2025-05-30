@@ -78,7 +78,9 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 
 	switch (apiProvider) {
 		case "anthropic":
-			options.apiKey = getEnvVar("ANTHROPIC_API_KEY", options.apiKey)
+			if (options.anthropicApiKeyUseEnvVar) {
+				options.apiKey = getEnvVar("ANTHROPIC_API_KEY", options.apiKey)
+			}
 			return new AnthropicHandler(options)
 		case "glama":
 			options.glamaApiKey = getEnvVar("GLAMA_API_KEY", options.glamaApiKey)
@@ -93,7 +95,9 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				? new AnthropicVertexHandler(options)
 				: new VertexHandler(options)
 		case "openai":
-			options.openAiApiKey = getEnvVar("OPEN_AI_API_KEY", options.openAiApiKey)
+			if (options.openAiApiKeyUseEnvVar) {
+				options.openAiApiKey = getEnvVar("OPEN_AI_API_KEY", options.openAiApiKey)
+			}
 			return new OpenAiHandler(options)
 		case "ollama":
 			return new OllamaHandler(options)

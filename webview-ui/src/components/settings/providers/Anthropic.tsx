@@ -12,15 +12,11 @@ import { inputEventTransform, noTransform } from "../transforms"
 type AnthropicProps = {
 	apiConfiguration: ProviderSettings
 	setApiConfigurationField: (field: keyof ProviderSettings, value: ProviderSettings[keyof ProviderSettings]) => void
-	env?: Record<string, string | undefined>
 }
 
-export const Anthropic = ({ apiConfiguration, setApiConfigurationField, env = {}}: AnthropicProps) => {
+export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: AnthropicProps) => {
 	const { t } = useAppTranslation()
-	
-	const apiKeyEnvVarExists = !!env["ANTHROPIC_API_KEY"]
 	const [anthropicBaseUrlSelected, setAnthropicBaseUrlSelected] = useState(!!apiConfiguration?.anthropicBaseUrl)
-	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar)
 
 	const handleInputChange = useCallback(
 		<K extends keyof ProviderSettings, E>(
@@ -33,23 +29,24 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField, env = {}
 		[setApiConfigurationField],
 	)
 
+	const env = (window as any).PROCESS_ENV || {}
+	const apiKeyEnvVarExists = !!env["ANTHROPIC_API_KEY"]
+	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar)
+
 	const handleUseApiKeyEnvVarChange = (checked: boolean) => {
 		setUseApiKeyEnvVar(checked)
 		setApiConfigurationField("anthropicApiKeyUseEnvVar", checked)
 	}
 
-	console.log("Environment from ApiOptions at Anthropic:", env)
-
 	return (
 		<>
 			<VSCodeTextField
-				value={env["ANTHROPIC_API_KEY"]}
-				type="text"
+				value={apiConfiguration?.apiKey || ""}
+				type="password"
 				onInput={handleInputChange("apiKey")}
 				placeholder={t("settings:placeholders.apiKey")}
 				className="w-full"
-				disabled={useApiKeyEnvVar}
-				>
+				disabled={useApiKeyEnvVar}>
 				<label className="block font-medium mb-1">{t("settings:providers.anthropicApiKey")}</label>
 			</VSCodeTextField>
 			<div className="text-sm text-vscode-descriptionForeground -mt-2">
