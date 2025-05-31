@@ -31,7 +31,7 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 
 	const env = (window as any).PROCESS_ENV || {}
 	const apiKeyEnvVarExists = !!env["ANTHROPIC_API_KEY"]
-	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar)
+	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar && apiKeyEnvVarExists)
 
 	const handleUseApiKeyEnvVarChange = (checked: boolean) => {
 		setUseApiKeyEnvVar(checked)
