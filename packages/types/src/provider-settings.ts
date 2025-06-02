@@ -113,6 +113,7 @@ const vertexSchema = apiModelIdProviderModelSchema.extend({
 const openAiSchema = baseProviderSettingsSchema.extend({
 	openAiBaseUrl: z.string().optional(),
 	openAiApiKey: z.string().optional(),
+	openAiApiKeyUseEnvVar: z.boolean().optional(),
 	openAiLegacyFormat: z.boolean().optional(),
 	openAiR1FormatEnabled: z.boolean().optional(),
 	openAiModelId: z.string().optional(),
@@ -293,6 +294,7 @@ export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
 	// OpenAI
 	"openAiBaseUrl",
 	"openAiApiKey",
+	"openAiApiKeyUseEnvVar",
 	"openAiLegacyFormat",
 	"openAiR1FormatEnabled",
 	"openAiModelId",

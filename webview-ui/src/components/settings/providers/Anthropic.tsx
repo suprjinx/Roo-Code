@@ -8,6 +8,7 @@ import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform, noTransform } from "../transforms"
+import { ApiKey } from "../ApiKey"
 
 type AnthropicProps = {
 	apiConfiguration: ProviderSettings
@@ -29,41 +30,18 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 		[setApiConfigurationField],
 	)
 
-	const env = (window as any).PROCESS_ENV || {}
-	const apiKeyEnvVarExists = !!env["ANTHROPIC_API_KEY"]
-	const [useApiKeyEnvVar, setUseApiKeyEnvVar] = useState(!!apiConfiguration?.anthropicApiKeyUseEnvVar && apiKeyEnvVarExists)
-
-	const handleUseApiKeyEnvVarChange = (checked: boolean) => {
-		setUseApiKeyEnvVar(checked)
-		setApiConfigurationField("anthropicApiKeyUseEnvVar", checked)
-	}
-
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.apiKey || ""}
-				type="password"
-				onInput={handleInputChange("apiKey")}
-				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full"
-				disabled={useApiKeyEnvVar}>
-				<label className="block font-medium mb-1">{t("settings:providers.anthropicApiKey")}</label>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-			<Checkbox
-				checked={useApiKeyEnvVar}
-				onChange={handleUseApiKeyEnvVarChange}
-				className="mb-2"
-				disabled={!apiKeyEnvVarExists}>
-				{t("settings:providers.apiKeyUseEnvVar", { name: "ANTHROPIC_API_KEY"})}
-			</Checkbox>
-			{(!(apiConfiguration?.apiKey || apiConfiguration?.anthropicApiKeyUseEnvVar)) && (
-				<VSCodeButtonLink href="https://console.anthropic.com/settings/keys" appearance="secondary">
-					{t("settings:providers.getAnthropicApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.apiKey || ""}
+				apiKeyEnvVar="ANTHROPIC_API_KEY"
+				apiKeyUseEnvVar={!!apiConfiguration?.anthropicApiKeyUseEnvVar}
+				setApiKey={(value: string) => setApiConfigurationField("apiKey", value)}
+				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("anthropicApiKeyUseEnvVar", value)}
+				apiKeyLabel={t("settings:providers.anthropicApiKey")}
+				getApiKeyUrl="https://console.anthropic.com/settings/keys"
+				getApiKeyLabel={t("settings:providers.getAnthropicApiKey")}
+			/>
 			<div>
 				<Checkbox
 					checked={anthropicBaseUrlSelected}
