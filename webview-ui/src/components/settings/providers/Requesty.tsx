@@ -13,6 +13,7 @@ import { Button } from "@src/components/ui"
 import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { RequestyBalanceDisplay } from "./RequestyBalanceDisplay"
+import { ApiKey } from "../ApiKey"
 
 type RequestyProps = {
 	apiConfiguration: ProviderSettings
@@ -44,30 +45,16 @@ export const Requesty = ({
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.requestyApiKey || ""}
-				type="password"
-				onInput={handleInputChange("requestyApiKey")}
-				placeholder={t("settings:providers.getRequestyApiKey")}
-				className="w-full">
-				<div className="flex justify-between items-center mb-1">
-					<label className="block font-medium">{t("settings:providers.requestyApiKey")}</label>
-					{apiConfiguration?.requestyApiKey && (
-						<RequestyBalanceDisplay apiKey={apiConfiguration.requestyApiKey} />
-					)}
-				</div>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-			{!apiConfiguration?.requestyApiKey && (
-				<VSCodeButtonLink
-					href="https://app.requesty.ai/api-keys"
-					style={{ width: "100%" }}
-					appearance="primary">
-					{t("settings:providers.getRequestyApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.requestyApiKey || ""}
+				apiKeyEnvVar="REQUESTY_API_KEY"
+				apiKeyUseEnvVar={!!apiConfiguration?.requestyApiKeyUseEnvVar}
+				setApiKey={(value: string) => setApiConfigurationField("requestyApiKey", value)}
+				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("requestyApiKeyUseEnvVar", value)}
+				apiKeyLabel={t("settings:providers.requestyApiKey")}
+				getApiKeyUrl="https://app.requesty.ai/api-keys"
+				getApiKeyLabel={t("settings:providers.getRequestyApiKey")}
+			/>
 			<Button
 				variant="outline"
 				onClick={() => {

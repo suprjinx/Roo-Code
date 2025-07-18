@@ -7,6 +7,7 @@ import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
+import { ApiKey } from "../ApiKey"
 
 type XAIProps = {
 	apiConfiguration: ProviderSettings
@@ -29,22 +30,16 @@ export const XAI = ({ apiConfiguration, setApiConfigurationField }: XAIProps) =>
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.xaiApiKey || ""}
-				type="password"
-				onInput={handleInputChange("xaiApiKey")}
-				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.xaiApiKey")}</label>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-			{!apiConfiguration?.xaiApiKey && (
-				<VSCodeButtonLink href="https://api.x.ai/docs" appearance="secondary">
-					{t("settings:providers.getXaiApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.xaiApiKey || ""}
+				apiKeyEnvVar="XAI_API_KEY"
+				apiKeyUseEnvVar={!!apiConfiguration?.xaiApiKeyUseEnvVar}
+				setApiKey={(value: string) => setApiConfigurationField("xaiApiKey", value)}
+				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("xaiApiKeyUseEnvVar", value)}
+				apiKeyLabel={t("settings:providers.xaiApiKey")}
+				getApiKeyUrl="https://api.x.ai/docs"
+				getApiKeyLabel={t("settings:providers.getXaiApiKey")}
+			/>
 		</>
 	)
 }

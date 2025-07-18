@@ -81,10 +81,12 @@ const anthropicSchema = apiModelIdProviderModelSchema.extend({
 const glamaSchema = baseProviderSettingsSchema.extend({
 	glamaModelId: z.string().optional(),
 	glamaApiKey: z.string().optional(),
+	glamaApiKeyUseEnvVar: z.boolean().optional(),
 })
 
 const openRouterSchema = baseProviderSettingsSchema.extend({
 	openRouterApiKey: z.string().optional(),
+	openRouterApiKeyUseEnvVar: z.boolean().optional(),
 	openRouterModelId: z.string().optional(),
 	openRouterBaseUrl: z.string().optional(),
 	openRouterSpecificProvider: z.string().optional(),
@@ -150,31 +152,37 @@ const lmStudioSchema = baseProviderSettingsSchema.extend({
 
 const geminiSchema = apiModelIdProviderModelSchema.extend({
 	geminiApiKey: z.string().optional(),
+	geminiApiKeyUseEnvVar: z.boolean().optional(),
 	googleGeminiBaseUrl: z.string().optional(),
 })
 
 const openAiNativeSchema = apiModelIdProviderModelSchema.extend({
 	openAiNativeApiKey: z.string().optional(),
+	openAiNativeApiKeyUseEnvVar: z.boolean().optional(),
 	openAiNativeBaseUrl: z.string().optional(),
 })
 
 const mistralSchema = apiModelIdProviderModelSchema.extend({
 	mistralApiKey: z.string().optional(),
+	mistralApiKeyUseEnvVar: z.boolean().optional(),
 	mistralCodestralUrl: z.string().optional(),
 })
 
 const deepSeekSchema = apiModelIdProviderModelSchema.extend({
 	deepSeekBaseUrl: z.string().optional(),
 	deepSeekApiKey: z.string().optional(),
+	deepSeekApiKeyUseEnvVar: z.boolean().optional(),
 })
 
 const unboundSchema = baseProviderSettingsSchema.extend({
 	unboundApiKey: z.string().optional(),
+	unboundApiKeyUseEnvVar: z.boolean().optional(),
 	unboundModelId: z.string().optional(),
 })
 
 const requestySchema = baseProviderSettingsSchema.extend({
 	requestyApiKey: z.string().optional(),
+	requestyApiKeyUseEnvVar: z.boolean().optional(),
 	requestyModelId: z.string().optional(),
 })
 
@@ -186,19 +194,23 @@ const fakeAiSchema = baseProviderSettingsSchema.extend({
 
 const xaiSchema = apiModelIdProviderModelSchema.extend({
 	xaiApiKey: z.string().optional(),
+	xaiApiKeyUseEnvVar: z.boolean().optional(),
 })
 
 const groqSchema = apiModelIdProviderModelSchema.extend({
 	groqApiKey: z.string().optional(),
+	groqApiKeyUseEnvVar: z.boolean().optional(),
 })
 
 const chutesSchema = apiModelIdProviderModelSchema.extend({
 	chutesApiKey: z.string().optional(),
+	chutesApiKeyUseEnvVar: z.boolean().optional(),
 })
 
 const litellmSchema = baseProviderSettingsSchema.extend({
 	litellmBaseUrl: z.string().optional(),
 	litellmApiKey: z.string().optional(),
+	litellmApiKeyUseEnvVar: z.boolean().optional(),
 	litellmModelId: z.string().optional(),
 })
 
@@ -270,8 +282,10 @@ export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
 	// Glama
 	"glamaModelId",
 	"glamaApiKey",
+	"glamaApiKeyUseEnvVar",
 	// OpenRouter
 	"openRouterApiKey",
+	"openRouterApiKeyUseEnvVar",
 	"openRouterModelId",
 	"openRouterBaseUrl",
 	"openRouterSpecificProvider",
@@ -315,21 +329,27 @@ export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
 	"lmStudioSpeculativeDecodingEnabled",
 	// Gemini
 	"geminiApiKey",
+	"geminiApiKeyUseEnvVar",
 	"googleGeminiBaseUrl",
 	// OpenAI Native
 	"openAiNativeApiKey",
+	"openAiNativeApiKeyUseEnvVar",
 	"openAiNativeBaseUrl",
 	// Mistral
 	"mistralApiKey",
+	"mistralApiKeyUseEnvVar",
 	"mistralCodestralUrl",
 	// DeepSeek
 	"deepSeekBaseUrl",
 	"deepSeekApiKey",
+	"deepSeekApiKeyUseEnvVar",
 	// Unbound
 	"unboundApiKey",
+	"unboundApiKeyUseEnvVar",
 	"unboundModelId",
 	// Requesty
 	"requestyApiKey",
+	"requestyApiKeyUseEnvVar",
 	"requestyModelId",
 	// Code Index
 	"codeIndexOpenAiKey",
@@ -349,12 +369,16 @@ export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
 	"fakeAi",
 	// X.AI (Grok)
 	"xaiApiKey",
+	"xaiApiKeyUseEnvVar",
 	// Groq
 	"groqApiKey",
+	"groqApiKeyUseEnvVar",
 	// Chutes AI
 	"chutesApiKey",
+	"chutesApiKeyUseEnvVar",
 	// LiteLLM
 	"litellmBaseUrl",
 	"litellmApiKey",
+	"litellmApiKeyUseEnvVar",
 	"litellmModelId",
 ])

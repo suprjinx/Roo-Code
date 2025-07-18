@@ -7,6 +7,7 @@ import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
+import { ApiKey } from "../ApiKey"
 
 type DeepSeekProps = {
 	apiConfiguration: ProviderSettings
@@ -29,22 +30,16 @@ export const DeepSeek = ({ apiConfiguration, setApiConfigurationField }: DeepSee
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.deepSeekApiKey || ""}
-				type="password"
-				onInput={handleInputChange("deepSeekApiKey")}
-				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.deepSeekApiKey")}</label>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-			{!apiConfiguration?.deepSeekApiKey && (
-				<VSCodeButtonLink href="https://platform.deepseek.com/" appearance="secondary">
-					{t("settings:providers.getDeepSeekApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.deepSeekApiKey || ""}
+				apiKeyEnvVar="DEEP_SEEK_API_KEY"
+				apiKeyUseEnvVar={!!apiConfiguration?.deepSeekApiKeyUseEnvVar}
+				setApiKey={(value: string) => setApiConfigurationField("deepSeekApiKey", value)}
+				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("deepSeekApiKeyUseEnvVar", value)}
+				apiKeyLabel={t("settings:providers.deepSeekApiKey")}
+				getApiKeyUrl="https://platform.deepseek.com/"
+				getApiKeyLabel={t("settings:providers.getDeepSeekApiKey")}
+			/>
 		</>
 	)
 }
