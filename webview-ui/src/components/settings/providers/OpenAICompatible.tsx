@@ -134,7 +134,7 @@ export const OpenAICompatible = ({
 				apiKey={apiConfiguration?.openAiApiKey || ""}
 				apiKeyEnvVar="OPEN_AI_API_KEY"
 				apiKeyUseEnvVar={!!apiConfiguration?.openAiApiKeyUseEnvVar}
-				setApiKey={(value: string) => handleInputChange("openAiApiKey")}
+				setApiKey={(value: string) => setApiConfigurationField("openAiApiKey", value)}
 				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("openAiApiKeyUseEnvVar", value)}
 				apiKeyLabel={t("settings:providers.openAiApiKey")}
 			/>

@@ -173,5 +173,6 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new LiteLLMHandler(options)
 		default:
 			apiProvider satisfies "gemini-cli" | undefined
+			return new AnthropicHandler(options)
 	}
 }
