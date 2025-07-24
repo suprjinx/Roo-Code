@@ -3,12 +3,17 @@ import path from "path"
 
 export default defineConfig({
 	test: {
-		include: ["**/__tests__/**/*.spec.ts"],
 		globals: true,
+		setupFiles: ["./vitest.setup.ts"],
+		watch: false,
+		reporters: ["dot"],
+		silent: true,
+		testTimeout: 20_000,
+		hookTimeout: 20_000,
 	},
 	resolve: {
 		alias: {
-			"@roo-code/types": path.resolve(__dirname, "..", "packages", "types", "src", "index.ts"),
+			vscode: path.resolve(__dirname, "./__mocks__/vscode.js"),
 		},
 	},
 })

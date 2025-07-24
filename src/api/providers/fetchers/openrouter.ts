@@ -1,15 +1,16 @@
 import axios from "axios"
 import { z } from "zod"
 
-import { type ModelInfo, isModelParameter } from "@roo-code/types"
-
 import {
-	ApiHandlerOptions,
+	type ModelInfo,
+	isModelParameter,
 	OPEN_ROUTER_COMPUTER_USE_MODELS,
 	OPEN_ROUTER_REASONING_BUDGET_MODELS,
 	OPEN_ROUTER_REQUIRED_REASONING_BUDGET_MODELS,
 	anthropicModels,
-} from "../../../shared/api"
+} from "@roo-code/types"
+
+import type { ApiHandlerOptions } from "../../../shared/api"
 import { parseApiPrice } from "../../../shared/cost"
 
 /**
@@ -189,10 +190,8 @@ export const parseOpenRouterModel = ({
 
 	const supportsPromptCache = typeof cacheWritesPrice !== "undefined" && typeof cacheReadsPrice !== "undefined"
 
-	const useMaxTokens = OPEN_ROUTER_REASONING_BUDGET_MODELS.has(id) || id.startsWith("anthropic/")
-
 	const modelInfo: ModelInfo = {
-		maxTokens: useMaxTokens ? maxTokens || 0 : 0,
+		maxTokens: maxTokens || Math.ceil(model.context_length * 0.2),
 		contextWindow: model.context_length,
 		supportsImages: modality?.includes("image") ?? false,
 		supportsPromptCache,

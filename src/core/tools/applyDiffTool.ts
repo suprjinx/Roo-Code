@@ -1,18 +1,19 @@
 import path from "path"
 import fs from "fs/promises"
 
+import { TelemetryService } from "@roo-code/telemetry"
+import { DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
+
 import { ClineSayTool } from "../../shared/ExtensionMessage"
 import { getReadablePath } from "../../utils/path"
 import { Task } from "../task/Task"
 import { ToolUse, RemoveClosingTag, AskApproval, HandleError, PushToolResult } from "../../shared/tools"
 import { formatResponse } from "../prompts/responses"
 import { fileExistsAtPath } from "../../utils/fs"
-import { addLineNumbers } from "../../integrations/misc/extract-text"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
-import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { unescapeHtmlEntities } from "../../utils/text-normalization"
 
-export async function applyDiffTool(
+export async function applyDiffToolLegacy(
 	cline: Task,
 	block: ToolUse,
 	askApproval: AskApproval,
@@ -86,7 +87,7 @@ export async function applyDiffTool(
 				return
 			}
 
-			const originalContent = await fs.readFile(absolutePath, "utf-8")
+			let originalContent: string | null = await fs.readFile(absolutePath, "utf-8")
 
 			// Apply the diff to the original content
 			const diffResult = (await cline.diffStrategy?.applyDiff(
@@ -98,12 +99,15 @@ export async function applyDiffTool(
 				error: "No diff strategy available",
 			}
 
+			// Release the original content from memory as it's no longer needed
+			originalContent = null
+
 			if (!diffResult.success) {
 				cline.consecutiveMistakeCount++
 				const currentCount = (cline.consecutiveMistakeCountForApplyDiff.get(relPath) || 0) + 1
 				cline.consecutiveMistakeCountForApplyDiff.set(relPath, currentCount)
 				let formattedError = ""
-				telemetryService.captureDiffApplicationError(cline.taskId, currentCount)
+				TelemetryService.instance.captureDiffApplicationError(cline.taskId, currentCount)
 
 				if (diffResult.failParts && diffResult.failParts.length > 0) {
 					for (const failPart of diffResult.failParts) {
@@ -142,11 +146,15 @@ export async function applyDiffTool(
 			cline.diffViewProvider.editType = "modify"
 			await cline.diffViewProvider.open(relPath)
 			await cline.diffViewProvider.update(diffResult.content, true)
-			await cline.diffViewProvider.scrollToFirstDiff()
+			cline.diffViewProvider.scrollToFirstDiff()
+
+			// Check if file is write-protected
+			const isWriteProtected = cline.rooProtectedController?.isWriteProtected(relPath) || false
 
 			const completeMessage = JSON.stringify({
 				...sharedMessageProps,
 				diff: diffContent,
+				isProtected: isWriteProtected,
 			} satisfies ClineSayTool)
 
 			let toolProgressStatus
@@ -155,14 +163,19 @@ export async function applyDiffTool(
 				toolProgressStatus = cline.diffStrategy.getProgressStatus(block, diffResult)
 			}
 
-			const didApprove = await askApproval("tool", completeMessage, toolProgressStatus)
+			const didApprove = await askApproval("tool", completeMessage, toolProgressStatus, isWriteProtected)
 
 			if (!didApprove) {
 				await cline.diffViewProvider.revertChanges() // Cline likely handles closing the diff view
 				return
 			}
 
-			const { newProblemsMessage, userEdits, finalContent } = await cline.diffViewProvider.saveChanges()
+			// Call saveChanges to update the DiffViewProvider properties
+			const provider = cline.providerRef.deref()
+			const state = await provider?.getState()
+			const diagnosticsEnabled = state?.diagnosticsEnabled ?? true
+			const writeDelayMs = state?.writeDelayMs ?? DEFAULT_WRITE_DELAY_MS
+			await cline.diffViewProvider.saveChanges(diagnosticsEnabled, writeDelayMs)
 
 			// Track file edit operation
 			if (relPath) {
@@ -177,33 +190,13 @@ export async function applyDiffTool(
 				partFailHint = `But unable to apply all diff parts to file: ${absolutePath}, silently use <read_file> tool to check newest file version and re-apply diffs\n`
 			}
 
-			if (userEdits) {
-				await cline.say(
-					"user_feedback_diff",
-					JSON.stringify({
-						tool: fileExists ? "editedExistingFile" : "newFileCreated",
-						path: getReadablePath(cline.cwd, relPath),
-						diff: userEdits,
-					} satisfies ClineSayTool),
-				)
+			// Get the formatted response message
+			const message = await cline.diffViewProvider.pushToolWriteResult(cline, cline.cwd, !fileExists)
 
-				pushToolResult(
-					`The user made the following updates to your content:\n\n${userEdits}\n\n` +
-						partFailHint +
-						`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file, including line numbers:\n\n` +
-						`<final_file_content path="${relPath.toPosix()}">\n${addLineNumbers(
-							finalContent || "",
-						)}\n</final_file_content>\n\n` +
-						`Please note:\n` +
-						`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
-						`2. Proceed with the task using this updated file content as the new baseline.\n` +
-						`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
-						`${newProblemsMessage}`,
-				)
+			if (partFailHint) {
+				pushToolResult(partFailHint + message)
 			} else {
-				pushToolResult(
-					`Changes successfully applied to ${relPath.toPosix()}:\n\n${newProblemsMessage}\n` + partFailHint,
-				)
+				pushToolResult(message)
 			}
 
 			await cline.diffViewProvider.reset()

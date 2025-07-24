@@ -5,6 +5,14 @@ import { toolNamesSchema, toolUsageSchema } from "./tool.js"
 import { rooCodeSettingsSchema } from "./global-settings.js"
 
 /**
+ * isSubtaskSchema
+ */
+export const isSubtaskSchema = z.object({
+	isSubtask: z.boolean(),
+})
+export type IsSubtask = z.infer<typeof isSubtaskSchema>
+
+/**
  * RooCodeEvent
  */
 
@@ -21,6 +29,8 @@ export enum RooCodeEventName {
 	TaskCompleted = "taskCompleted",
 	TaskTokenUsageUpdated = "taskTokenUsageUpdated",
 	TaskToolFailed = "taskToolFailed",
+	EvalPass = "evalPass",
+	EvalFail = "evalFail",
 }
 
 export const rooCodeEventsSchema = z.object({
@@ -39,7 +49,7 @@ export const rooCodeEventsSchema = z.object({
 	[RooCodeEventName.TaskAskResponded]: z.tuple([z.string()]),
 	[RooCodeEventName.TaskAborted]: z.tuple([z.string()]),
 	[RooCodeEventName.TaskSpawned]: z.tuple([z.string(), z.string()]),
-	[RooCodeEventName.TaskCompleted]: z.tuple([z.string(), tokenUsageSchema, toolUsageSchema]),
+	[RooCodeEventName.TaskCompleted]: z.tuple([z.string(), tokenUsageSchema, toolUsageSchema, isSubtaskSchema]),
 	[RooCodeEventName.TaskTokenUsageUpdated]: z.tuple([z.string(), tokenUsageSchema]),
 	[RooCodeEventName.TaskToolFailed]: z.tuple([z.string(), toolNamesSchema, z.string()]),
 })
@@ -98,46 +108,72 @@ export const taskEventSchema = z.discriminatedUnion("eventName", [
 	z.object({
 		eventName: z.literal(RooCodeEventName.Message),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.Message],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskCreated),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskCreated],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskStarted),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskStarted],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskModeSwitched),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskModeSwitched],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskPaused),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskPaused],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskUnpaused),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskUnpaused],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskAskResponded),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskAskResponded],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskAborted),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskAborted],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskSpawned),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskSpawned],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskCompleted),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskCompleted],
+		taskId: z.number().optional(),
 	}),
 	z.object({
 		eventName: z.literal(RooCodeEventName.TaskTokenUsageUpdated),
 		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskTokenUsageUpdated],
+		taskId: z.number().optional(),
+	}),
+	z.object({
+		eventName: z.literal(RooCodeEventName.TaskToolFailed),
+		payload: rooCodeEventsSchema.shape[RooCodeEventName.TaskToolFailed],
+		taskId: z.number().optional(),
+	}),
+	z.object({
+		eventName: z.literal(RooCodeEventName.EvalPass),
+		payload: z.undefined(),
+		taskId: z.number(),
+	}),
+	z.object({
+		eventName: z.literal(RooCodeEventName.EvalFail),
+		payload: z.undefined(),
+		taskId: z.number(),
 	}),
 ])
 
@@ -181,3 +217,26 @@ export const ipcMessageSchema = z.discriminatedUnion("type", [
 ])
 
 export type IpcMessage = z.infer<typeof ipcMessageSchema>
+
+/**
+ * Client
+ */
+
+export type IpcClientEvents = {
+	[IpcMessageType.Connect]: []
+	[IpcMessageType.Disconnect]: []
+	[IpcMessageType.Ack]: [data: Ack]
+	[IpcMessageType.TaskCommand]: [data: TaskCommand]
+	[IpcMessageType.TaskEvent]: [data: TaskEvent]
+}
+
+/**
+ * Server
+ */
+
+export type IpcServerEvents = {
+	[IpcMessageType.Connect]: [clientId: string]
+	[IpcMessageType.Disconnect]: [clientId: string]
+	[IpcMessageType.TaskCommand]: [clientId: string, data: TaskCommand]
+	[IpcMessageType.TaskEvent]: [relayClientId: string | undefined, data: TaskEvent]
+}

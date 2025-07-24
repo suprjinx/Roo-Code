@@ -4,18 +4,19 @@ import * as path from "path"
 import { getWorkspacePath } from "../../../utils/path"
 import { IVectorStore } from "../interfaces/vector-store"
 import { Payload, VectorStoreSearchResult } from "../interfaces"
-import { MAX_SEARCH_RESULTS, SEARCH_MIN_SCORE } from "../constants"
+import { DEFAULT_MAX_SEARCH_RESULTS, DEFAULT_SEARCH_MIN_SCORE } from "../constants"
+import { t } from "../../../i18n"
 
 /**
  * Qdrant implementation of the vector store interface
  */
 export class QdrantVectorStore implements IVectorStore {
-	private readonly QDRANT_URL = "http://localhost:6333"
 	private readonly vectorSize!: number
 	private readonly DISTANCE_METRIC = "Cosine"
 
 	private client: QdrantClient
 	private readonly collectionName: string
+	private readonly qdrantUrl: string = "http://localhost:6333"
 
 	/**
 	 * Creates a new Qdrant vector store
@@ -23,18 +24,105 @@ export class QdrantVectorStore implements IVectorStore {
 	 * @param url Optional URL to the Qdrant server
 	 */
 	constructor(workspacePath: string, url: string, vectorSize: number, apiKey?: string) {
-		this.client = new QdrantClient({
-			url: url ?? this.QDRANT_URL,
-			apiKey,
-			headers: {
-				"User-Agent": "Roo-Code",
-			},
-		})
+		// Parse the URL to determine the appropriate QdrantClient configuration
+		const parsedUrl = this.parseQdrantUrl(url)
+
+		// Store the resolved URL for our property
+		this.qdrantUrl = parsedUrl
+
+		try {
+			const urlObj = new URL(parsedUrl)
+
+			// Always use host-based configuration with explicit ports to avoid QdrantClient defaults
+			let port: number
+			let useHttps: boolean
+
+			if (urlObj.port) {
+				// Explicit port specified - use it and determine protocol
+				port = Number(urlObj.port)
+				useHttps = urlObj.protocol === "https:"
+			} else {
+				// No explicit port - use protocol defaults
+				if (urlObj.protocol === "https:") {
+					port = 443
+					useHttps = true
+				} else {
+					// http: or other protocols default to port 80
+					port = 80
+					useHttps = false
+				}
+			}
+
+			this.client = new QdrantClient({
+				host: urlObj.hostname,
+				https: useHttps,
+				port: port,
+				prefix: urlObj.pathname === "/" ? undefined : urlObj.pathname.replace(/\/+$/, ""),
+				apiKey,
+				headers: {
+					"User-Agent": "Roo-Code",
+				},
+			})
+		} catch (urlError) {
+			// If URL parsing fails, fall back to URL-based config
+			// Note: This fallback won't correctly handle prefixes, but it's a last resort for malformed URLs.
+			this.client = new QdrantClient({
+				url: parsedUrl,
+				apiKey,
+				headers: {
+					"User-Agent": "Roo-Code",
+				},
+			})
+		}
 
 		// Generate collection name from workspace path
 		const hash = createHash("sha256").update(workspacePath).digest("hex")
 		this.vectorSize = vectorSize
 		this.collectionName = `ws-${hash.substring(0, 16)}`
+	}
+
+	/**
+	 * Parses and normalizes Qdrant server URLs to handle various input formats
+	 * @param url Raw URL input from user
+	 * @returns Properly formatted URL for QdrantClient
+	 */
+	private parseQdrantUrl(url: string | undefined): string {
+		// Handle undefined/null/empty cases
+		if (!url || url.trim() === "") {
+			return "http://localhost:6333"
+		}
+
+		const trimmedUrl = url.trim()
+
+		// Check if it starts with a protocol
+		if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://") && !trimmedUrl.includes("://")) {
+			// No protocol - treat as hostname
+			return this.parseHostname(trimmedUrl)
+		}
+
+		try {
+			// Attempt to parse as complete URL - return as-is, let constructor handle ports
+			const parsedUrl = new URL(trimmedUrl)
+			return trimmedUrl
+		} catch {
+			// Failed to parse as URL - treat as hostname
+			return this.parseHostname(trimmedUrl)
+		}
+	}
+
+	/**
+	 * Handles hostname-only inputs
+	 * @param hostname Raw hostname input
+	 * @returns Properly formatted URL with http:// prefix
+	 */
+	private parseHostname(hostname: string): string {
+		if (hostname.includes(":")) {
+			// Has port - add http:// prefix if missing
+			return hostname.startsWith("http") ? hostname : `http://${hostname}`
+		} else {
+			// No port - add http:// prefix without port (let constructor handle port assignment)
+			return `http://${hostname}`
+		}
 	}
 
 	private async getCollectionInfo(): Promise<Schemas["CollectionInfo"] | null> {
@@ -72,49 +160,143 @@ export class QdrantVectorStore implements IVectorStore {
 				created = true
 			} else {
 				// Collection exists, check vector size
-				const existingVectorSize = collectionInfo.config?.params?.vectors?.size
+				const vectorsConfig = collectionInfo.config?.params?.vectors
+				let existingVectorSize: number
+
+				if (typeof vectorsConfig === "number") {
+					existingVectorSize = vectorsConfig
+				} else if (
+					vectorsConfig &&
+					typeof vectorsConfig === "object" &&
+					"size" in vectorsConfig &&
+					typeof vectorsConfig.size === "number"
+				) {
+					existingVectorSize = vectorsConfig.size
+				} else {
+					existingVectorSize = 0 // Fallback for unknown configuration
+				}
+
 				if (existingVectorSize === this.vectorSize) {
 					created = false // Exists and correct
 				} else {
-					// Exists but wrong vector size, recreate
-					console.warn(
-						`[QdrantVectorStore] Collection ${this.collectionName} exists with vector size ${existingVectorSize}, but expected ${this.vectorSize}. Recreating collection.`,
-					)
-					await this.client.deleteCollection(this.collectionName) // Known to exist
-					await this.client.createCollection(this.collectionName, {
-						vectors: {
-							size: this.vectorSize,
-							distance: this.DISTANCE_METRIC,
-						},
-					})
-					created = true
+					// Exists but wrong vector size, recreate with enhanced error handling
+					created = await this._recreateCollectionWithNewDimension(existingVectorSize)
 				}
 			}
 
 			// Create payload indexes
-			for (let i = 0; i <= 4; i++) {
-				try {
-					await this.client.createPayloadIndex(this.collectionName, {
-						field_name: `pathSegments.${i}`,
-						field_schema: "keyword",
-					})
-				} catch (indexError: any) {
-					const errorMessage = (indexError?.message || "").toLowerCase()
-					if (!errorMessage.includes("already exists")) {
-						console.warn(
-							`[QdrantVectorStore] Could not create payload index for pathSegments.${i} on ${this.collectionName}. Details:`,
-							indexError?.message || indexError,
-						)
-					}
-				}
-			}
+			await this._createPayloadIndexes()
 			return created
 		} catch (error: any) {
+			const errorMessage = error?.message || error
 			console.error(
 				`[QdrantVectorStore] Failed to initialize Qdrant collection "${this.collectionName}":`,
-				error?.message || error,
+				errorMessage,
 			)
-			throw error
+
+			// If this is already a vector dimension mismatch error (identified by cause), re-throw it as-is
+			if (error instanceof Error && error.cause !== undefined) {
+				throw error
+			}
+
+			// Otherwise, provide a more user-friendly error message that includes the original error
+			throw new Error(
+				t("embeddings:vectorStore.qdrantConnectionFailed", { qdrantUrl: this.qdrantUrl, errorMessage }),
+			)
+		}
+	}
+
+	/**
+	 * Recreates the collection with a new vector dimension, handling failures gracefully.
+	 * @param existingVectorSize The current vector size of the existing collection
+	 * @returns Promise resolving to boolean indicating if a new collection was created
+	 */
+	private async _recreateCollectionWithNewDimension(existingVectorSize: number): Promise<boolean> {
+		console.warn(
+			`[QdrantVectorStore] Collection ${this.collectionName} exists with vector size ${existingVectorSize}, but expected ${this.vectorSize}. Recreating collection.`,
+		)
+
+		let deletionSucceeded = false
+		let recreationAttempted = false
+
+		try {
+			// Step 1: Attempt to delete the existing collection
+			console.log(`[QdrantVectorStore] Deleting existing collection ${this.collectionName}...`)
+			await this.client.deleteCollection(this.collectionName)
+			deletionSucceeded = true
+			console.log(`[QdrantVectorStore] Successfully deleted collection ${this.collectionName}`)
+
+			// Step 2: Wait a brief moment to ensure deletion is processed
+			await new Promise((resolve) => setTimeout(resolve, 100))
+
+			// Step 3: Verify the collection is actually deleted
+			const verificationInfo = await this.getCollectionInfo()
+			if (verificationInfo !== null) {
+				throw new Error("Collection still exists after deletion attempt")
+			}
+
+			// Step 4: Create the new collection with correct dimensions
+			console.log(
+				`[QdrantVectorStore] Creating new collection ${this.collectionName} with vector size ${this.vectorSize}...`,
+			)
+			recreationAttempted = true
+			await this.client.createCollection(this.collectionName, {
+				vectors: {
+					size: this.vectorSize,
+					distance: this.DISTANCE_METRIC,
+				},
+			})
+			console.log(`[QdrantVectorStore] Successfully created new collection ${this.collectionName}`)
+			return true
+		} catch (recreationError) {
+			const errorMessage = recreationError instanceof Error ? recreationError.message : String(recreationError)
+
+			// Provide detailed error context based on what stage failed
+			let contextualErrorMessage: string
+			if (!deletionSucceeded) {
+				contextualErrorMessage = `Failed to delete existing collection with vector size ${existingVectorSize}. ${errorMessage}`
+			} else if (!recreationAttempted) {
+				contextualErrorMessage = `Deleted existing collection but failed verification step. ${errorMessage}`
+			} else {
+				contextualErrorMessage = `Deleted existing collection but failed to create new collection with vector size ${this.vectorSize}. ${errorMessage}`
+			}
+
+			console.error(
+				`[QdrantVectorStore] CRITICAL: Failed to recreate collection ${this.collectionName} for dimension change (${existingVectorSize} -> ${this.vectorSize}). ${contextualErrorMessage}`,
+			)
+
+			// Create a comprehensive error message for the user
+			const dimensionMismatchError = new Error(
+				t("embeddings:vectorStore.vectorDimensionMismatch", {
+					errorMessage: contextualErrorMessage,
+				}),
+			)
+
+			// Preserve the original error context
+			dimensionMismatchError.cause = recreationError
+			throw dimensionMismatchError
+		}
+	}
+
+	/**
+	 * Creates payload indexes for the collection, handling errors gracefully.
+	 */
+	private async _createPayloadIndexes(): Promise<void> {
+		for (let i = 0; i <= 4; i++) {
+			try {
+				await this.client.createPayloadIndex(this.collectionName, {
+					field_name: `pathSegments.${i}`,
+					field_schema: "keyword",
+				})
+			} catch (indexError: any) {
+				const errorMessage = (indexError?.message || "").toLowerCase()
+				if (!errorMessage.includes("already exists")) {
+					console.warn(
+						`[QdrantVectorStore] Could not create payload index for pathSegments.${i} on ${this.collectionName}. Details:`,
+						indexError?.message || indexError,
+					)
+				}
+			}
 		}
 	}
 
@@ -178,13 +360,16 @@ export class QdrantVectorStore implements IVectorStore {
 	/**
 	 * Searches for similar vectors
 	 * @param queryVector Vector to search for
-	 * @param limit Maximum number of results to return
+	 * @param directoryPrefix Optional directory prefix to filter results
+	 * @param minScore Optional minimum score threshold
+	 * @param maxResults Optional maximum number of results to return
 	 * @returns Promise resolving to search results
 	 */
 	async search(
 		queryVector: number[],
 		directoryPrefix?: string,
 		minScore?: number,
+		maxResults?: number,
 	): Promise<VectorStoreSearchResult[]> {
 		try {
 			let filter = undefined
@@ -203,8 +388,8 @@ export class QdrantVectorStore implements IVectorStore {
 			const searchRequest = {
 				query: queryVector,
 				filter,
-				score_threshold: SEARCH_MIN_SCORE,
-				limit: MAX_SEARCH_RESULTS,
+				score_threshold: minScore ?? DEFAULT_SEARCH_MIN_SCORE,
+				limit: maxResults ?? DEFAULT_MAX_SEARCH_RESULTS,
 				params: {
 					hnsw_ef: 128,
 					exact: false,
@@ -212,10 +397,6 @@ export class QdrantVectorStore implements IVectorStore {
 				with_payload: {
 					include: ["filePath", "codeChunk", "startLine", "endLine", "pathSegments"],
 				},
-			}
-
-			if (minScore !== undefined) {
-				searchRequest.score_threshold = minScore
 			}
 
 			const operationResult = await this.client.query(this.collectionName, searchRequest)

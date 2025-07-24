@@ -3,6 +3,7 @@ dist
 out
 out-*
 node_modules
+package-lock.json
 coverage/
 mock/
 
@@ -32,6 +33,7 @@ docs/_site/
 
 # Logging
 logs
+*.log
 
 # Vite development
 .vite-port
@@ -42,3 +44,5 @@ logs
 # IntelliJ and Qodo plugin folders
 .idea/
 .qodo/
+.vercel
+.roo/mcp.json

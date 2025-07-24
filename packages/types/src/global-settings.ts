@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { type Keys, keysOf } from "./type-fu.js"
+import { type Keys } from "./type-fu.js"
 import {
 	type ProviderSettings,
 	PROVIDER_SETTINGS_KEYS,
@@ -14,6 +14,20 @@ import { telemetrySettingsSchema } from "./telemetry.js"
 import { modeConfigSchema } from "./mode.js"
 import { customModePromptsSchema, customSupportPromptsSchema } from "./mode.js"
 import { languagesSchema } from "./vscode.js"
+
+/**
+ * Default delay in milliseconds after writes to allow diagnostics to detect potential problems.
+ * This delay is particularly important for Go and other languages where tools like goimports
+ * need time to automatically clean up unused imports.
+ */
+export const DEFAULT_WRITE_DELAY_MS = 1000
+
+/**
+ * Default terminal output character limit constant.
+ * This provides a reasonable default that aligns with typical terminal usage
+ * while preventing context window explosions from extremely long lines.
+ */
+export const DEFAULT_TERMINAL_OUTPUT_CHARACTER_LIMIT = 50_000
 
 /**
  * GlobalSettings
@@ -36,7 +50,8 @@ export const globalSettingsSchema = z.object({
 	alwaysAllowReadOnlyOutsideWorkspace: z.boolean().optional(),
 	alwaysAllowWrite: z.boolean().optional(),
 	alwaysAllowWriteOutsideWorkspace: z.boolean().optional(),
-	writeDelayMs: z.number().optional(),
+	alwaysAllowWriteProtected: z.boolean().optional(),
+	writeDelayMs: z.number().min(0).optional(),
 	alwaysAllowBrowser: z.boolean().optional(),
 	alwaysApproveResubmit: z.boolean().optional(),
 	requestDelaySeconds: z.number().optional(),
@@ -44,9 +59,29 @@ export const globalSettingsSchema = z.object({
 	alwaysAllowModeSwitch: z.boolean().optional(),
 	alwaysAllowSubtasks: z.boolean().optional(),
 	alwaysAllowExecute: z.boolean().optional(),
+	alwaysAllowFollowupQuestions: z.boolean().optional(),
+	followupAutoApproveTimeoutMs: z.number().optional(),
+	alwaysAllowUpdateTodoList: z.boolean().optional(),
 	allowedCommands: z.array(z.string()).optional(),
+	deniedCommands: z.array(z.string()).optional(),
+	commandExecutionTimeout: z.number().optional(),
+	commandTimeoutAllowlist: z.array(z.string()).optional(),
+	preventCompletionWithOpenTodos: z.boolean().optional(),
 	allowedMaxRequests: z.number().nullish(),
+	autoCondenseContext: z.boolean().optional(),
 	autoCondenseContextPercent: z.number().optional(),
+	maxConcurrentFileReads: z.number().optional(),
+
+	/**
+	 * Whether to include diagnostic messages (errors, warnings) in tool outputs
+	 * @default true
+	 */
+	includeDiagnosticMessages: z.boolean().optional(),
+	/**
+	 * Maximum number of diagnostic messages to include in tool outputs
+	 * @default 50
+	 */
+	maxDiagnosticMessages: z.number().optional(),
 
 	browserToolEnabled: z.boolean().optional(),
 	browserViewportSize: z.string().optional(),
@@ -68,6 +103,7 @@ export const globalSettingsSchema = z.object({
 	maxReadFileLine: z.number().optional(),
 
 	terminalOutputLineLimit: z.number().optional(),
+	terminalOutputCharacterLimit: z.number().optional(),
 	terminalShellIntegrationTimeout: z.number().optional(),
 	terminalShellIntegrationDisabled: z.boolean().optional(),
 	terminalCommandDelay: z.number().optional(),
@@ -77,6 +113,8 @@ export const globalSettingsSchema = z.object({
 	terminalZshP10k: z.boolean().optional(),
 	terminalZdotdir: z.boolean().optional(),
 	terminalCompressProgressBar: z.boolean().optional(),
+
+	diagnosticsEnabled: z.boolean().optional(),
 
 	rateLimitSeconds: z.number().optional(),
 	diffEnabled: z.boolean().optional(),
@@ -100,91 +138,15 @@ export const globalSettingsSchema = z.object({
 	customSupportPrompts: customSupportPromptsSchema.optional(),
 	enhancementApiConfigId: z.string().optional(),
 	historyPreviewCollapsed: z.boolean().optional(),
+	profileThresholds: z.record(z.string(), z.number()).optional(),
+	hasOpenedModeSelector: z.boolean().optional(),
+	lastModeExportPath: z.string().optional(),
+	lastModeImportPath: z.string().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
 
-export const GLOBAL_SETTINGS_KEYS = keysOf<GlobalSettings>()([
-	"currentApiConfigName",
-	"listApiConfigMeta",
-	"pinnedApiConfigs",
-
-	"lastShownAnnouncementId",
-	"customInstructions",
-	"taskHistory",
-
-	"condensingApiConfigId",
-	"customCondensingPrompt",
-
-	"autoApprovalEnabled",
-	"alwaysAllowReadOnly",
-	"alwaysAllowReadOnlyOutsideWorkspace",
-	"alwaysAllowWrite",
-	"alwaysAllowWriteOutsideWorkspace",
-	"writeDelayMs",
-	"alwaysAllowBrowser",
-	"alwaysApproveResubmit",
-	"requestDelaySeconds",
-	"alwaysAllowMcp",
-	"alwaysAllowModeSwitch",
-	"alwaysAllowSubtasks",
-	"alwaysAllowExecute",
-	"allowedCommands",
-	"allowedMaxRequests",
-	"autoCondenseContextPercent",
-
-	"browserToolEnabled",
-	"browserViewportSize",
-	"screenshotQuality",
-	"remoteBrowserEnabled",
-	"remoteBrowserHost",
-
-	"enableCheckpoints",
-
-	"ttsEnabled",
-	"ttsSpeed",
-	"soundEnabled",
-	"soundVolume",
-
-	"maxOpenTabsContext",
-	"maxWorkspaceFiles",
-	"showRooIgnoredFiles",
-	"maxReadFileLine",
-
-	"terminalOutputLineLimit",
-	"terminalShellIntegrationTimeout",
-	"terminalShellIntegrationDisabled",
-	"terminalCommandDelay",
-	"terminalPowershellCounter",
-	"terminalZshClearEolMark",
-	"terminalZshOhMy",
-	"terminalZshP10k",
-	"terminalZdotdir",
-	"terminalCompressProgressBar",
-
-	"rateLimitSeconds",
-	"diffEnabled",
-	"fuzzyMatchThreshold",
-	"experiments",
-
-	"codebaseIndexModels",
-	"codebaseIndexConfig",
-
-	"language",
-
-	"telemetrySetting",
-	"mcpEnabled",
-	"enableMcpServerCreation",
-
-	"mode",
-	"modeApiConfigs",
-	"customModes",
-	"customModePrompts",
-	"customSupportPrompts",
-	"enhancementApiConfigId",
-	"cachedChromeHostUrl",
-	"historyPreviewCollapsed",
-])
+export const GLOBAL_SETTINGS_KEYS = globalSettingsSchema.keyof().options
 
 /**
  * RooCodeSettings
@@ -197,31 +159,7 @@ export type RooCodeSettings = GlobalSettings & ProviderSettings
 /**
  * SecretState
  */
-
-export type SecretState = Pick<
-	ProviderSettings,
-	| "apiKey"
-	| "glamaApiKey"
-	| "openRouterApiKey"
-	| "awsAccessKey"
-	| "awsSecretKey"
-	| "awsSessionToken"
-	| "openAiApiKey"
-	| "geminiApiKey"
-	| "openAiNativeApiKey"
-	| "deepSeekApiKey"
-	| "mistralApiKey"
-	| "unboundApiKey"
-	| "requestyApiKey"
-	| "xaiApiKey"
-	| "groqApiKey"
-	| "chutesApiKey"
-	| "litellmApiKey"
-	| "codeIndexOpenAiKey"
-	| "codeIndexQdrantApiKey"
->
-
-export const SECRET_STATE_KEYS = keysOf<SecretState>()([
+export const SECRET_STATE_KEYS = [
 	"apiKey",
 	"glamaApiKey",
 	"openRouterApiKey",
@@ -232,6 +170,7 @@ export const SECRET_STATE_KEYS = keysOf<SecretState>()([
 	"geminiApiKey",
 	"openAiNativeApiKey",
 	"deepSeekApiKey",
+	"moonshotApiKey",
 	"mistralApiKey",
 	"unboundApiKey",
 	"requestyApiKey",
@@ -241,7 +180,12 @@ export const SECRET_STATE_KEYS = keysOf<SecretState>()([
 	"litellmApiKey",
 	"codeIndexOpenAiKey",
 	"codeIndexQdrantApiKey",
-])
+	"codebaseIndexOpenAiCompatibleApiKey",
+	"codebaseIndexGeminiApiKey",
+	"codebaseIndexMistralApiKey",
+	"huggingFaceApiKey",
+] as const satisfies readonly (keyof ProviderSettings)[]
+export type SecretState = Pick<ProviderSettings, (typeof SECRET_STATE_KEYS)[number]>
 
 export const isSecretStateKey = (key: string): key is Keys<SecretState> =>
 	SECRET_STATE_KEYS.includes(key as Keys<SecretState>)
@@ -258,3 +202,88 @@ export const GLOBAL_STATE_KEYS = [...GLOBAL_SETTINGS_KEYS, ...PROVIDER_SETTINGS_
 
 export const isGlobalStateKey = (key: string): key is Keys<GlobalState> =>
 	GLOBAL_STATE_KEYS.includes(key as Keys<GlobalState>)
+
+/**
+ * Evals
+ */
+
+// Default settings when running evals (unless overridden).
+export const EVALS_SETTINGS: RooCodeSettings = {
+	apiProvider: "openrouter",
+	openRouterUseMiddleOutTransform: false,
+
+	lastShownAnnouncementId: "jul-09-2025-3-23-0",
+
+	pinnedApiConfigs: {},
+
+	autoApprovalEnabled: true,
+	alwaysAllowReadOnly: true,
+	alwaysAllowReadOnlyOutsideWorkspace: false,
+	alwaysAllowWrite: true,
+	alwaysAllowWriteOutsideWorkspace: false,
+	alwaysAllowWriteProtected: false,
+	writeDelayMs: 1000,
+	alwaysAllowBrowser: true,
+	alwaysApproveResubmit: true,
+	requestDelaySeconds: 10,
+	alwaysAllowMcp: true,
+	alwaysAllowModeSwitch: true,
+	alwaysAllowSubtasks: true,
+	alwaysAllowExecute: true,
+	alwaysAllowFollowupQuestions: true,
+	alwaysAllowUpdateTodoList: true,
+	followupAutoApproveTimeoutMs: 0,
+	allowedCommands: ["*"],
+	commandExecutionTimeout: 20,
+	commandTimeoutAllowlist: [],
+	preventCompletionWithOpenTodos: false,
+
+	browserToolEnabled: false,
+	browserViewportSize: "900x600",
+	screenshotQuality: 75,
+	remoteBrowserEnabled: false,
+
+	ttsEnabled: false,
+	ttsSpeed: 1,
+	soundEnabled: false,
+	soundVolume: 0.5,
+
+	terminalOutputLineLimit: 500,
+	terminalOutputCharacterLimit: DEFAULT_TERMINAL_OUTPUT_CHARACTER_LIMIT,
+	terminalShellIntegrationTimeout: 30000,
+	terminalCommandDelay: 0,
+	terminalPowershellCounter: false,
+	terminalZshOhMy: true,
+	terminalZshClearEolMark: true,
+	terminalZshP10k: false,
+	terminalZdotdir: true,
+	terminalCompressProgressBar: true,
+	terminalShellIntegrationDisabled: true,
+
+	diagnosticsEnabled: true,
+
+	diffEnabled: true,
+	fuzzyMatchThreshold: 1,
+
+	enableCheckpoints: false,
+
+	rateLimitSeconds: 0,
+	maxOpenTabsContext: 20,
+	maxWorkspaceFiles: 200,
+	showRooIgnoredFiles: true,
+	maxReadFileLine: -1, // -1 to enable full file reading.
+
+	includeDiagnosticMessages: true,
+	maxDiagnosticMessages: 50,
+
+	language: "en",
+	telemetrySetting: "enabled",
+
+	mcpEnabled: false,
+
+	mode: "code", // "architect",
+
+	customModes: [],
+}
+
+export const EVALS_TIMEOUT = 5 * 60 * 1_000

@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-import { keysOf } from "./type-fu.js"
 import { reasoningEffortsSchema, modelInfoSchema } from "./model.js"
 import { codebaseIndexProviderSchema } from "./codebase-index.js"
 
@@ -10,6 +9,7 @@ import { codebaseIndexProviderSchema } from "./codebase-index.js"
 
 export const providerNames = [
 	"anthropic",
+	"claude-code",
 	"glama",
 	"openrouter",
 	"bedrock",
@@ -19,8 +19,10 @@ export const providerNames = [
 	"vscode-lm",
 	"lmstudio",
 	"gemini",
+	"gemini-cli",
 	"openai-native",
 	"mistral",
+	"moonshot",
 	"deepseek",
 	"unbound",
 	"requesty",
@@ -30,6 +32,7 @@ export const providerNames = [
 	"groq",
 	"chutes",
 	"litellm",
+	"huggingface",
 ] as const
 
 export const providerNamesSchema = z.enum(providerNames)
@@ -52,12 +55,19 @@ export type ProviderSettingsEntry = z.infer<typeof providerSettingsEntrySchema>
  * ProviderSettings
  */
 
+/**
+ * Default value for consecutive mistake limit
+ */
+export const DEFAULT_CONSECUTIVE_MISTAKE_LIMIT = 3
+
 const baseProviderSettingsSchema = z.object({
 	includeMaxTokens: z.boolean().optional(),
 	diffEnabled: z.boolean().optional(),
+	todoListEnabled: z.boolean().optional(),
 	fuzzyMatchThreshold: z.number().optional(),
 	modelTemperature: z.number().nullish(),
 	rateLimitSeconds: z.number().optional(),
+	consecutiveMistakeLimit: z.number().min(0).optional(),
 
 	// Model reasoning.
 	enableReasoningEffort: z.boolean().optional(),
@@ -76,6 +86,11 @@ const anthropicSchema = apiModelIdProviderModelSchema.extend({
 	anthropicApiKeyUseEnvVar: z.boolean().optional(),
 	anthropicBaseUrl: z.string().optional(),
 	anthropicUseAuthToken: z.boolean().optional(),
+})
+
+const claudeCodeSchema = apiModelIdProviderModelSchema.extend({
+	claudeCodePath: z.string().optional(),
+	claudeCodeMaxOutputTokens: z.number().int().min(1).max(200000).optional(),
 })
 
 const glamaSchema = baseProviderSettingsSchema.extend({
@@ -103,6 +118,9 @@ const bedrockSchema = apiModelIdProviderModelSchema.extend({
 	awsProfile: z.string().optional(),
 	awsUseProfile: z.boolean().optional(),
 	awsCustomArn: z.string().optional(),
+	awsModelContextWindow: z.number().optional(),
+	awsBedrockEndpointEnabled: z.boolean().optional(),
+	awsBedrockEndpoint: z.string().optional(),
 })
 
 const vertexSchema = apiModelIdProviderModelSchema.extend({
@@ -156,6 +174,11 @@ const geminiSchema = apiModelIdProviderModelSchema.extend({
 	googleGeminiBaseUrl: z.string().optional(),
 })
 
+const geminiCliSchema = apiModelIdProviderModelSchema.extend({
+	geminiCliOAuthPath: z.string().optional(),
+	geminiCliProjectId: z.string().optional(),
+})
+
 const openAiNativeSchema = apiModelIdProviderModelSchema.extend({
 	openAiNativeApiKey: z.string().optional(),
 	openAiNativeApiKeyUseEnvVar: z.boolean().optional(),
@@ -172,6 +195,13 @@ const deepSeekSchema = apiModelIdProviderModelSchema.extend({
 	deepSeekBaseUrl: z.string().optional(),
 	deepSeekApiKey: z.string().optional(),
 	deepSeekApiKeyUseEnvVar: z.boolean().optional(),
+})
+
+const moonshotSchema = apiModelIdProviderModelSchema.extend({
+	moonshotBaseUrl: z
+		.union([z.literal("https://api.moonshot.ai/v1"), z.literal("https://api.moonshot.cn/v1")])
+		.optional(),
+	moonshotApiKey: z.string().optional(),
 })
 
 const unboundSchema = baseProviderSettingsSchema.extend({
@@ -202,6 +232,12 @@ const groqSchema = apiModelIdProviderModelSchema.extend({
 	groqApiKeyUseEnvVar: z.boolean().optional(),
 })
 
+const huggingFaceSchema = baseProviderSettingsSchema.extend({
+	huggingFaceApiKey: z.string().optional(),
+	huggingFaceModelId: z.string().optional(),
+	huggingFaceInferenceProvider: z.string().optional(),
+})
+
 const chutesSchema = apiModelIdProviderModelSchema.extend({
 	chutesApiKey: z.string().optional(),
 	chutesApiKeyUseEnvVar: z.boolean().optional(),
@@ -220,6 +256,7 @@ const defaultSchema = z.object({
 
 export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProvider", [
 	anthropicSchema.merge(z.object({ apiProvider: z.literal("anthropic") })),
+	claudeCodeSchema.merge(z.object({ apiProvider: z.literal("claude-code") })),
 	glamaSchema.merge(z.object({ apiProvider: z.literal("glama") })),
 	openRouterSchema.merge(z.object({ apiProvider: z.literal("openrouter") })),
 	bedrockSchema.merge(z.object({ apiProvider: z.literal("bedrock") })),
@@ -229,15 +266,18 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 	vsCodeLmSchema.merge(z.object({ apiProvider: z.literal("vscode-lm") })),
 	lmStudioSchema.merge(z.object({ apiProvider: z.literal("lmstudio") })),
 	geminiSchema.merge(z.object({ apiProvider: z.literal("gemini") })),
+	geminiCliSchema.merge(z.object({ apiProvider: z.literal("gemini-cli") })),
 	openAiNativeSchema.merge(z.object({ apiProvider: z.literal("openai-native") })),
 	mistralSchema.merge(z.object({ apiProvider: z.literal("mistral") })),
 	deepSeekSchema.merge(z.object({ apiProvider: z.literal("deepseek") })),
+	moonshotSchema.merge(z.object({ apiProvider: z.literal("moonshot") })),
 	unboundSchema.merge(z.object({ apiProvider: z.literal("unbound") })),
 	requestySchema.merge(z.object({ apiProvider: z.literal("requesty") })),
 	humanRelaySchema.merge(z.object({ apiProvider: z.literal("human-relay") })),
 	fakeAiSchema.merge(z.object({ apiProvider: z.literal("fake-ai") })),
 	xaiSchema.merge(z.object({ apiProvider: z.literal("xai") })),
 	groqSchema.merge(z.object({ apiProvider: z.literal("groq") })),
+	huggingFaceSchema.merge(z.object({ apiProvider: z.literal("huggingface") })),
 	chutesSchema.merge(z.object({ apiProvider: z.literal("chutes") })),
 	litellmSchema.merge(z.object({ apiProvider: z.literal("litellm") })),
 	defaultSchema,
@@ -246,6 +286,7 @@ export const providerSettingsSchemaDiscriminated = z.discriminatedUnion("apiProv
 export const providerSettingsSchema = z.object({
 	apiProvider: providerNamesSchema.optional(),
 	...anthropicSchema.shape,
+	...claudeCodeSchema.shape,
 	...glamaSchema.shape,
 	...openRouterSchema.shape,
 	...bedrockSchema.shape,
@@ -255,130 +296,60 @@ export const providerSettingsSchema = z.object({
 	...vsCodeLmSchema.shape,
 	...lmStudioSchema.shape,
 	...geminiSchema.shape,
+	...geminiCliSchema.shape,
 	...openAiNativeSchema.shape,
 	...mistralSchema.shape,
 	...deepSeekSchema.shape,
+	...moonshotSchema.shape,
 	...unboundSchema.shape,
 	...requestySchema.shape,
 	...humanRelaySchema.shape,
 	...fakeAiSchema.shape,
 	...xaiSchema.shape,
 	...groqSchema.shape,
+	...huggingFaceSchema.shape,
 	...chutesSchema.shape,
 	...litellmSchema.shape,
 	...codebaseIndexProviderSchema.shape,
 })
 
 export type ProviderSettings = z.infer<typeof providerSettingsSchema>
+export const PROVIDER_SETTINGS_KEYS = providerSettingsSchema.keyof().options
 
-export const PROVIDER_SETTINGS_KEYS = keysOf<ProviderSettings>()([
-	"apiProvider",
-	// Anthropic
+export const MODEL_ID_KEYS: Partial<keyof ProviderSettings>[] = [
 	"apiModelId",
-	"apiKey",
-	"anthropicApiKeyUseEnvVar",
-	"anthropicBaseUrl",
-	"anthropicUseAuthToken",
-	// Glama
 	"glamaModelId",
-	"glamaApiKey",
-	"glamaApiKeyUseEnvVar",
-	// OpenRouter
-	"openRouterApiKey",
-	"openRouterApiKeyUseEnvVar",
 	"openRouterModelId",
-	"openRouterBaseUrl",
-	"openRouterSpecificProvider",
-	"openRouterUseMiddleOutTransform",
-	// Amazon Bedrock
-	"awsAccessKey",
-	"awsSecretKey",
-	"awsSessionToken",
-	"awsRegion",
-	"awsUseCrossRegionInference",
-	"awsUsePromptCache",
-	"awsProfile",
-	"awsUseProfile",
-	"awsCustomArn",
-	// Google Vertex
-	"vertexKeyFile",
-	"vertexJsonCredentials",
-	"vertexProjectId",
-	"vertexRegion",
-	// OpenAI
-	"openAiBaseUrl",
-	"openAiApiKey",
-	"openAiApiKeyUseEnvVar",
-	"openAiLegacyFormat",
-	"openAiR1FormatEnabled",
 	"openAiModelId",
-	"openAiCustomModelInfo",
-	"openAiUseAzure",
-	"azureApiVersion",
-	"openAiStreamingEnabled",
-	"openAiHostHeader", // Keep temporarily for backward compatibility during migration.
-	"openAiHeaders",
-	// Ollama
 	"ollamaModelId",
-	"ollamaBaseUrl",
-	// VS Code LM
-	"vsCodeLmModelSelector",
 	"lmStudioModelId",
-	"lmStudioBaseUrl",
 	"lmStudioDraftModelId",
-	"lmStudioSpeculativeDecodingEnabled",
-	// Gemini
-	"geminiApiKey",
-	"geminiApiKeyUseEnvVar",
-	"googleGeminiBaseUrl",
-	// OpenAI Native
-	"openAiNativeApiKey",
-	"openAiNativeApiKeyUseEnvVar",
-	"openAiNativeBaseUrl",
-	// Mistral
-	"mistralApiKey",
-	"mistralApiKeyUseEnvVar",
-	"mistralCodestralUrl",
-	// DeepSeek
-	"deepSeekBaseUrl",
-	"deepSeekApiKey",
-	"deepSeekApiKeyUseEnvVar",
-	// Unbound
-	"unboundApiKey",
-	"unboundApiKeyUseEnvVar",
 	"unboundModelId",
-	// Requesty
-	"requestyApiKey",
-	"requestyApiKeyUseEnvVar",
 	"requestyModelId",
-	// Code Index
-	"codeIndexOpenAiKey",
-	"codeIndexQdrantApiKey",
-	// Reasoning
-	"enableReasoningEffort",
-	"reasoningEffort",
-	"modelMaxTokens",
-	"modelMaxThinkingTokens",
-	// Generic
-	"includeMaxTokens",
-	"diffEnabled",
-	"fuzzyMatchThreshold",
-	"modelTemperature",
-	"rateLimitSeconds",
-	// Fake AI
-	"fakeAi",
-	// X.AI (Grok)
-	"xaiApiKey",
-	"xaiApiKeyUseEnvVar",
-	// Groq
-	"groqApiKey",
-	"groqApiKeyUseEnvVar",
-	// Chutes AI
-	"chutesApiKey",
-	"chutesApiKeyUseEnvVar",
-	// LiteLLM
-	"litellmBaseUrl",
-	"litellmApiKey",
-	"litellmApiKeyUseEnvVar",
 	"litellmModelId",
-])
+	"huggingFaceModelId",
+]
+
+export const getModelId = (settings: ProviderSettings): string | undefined => {
+	const modelIdKey = MODEL_ID_KEYS.find((key) => settings[key])
+	return modelIdKey ? (settings[modelIdKey] as string) : undefined
+}
+
+// Providers that use Anthropic-style API protocol
+export const ANTHROPIC_STYLE_PROVIDERS: ProviderName[] = ["anthropic", "claude-code", "bedrock"]
+
+// Helper function to determine API protocol for a provider and model
+export const getApiProtocol = (provider: ProviderName | undefined, modelId?: string): "anthropic" | "openai" => {
+	// First check if the provider is an Anthropic-style provider
+	if (provider && ANTHROPIC_STYLE_PROVIDERS.includes(provider)) {
+		return "anthropic"
+	}
+
+	// For vertex provider, check if the model ID contains "claude" (case-insensitive)
+	if (provider && provider === "vertex" && modelId && modelId.toLowerCase().includes("claude")) {
+		return "anthropic"
+	}
+
+	// Default to OpenAI protocol
+	return "openai"
+}

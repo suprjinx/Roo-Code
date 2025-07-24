@@ -21,6 +21,7 @@ import {
 	AlertTriangle,
 	Globe,
 	Info,
+	MessageSquare,
 	LucideIcon,
 } from "lucide-react"
 
@@ -45,6 +46,7 @@ import {
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
+	StandardTooltip,
 } from "@src/components/ui"
 
 import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab"
@@ -62,6 +64,7 @@ import { ExperimentalSettings } from "./ExperimentalSettings"
 import { LanguageSettings } from "./LanguageSettings"
 import { About } from "./About"
 import { Section } from "./Section"
+import PromptsSettings from "./PromptsSettings"
 import { cn } from "@/lib/utils"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
@@ -83,6 +86,7 @@ const sectionNames = [
 	"notifications",
 	"contextManagement",
 	"terminal",
+	"prompts",
 	"experimental",
 	"language",
 	"about",
@@ -120,6 +124,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		alwaysAllowReadOnly,
 		alwaysAllowReadOnlyOutsideWorkspace,
 		allowedCommands,
+		deniedCommands,
 		allowedMaxRequests,
 		language,
 		alwaysAllowBrowser,
@@ -129,7 +134,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		alwaysAllowSubtasks,
 		alwaysAllowWrite,
 		alwaysAllowWriteOutsideWorkspace,
+		alwaysAllowWriteProtected,
 		alwaysApproveResubmit,
+		autoCondenseContext,
 		autoCondenseContextPercent,
 		browserToolEnabled,
 		browserViewportSize,
@@ -149,6 +156,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		soundVolume,
 		telemetrySetting,
 		terminalOutputLineLimit,
+		terminalOutputCharacterLimit,
 		terminalShellIntegrationTimeout,
 		terminalShellIntegrationDisabled, // Added from upstream
 		terminalCommandDelay,
@@ -162,10 +170,16 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		remoteBrowserEnabled,
 		maxReadFileLine,
 		terminalCompressProgressBar,
+		maxConcurrentFileReads,
 		condensingApiConfigId,
 		customCondensingPrompt,
-		codebaseIndexConfig,
-		codebaseIndexModels,
+		customSupportPrompts,
+		profileThresholds,
+		alwaysAllowFollowupQuestions,
+		alwaysAllowUpdateTodoList,
+		followupAutoApproveTimeoutMs,
+		includeDiagnosticMessages,
+		maxDiagnosticMessages,
 	} = cachedState
 
 	const apiConfiguration = useMemo(() => cachedState.apiConfiguration ?? {}, [cachedState.apiConfiguration])
@@ -208,7 +222,15 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					return prevState
 				}
 
-				setChangeDetected(true)
+				const previousValue = prevState.apiConfiguration?.[field]
+
+				// Don't treat initial sync from undefined to a defined value as a user change
+				// This prevents the dirty state when the component initializes and auto-syncs the model ID
+				const isInitialSync = previousValue === undefined && value !== undefined
+
+				if (!isInitialSync) {
+					setChangeDetected(true)
+				}
 				return { ...prevState, apiConfiguration: { ...prevState.apiConfiguration, [field]: value } }
 			})
 		},
@@ -237,6 +259,17 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		})
 	}, [])
 
+	const setCustomSupportPromptsField = useCallback((prompts: Record<string, string | undefined>) => {
+		setCachedState((prevState) => {
+			if (JSON.stringify(prevState.customSupportPrompts) === JSON.stringify(prompts)) {
+				return prevState
+			}
+
+			setChangeDetected(true)
+			return { ...prevState, customSupportPrompts: prompts }
+		})
+	}, [])
+
 	const isSettingValid = !errorMessage
 
 	const handleSubmit = () => {
@@ -249,11 +282,14 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			})
 			vscode.postMessage({ type: "alwaysAllowWrite", bool: alwaysAllowWrite })
 			vscode.postMessage({ type: "alwaysAllowWriteOutsideWorkspace", bool: alwaysAllowWriteOutsideWorkspace })
+			vscode.postMessage({ type: "alwaysAllowWriteProtected", bool: alwaysAllowWriteProtected })
 			vscode.postMessage({ type: "alwaysAllowExecute", bool: alwaysAllowExecute })
 			vscode.postMessage({ type: "alwaysAllowBrowser", bool: alwaysAllowBrowser })
 			vscode.postMessage({ type: "alwaysAllowMcp", bool: alwaysAllowMcp })
 			vscode.postMessage({ type: "allowedCommands", commands: allowedCommands ?? [] })
+			vscode.postMessage({ type: "deniedCommands", commands: deniedCommands ?? [] })
 			vscode.postMessage({ type: "allowedMaxRequests", value: allowedMaxRequests ?? undefined })
+			vscode.postMessage({ type: "autoCondenseContext", bool: autoCondenseContext })
 			vscode.postMessage({ type: "autoCondenseContextPercent", value: autoCondenseContextPercent })
 			vscode.postMessage({ type: "browserToolEnabled", bool: browserToolEnabled })
 			vscode.postMessage({ type: "soundEnabled", bool: soundEnabled })
@@ -269,6 +305,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "writeDelayMs", value: writeDelayMs })
 			vscode.postMessage({ type: "screenshotQuality", value: screenshotQuality ?? 75 })
 			vscode.postMessage({ type: "terminalOutputLineLimit", value: terminalOutputLineLimit ?? 500 })
+			vscode.postMessage({ type: "terminalOutputCharacterLimit", value: terminalOutputCharacterLimit ?? 50000 })
 			vscode.postMessage({ type: "terminalShellIntegrationTimeout", value: terminalShellIntegrationTimeout })
 			vscode.postMessage({ type: "terminalShellIntegrationDisabled", bool: terminalShellIntegrationDisabled })
 			vscode.postMessage({ type: "terminalCommandDelay", value: terminalCommandDelay })
@@ -285,15 +322,22 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "maxWorkspaceFiles", value: maxWorkspaceFiles ?? 200 })
 			vscode.postMessage({ type: "showRooIgnoredFiles", bool: showRooIgnoredFiles })
 			vscode.postMessage({ type: "maxReadFileLine", value: maxReadFileLine ?? -1 })
+			vscode.postMessage({ type: "maxConcurrentFileReads", value: cachedState.maxConcurrentFileReads ?? 5 })
+			vscode.postMessage({ type: "includeDiagnosticMessages", bool: includeDiagnosticMessages })
+			vscode.postMessage({ type: "maxDiagnosticMessages", value: maxDiagnosticMessages ?? 50 })
 			vscode.postMessage({ type: "currentApiConfigName", text: currentApiConfigName })
 			vscode.postMessage({ type: "updateExperimental", values: experiments })
 			vscode.postMessage({ type: "alwaysAllowModeSwitch", bool: alwaysAllowModeSwitch })
 			vscode.postMessage({ type: "alwaysAllowSubtasks", bool: alwaysAllowSubtasks })
+			vscode.postMessage({ type: "alwaysAllowFollowupQuestions", bool: alwaysAllowFollowupQuestions })
+			vscode.postMessage({ type: "alwaysAllowUpdateTodoList", bool: alwaysAllowUpdateTodoList })
+			vscode.postMessage({ type: "followupAutoApproveTimeoutMs", value: followupAutoApproveTimeoutMs })
 			vscode.postMessage({ type: "condensingApiConfigId", text: condensingApiConfigId || "" })
 			vscode.postMessage({ type: "updateCondensingPrompt", text: customCondensingPrompt || "" })
+			vscode.postMessage({ type: "updateSupportPrompt", values: customSupportPrompts || {} })
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
-			vscode.postMessage({ type: "codebaseIndexConfig", values: codebaseIndexConfig })
+			vscode.postMessage({ type: "profileThresholds", values: profileThresholds })
 			setChangeDetected(false)
 		}
 	}
@@ -370,6 +414,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "notifications", icon: Bell },
 			{ id: "contextManagement", icon: Database },
 			{ id: "terminal", icon: SquareTerminal },
+			{ id: "prompts", icon: MessageSquare },
 			{ id: "experimental", icon: FlaskConical },
 			{ id: "language", icon: Globe },
 			{ id: "about", icon: Info },
@@ -424,27 +469,28 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					<h3 className="text-vscode-foreground m-0">{t("settings:header.title")}</h3>
 				</div>
 				<div className="flex gap-2">
-					<Button
-						variant={isSettingValid ? "default" : "secondary"}
-						className={!isSettingValid ? "!border-vscode-errorForeground" : ""}
-						title={
+					<StandardTooltip
+						content={
 							!isSettingValid
 								? errorMessage
 								: isChangeDetected
 									? t("settings:header.saveButtonTooltip")
 									: t("settings:header.nothingChangedTooltip")
-						}
-						onClick={handleSubmit}
-						disabled={!isChangeDetected || !isSettingValid}
-						data-testid="save-button">
-						{t("settings:common.save")}
-					</Button>
-					<Button
-						variant="secondary"
-						title={t("settings:header.doneButtonTooltip")}
-						onClick={() => checkUnsaveChanges(onDone)}>
-						{t("settings:common.done")}
-					</Button>
+						}>
+						<Button
+							variant={isSettingValid ? "default" : "secondary"}
+							className={!isSettingValid ? "!border-vscode-errorForeground" : ""}
+							onClick={handleSubmit}
+							disabled={!isChangeDetected || !isSettingValid}
+							data-testid="save-button">
+							{t("settings:common.save")}
+						</Button>
+					</StandardTooltip>
+					<StandardTooltip content={t("settings:header.doneButtonTooltip")}>
+						<Button variant="secondary" onClick={() => checkUnsaveChanges(onDone)}>
+							{t("settings:common.done")}
+						</Button>
+					</StandardTooltip>
 				</div>
 			</TabHeader>
 
@@ -486,7 +532,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 						if (isCompactMode) {
 							// Wrap in Tooltip and manually add onClick to the trigger
 							return (
-								<TooltipProvider key={id} delayDuration={0}>
+								<TooltipProvider key={id} delayDuration={300}>
 									<Tooltip>
 										<TooltipTrigger asChild onClick={onSelect}>
 											{/* Clone to avoid ref issues if triggerComponent itself had a key */}
@@ -565,7 +611,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							alwaysAllowReadOnlyOutsideWorkspace={alwaysAllowReadOnlyOutsideWorkspace}
 							alwaysAllowWrite={alwaysAllowWrite}
 							alwaysAllowWriteOutsideWorkspace={alwaysAllowWriteOutsideWorkspace}
-							writeDelayMs={writeDelayMs}
+							alwaysAllowWriteProtected={alwaysAllowWriteProtected}
 							alwaysAllowBrowser={alwaysAllowBrowser}
 							alwaysApproveResubmit={alwaysApproveResubmit}
 							requestDelaySeconds={requestDelaySeconds}
@@ -573,7 +619,11 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							alwaysAllowModeSwitch={alwaysAllowModeSwitch}
 							alwaysAllowSubtasks={alwaysAllowSubtasks}
 							alwaysAllowExecute={alwaysAllowExecute}
+							alwaysAllowFollowupQuestions={alwaysAllowFollowupQuestions}
+							alwaysAllowUpdateTodoList={alwaysAllowUpdateTodoList}
+							followupAutoApproveTimeoutMs={followupAutoApproveTimeoutMs}
 							allowedCommands={allowedCommands}
+							deniedCommands={deniedCommands}
 							setCachedStateField={setCachedStateField}
 						/>
 					)}
@@ -612,10 +662,18 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					{/* Context Management Section */}
 					{activeTab === "contextManagement" && (
 						<ContextManagementSettings
+							autoCondenseContext={autoCondenseContext}
+							autoCondenseContextPercent={autoCondenseContextPercent}
+							listApiConfigMeta={listApiConfigMeta ?? []}
 							maxOpenTabsContext={maxOpenTabsContext}
 							maxWorkspaceFiles={maxWorkspaceFiles ?? 200}
 							showRooIgnoredFiles={showRooIgnoredFiles}
 							maxReadFileLine={maxReadFileLine}
+							maxConcurrentFileReads={maxConcurrentFileReads}
+							profileThresholds={profileThresholds}
+							includeDiagnosticMessages={includeDiagnosticMessages}
+							maxDiagnosticMessages={maxDiagnosticMessages}
+							writeDelayMs={writeDelayMs}
 							setCachedStateField={setCachedStateField}
 						/>
 					)}
@@ -624,6 +682,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					{activeTab === "terminal" && (
 						<TerminalSettings
 							terminalOutputLineLimit={terminalOutputLineLimit}
+							terminalOutputCharacterLimit={terminalOutputCharacterLimit}
 							terminalShellIntegrationTimeout={terminalShellIntegrationTimeout}
 							terminalShellIntegrationDisabled={terminalShellIntegrationDisabled}
 							terminalCommandDelay={terminalCommandDelay}
@@ -637,24 +696,17 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 						/>
 					)}
 
+					{/* Prompts Section */}
+					{activeTab === "prompts" && (
+						<PromptsSettings
+							customSupportPrompts={customSupportPrompts || {}}
+							setCustomSupportPrompts={setCustomSupportPromptsField}
+						/>
+					)}
+
 					{/* Experimental Section */}
 					{activeTab === "experimental" && (
-						<ExperimentalSettings
-							setExperimentEnabled={setExperimentEnabled}
-							experiments={experiments}
-							autoCondenseContextPercent={autoCondenseContextPercent}
-							condensingApiConfigId={condensingApiConfigId}
-							setCondensingApiConfigId={(value) => setCachedStateField("condensingApiConfigId", value)}
-							customCondensingPrompt={customCondensingPrompt}
-							setCustomCondensingPrompt={(value) => setCachedStateField("customCondensingPrompt", value)}
-							listApiConfigMeta={listApiConfigMeta ?? []}
-							setCachedStateField={setCachedStateField}
-							codebaseIndexModels={codebaseIndexModels}
-							codebaseIndexConfig={codebaseIndexConfig}
-							apiConfiguration={apiConfiguration}
-							setApiConfigurationField={setApiConfigurationField}
-							areSettingsCommitted={!isChangeDetected}
-						/>
+						<ExperimentalSettings setExperimentEnabled={setExperimentEnabled} experiments={experiments} />
 					)}
 
 					{/* Language Section */}

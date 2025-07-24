@@ -1,14 +1,18 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react"
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { appendImages } from "@src/utils/imageUtils"
+import { McpExecution } from "./McpExecution"
 import { useSize } from "react-use"
 import { useTranslation, Trans } from "react-i18next"
 import deepEqual from "fast-deep-equal"
 import { VSCodeBadge, VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 
 import type { ClineMessage } from "@roo-code/types"
+import { Mode } from "@roo/modes"
 
 import { ClineApiReqInfo, ClineAskUseMcpServer, ClineSayTool } from "@roo/ExtensionMessage"
 import { COMMAND_OUTPUT_STRING } from "@roo/combineCommandSequences"
 import { safeJsonParse } from "@roo/safeJsonParse"
+import { FollowUpData, SuggestionItem } from "@roo-code/types"
 
 import { useCopyToClipboard } from "@src/utils/clipboard"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
@@ -18,24 +22,29 @@ import { removeLeadingNonAlphanumeric } from "@src/utils/removeLeadingNonAlphanu
 import { getLanguageFromPath } from "@src/utils/getLanguageFromPath"
 import { Button } from "@src/components/ui"
 
+import ChatTextArea from "./ChatTextArea"
+import { MAX_IMAGES_PER_MESSAGE } from "./ChatView"
+
 import { ToolUseBlock, ToolUseBlockHeader } from "../common/ToolUseBlock"
+import UpdateTodoListToolBlock from "./UpdateTodoListToolBlock"
 import CodeAccordian from "../common/CodeAccordian"
 import CodeBlock from "../common/CodeBlock"
 import MarkdownBlock from "../common/MarkdownBlock"
 import { ReasoningBlock } from "./ReasoningBlock"
 import Thumbnails from "../common/Thumbnails"
 import McpResourceRow from "../mcp/McpResourceRow"
-import McpToolRow from "../mcp/McpToolRow"
 
 import { Mention } from "./Mention"
 import { CheckpointSaved } from "./checkpoints/CheckpointSaved"
 import { FollowUpSuggest } from "./FollowUpSuggest"
+import { BatchFilePermission } from "./BatchFilePermission"
+import { BatchDiffApproval } from "./BatchDiffApproval"
 import { ProgressIndicator } from "./ProgressIndicator"
 import { Markdown } from "./Markdown"
 import { CommandExecution } from "./CommandExecution"
 import { CommandExecutionError } from "./CommandExecutionError"
 import { AutoApprovedRequestLimitWarning } from "./AutoApprovedRequestLimitWarning"
-import { CondensingContextRow, ContextCondenseRow } from "./ContextCondenseRow"
+import { CondenseContextErrorRow, CondensingContextRow, ContextCondenseRow } from "./ContextCondenseRow"
 import CodebaseSearchResultsDisplay from "./CodebaseSearchResultsDisplay"
 
 interface ChatRowProps {
@@ -44,9 +53,13 @@ interface ChatRowProps {
 	isExpanded: boolean
 	isLast: boolean
 	isStreaming: boolean
-	onToggleExpand: () => void
+	onToggleExpand: (ts: number) => void
 	onHeightChange: (isTaller: boolean) => void
-	onSuggestionClick?: (answer: string, event?: React.MouseEvent) => void
+	onSuggestionClick?: (suggestion: SuggestionItem, event?: React.MouseEvent) => void
+	onBatchFileResponse?: (response: { [key: string]: boolean }) => void
+	onFollowUpUnmount?: () => void
+	isFollowUpAnswered?: boolean
+	editable?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -95,13 +108,74 @@ export const ChatRowContent = ({
 	isStreaming,
 	onToggleExpand,
 	onSuggestionClick,
+	onFollowUpUnmount,
+	onBatchFileResponse,
+	isFollowUpAnswered,
+	editable,
 }: ChatRowContentProps) => {
 	const { t } = useTranslation()
-	const { mcpServers, alwaysAllowMcp, currentCheckpoint } = useExtensionState()
+	const { mcpServers, alwaysAllowMcp, currentCheckpoint, mode } = useExtensionState()
 	const [reasoningCollapsed, setReasoningCollapsed] = useState(true)
 	const [isDiffErrorExpanded, setIsDiffErrorExpanded] = useState(false)
 	const [showCopySuccess, setShowCopySuccess] = useState(false)
+	const [isEditing, setIsEditing] = useState(false)
+	const [editedContent, setEditedContent] = useState("")
+	const [editMode, setEditMode] = useState<Mode>(mode || "code")
+	const [editImages, setEditImages] = useState<string[]>([])
 	const { copyWithFeedback } = useCopyToClipboard()
+
+	// Handle message events for image selection during edit mode
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			const msg = event.data
+			if (msg.type === "selectedImages" && msg.context === "edit" && msg.messageTs === message.ts && isEditing) {
+				setEditImages((prevImages) => appendImages(prevImages, msg.images, MAX_IMAGES_PER_MESSAGE))
+			}
+		}
+
+		window.addEventListener("message", handleMessage)
+		return () => window.removeEventListener("message", handleMessage)
+	}, [isEditing, message.ts])
+
+	// Memoized callback to prevent re-renders caused by inline arrow functions
+	const handleToggleExpand = useCallback(() => {
+		onToggleExpand(message.ts)
+	}, [onToggleExpand, message.ts])
+
+	// Handle edit button click
+	const handleEditClick = useCallback(() => {
+		setIsEditing(true)
+		setEditedContent(message.text || "")
+		setEditImages(message.images || [])
+		setEditMode(mode || "code")
+		// Edit mode is now handled entirely in the frontend
+		// No need to notify the backend
+	}, [message.text, message.images, mode])
+
+	// Handle cancel edit
+	const handleCancelEdit = useCallback(() => {
+		setIsEditing(false)
+		setEditedContent(message.text || "")
+		setEditImages(message.images || [])
+		setEditMode(mode || "code")
+	}, [message.text, message.images, mode])
+
+	// Handle save edit
+	const handleSaveEdit = useCallback(() => {
+		setIsEditing(false)
+		// Send edited message to backend
+		vscode.postMessage({
+			type: "submitEditedMessage",
+			value: message.ts,
+			editedMessageContent: editedContent,
+			images: editImages,
+		})
+	}, [message.ts, editedContent, editImages])
+
+	// Handle image selection for editing
+	const handleSelectImages = useCallback(() => {
+		vscode.postMessage({ type: "selectImages", context: "edit", messageTs: message.ts })
+	}, [message.ts])
 
 	const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
 		if (message.text !== null && message.text !== undefined && message.say === "api_req_started") {
@@ -270,7 +344,7 @@ export const ChatRowContent = ({
 
 	const followUpData = useMemo(() => {
 		if (message.type === "ask" && message.ask === "followup" && !message.partial) {
-			return safeJsonParse<any>(message.text)
+			return safeJsonParse<FollowUpData>(message.text)
 		}
 		return null
 	}, [message.type, message.ask, message.partial, message.text])
@@ -285,14 +359,39 @@ export const ChatRowContent = ({
 		switch (tool.tool) {
 			case "editedExistingFile":
 			case "appliedDiff":
+				// Check if this is a batch diff request
+				if (message.type === "ask" && tool.batchDiffs && Array.isArray(tool.batchDiffs)) {
+					return (
+						<>
+							<div style={headerStyle}>
+								{toolIcon("diff")}
+								<span style={{ fontWeight: "bold" }}>
+									{t("chat:fileOperations.wantsToApplyBatchChanges")}
+								</span>
+							</div>
+							<BatchDiffApproval files={tool.batchDiffs} ts={message.ts} />
+						</>
+					)
+				}
+
+				// Regular single file diff
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon(tool.tool === "appliedDiff" ? "diff" : "edit")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon(tool.tool === "appliedDiff" ? "diff" : "edit")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{tool.isOutsideWorkspace
-									? t("chat:fileOperations.wantsToEditOutsideWorkspace")
-									: t("chat:fileOperations.wantsToEdit")}
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: tool.isOutsideWorkspace
+										? t("chat:fileOperations.wantsToEditOutsideWorkspace")
+										: t("chat:fileOperations.wantsToEdit")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -302,7 +401,7 @@ export const ChatRowContent = ({
 							progressStatus={message.progressStatus}
 							isLoading={message.partial}
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -310,15 +409,24 @@ export const ChatRowContent = ({
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("insert")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("insert")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{tool.isOutsideWorkspace
-									? t("chat:fileOperations.wantsToEditOutsideWorkspace")
-									: tool.lineNumber === 0
-										? t("chat:fileOperations.wantsToInsertAtEnd")
-										: t("chat:fileOperations.wantsToInsertWithLineNumber", {
-												lineNumber: tool.lineNumber,
-											})}
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: tool.isOutsideWorkspace
+										? t("chat:fileOperations.wantsToEditOutsideWorkspace")
+										: tool.lineNumber === 0
+											? t("chat:fileOperations.wantsToInsertAtEnd")
+											: t("chat:fileOperations.wantsToInsertWithLineNumber", {
+													lineNumber: tool.lineNumber,
+												})}
 							</span>
 						</div>
 						<CodeAccordian
@@ -328,7 +436,7 @@ export const ChatRowContent = ({
 							progressStatus={message.progressStatus}
 							isLoading={message.partial}
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -336,11 +444,20 @@ export const ChatRowContent = ({
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("replace")}
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("replace")
+							)}
 							<span style={{ fontWeight: "bold" }}>
-								{message.type === "ask"
-									? t("chat:fileOperations.wantsToSearchReplace")
-									: t("chat:fileOperations.didSearchReplace")}
+								{tool.isProtected && message.type === "ask"
+									? t("chat:fileOperations.wantsToEditProtected")
+									: message.type === "ask"
+										? t("chat:fileOperations.wantsToSearchReplace")
+										: t("chat:fileOperations.didSearchReplace")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -350,7 +467,7 @@ export const ChatRowContent = ({
 							progressStatus={message.progressStatus}
 							isLoading={message.partial}
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -376,12 +493,38 @@ export const ChatRowContent = ({
 					</div>
 				)
 			}
+			case "updateTodoList" as any: {
+				const todos = (tool as any).todos || []
+				return (
+					<UpdateTodoListToolBlock
+						todos={todos}
+						content={(tool as any).content}
+						onChange={(updatedTodos) => {
+							if (typeof vscode !== "undefined" && vscode?.postMessage) {
+								vscode.postMessage({ type: "updateTodoList", payload: { todos: updatedTodos } })
+							}
+						}}
+						editable={editable && isLast}
+					/>
+				)
+			}
 			case "newFileCreated":
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("new-file")}
-							<span style={{ fontWeight: "bold" }}>{t("chat:fileOperations.wantsToCreate")}</span>
+							{tool.isProtected ? (
+								<span
+									className="codicon codicon-lock"
+									style={{ color: "var(--vscode-editorWarning-foreground)", marginBottom: "-1.5px" }}
+								/>
+							) : (
+								toolIcon("new-file")
+							)}
+							<span style={{ fontWeight: "bold" }}>
+								{tool.isProtected
+									? t("chat:fileOperations.wantsToEditProtected")
+									: t("chat:fileOperations.wantsToCreate")}
+							</span>
 						</div>
 						<CodeAccordian
 							path={tool.path}
@@ -389,11 +532,36 @@ export const ChatRowContent = ({
 							language={getLanguageFromPath(tool.path || "") || "log"}
 							isLoading={message.partial}
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
+							onJumpToFile={() => vscode.postMessage({ type: "openFile", text: "./" + tool.path })}
 						/>
 					</>
 				)
 			case "readFile":
+				// Check if this is a batch file permission request
+				const isBatchRequest = message.type === "ask" && tool.batchFiles && Array.isArray(tool.batchFiles)
+
+				if (isBatchRequest) {
+					return (
+						<>
+							<div style={headerStyle}>
+								{toolIcon("files")}
+								<span style={{ fontWeight: "bold" }}>
+									{t("chat:fileOperations.wantsToReadMultiple")}
+								</span>
+							</div>
+							<BatchFilePermission
+								files={tool.batchFiles || []}
+								onPermissionResponse={(response) => {
+									onBatchFileResponse?.(response)
+								}}
+								ts={message?.ts}
+							/>
+						</>
+					)
+				}
+
+				// Regular single file read request
 				return (
 					<>
 						<div style={headerStyle}>
@@ -402,7 +570,11 @@ export const ChatRowContent = ({
 								{message.type === "ask"
 									? tool.isOutsideWorkspace
 										? t("chat:fileOperations.wantsToReadOutsideWorkspace")
-										: t("chat:fileOperations.wantsToRead")
+										: tool.additionalFileCount && tool.additionalFileCount > 0
+											? t("chat:fileOperations.wantsToReadAndXMore", {
+													count: tool.additionalFileCount,
+												})
+											: t("chat:fileOperations.wantsToRead")
 									: t("chat:fileOperations.didRead")}
 							</span>
 						</div>
@@ -435,7 +607,7 @@ export const ChatRowContent = ({
 							language="markdown"
 							isLoading={message.partial}
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -446,8 +618,12 @@ export const ChatRowContent = ({
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewTopLevel")
-									: t("chat:directoryOperations.didViewTopLevel")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewTopLevelOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewTopLevel")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewTopLevelOutsideWorkspace")
+										: t("chat:directoryOperations.didViewTopLevel")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -455,7 +631,7 @@ export const ChatRowContent = ({
 							code={tool.content}
 							language="shell-session"
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -466,8 +642,12 @@ export const ChatRowContent = ({
 							{toolIcon("folder-opened")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewRecursive")
-									: t("chat:directoryOperations.didViewRecursive")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewRecursiveOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewRecursive")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewRecursiveOutsideWorkspace")
+										: t("chat:directoryOperations.didViewRecursive")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -475,7 +655,7 @@ export const ChatRowContent = ({
 							code={tool.content}
 							language="shellsession"
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -486,8 +666,12 @@ export const ChatRowContent = ({
 							{toolIcon("file-code")}
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask"
-									? t("chat:directoryOperations.wantsToViewDefinitions")
-									: t("chat:directoryOperations.didViewDefinitions")}
+									? tool.isOutsideWorkspace
+										? t("chat:directoryOperations.wantsToViewDefinitionsOutsideWorkspace")
+										: t("chat:directoryOperations.wantsToViewDefinitions")
+									: tool.isOutsideWorkspace
+										? t("chat:directoryOperations.didViewDefinitionsOutsideWorkspace")
+										: t("chat:directoryOperations.didViewDefinitions")}
 							</span>
 						</div>
 						<CodeAccordian
@@ -495,7 +679,7 @@ export const ChatRowContent = ({
 							code={tool.content}
 							language="markdown"
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -507,13 +691,21 @@ export const ChatRowContent = ({
 							<span style={{ fontWeight: "bold" }}>
 								{message.type === "ask" ? (
 									<Trans
-										i18nKey="chat:directoryOperations.wantsToSearch"
+										i18nKey={
+											tool.isOutsideWorkspace
+												? "chat:directoryOperations.wantsToSearchOutsideWorkspace"
+												: "chat:directoryOperations.wantsToSearch"
+										}
 										components={{ code: <code>{tool.regex}</code> }}
 										values={{ regex: tool.regex }}
 									/>
 								) : (
 									<Trans
-										i18nKey="chat:directoryOperations.didSearch"
+										i18nKey={
+											tool.isOutsideWorkspace
+												? "chat:directoryOperations.didSearchOutsideWorkspace"
+												: "chat:directoryOperations.didSearch"
+										}
 										components={{ code: <code>{tool.regex}</code> }}
 										values={{ regex: tool.regex }}
 									/>
@@ -525,7 +717,7 @@ export const ChatRowContent = ({
 							code={tool.content}
 							language="shellsession"
 							isExpanded={isExpanded}
-							onToggleExpand={onToggleExpand}
+							onToggleExpand={handleToggleExpand}
 						/>
 					</>
 				)
@@ -813,7 +1005,7 @@ export const ChatRowContent = ({
 									MozUserSelect: "none",
 									msUserSelect: "none",
 								}}
-								onClick={onToggleExpand}>
+								onClick={handleToggleExpand}>
 								<div style={{ display: "flex", alignItems: "center", gap: "10px", flexGrow: 1 }}>
 									{icon}
 									{title}
@@ -852,7 +1044,7 @@ export const ChatRowContent = ({
 										code={safeJsonParse<any>(message.text)?.request}
 										language="markdown"
 										isExpanded={true}
-										onToggleExpand={onToggleExpand}
+										onToggleExpand={handleToggleExpand}
 									/>
 								</div>
 							)}
@@ -868,23 +1060,59 @@ export const ChatRowContent = ({
 					)
 				case "user_feedback":
 					return (
-						<div className="bg-vscode-editor-background border rounded-xs p-1 overflow-hidden whitespace-pre-wrap word-break-break-word overflow-wrap-anywhere">
-							<div className="flex justify-between gap-2">
-								<div className="flex-grow px-2 py-1">
-									<Mention text={message.text} withShadow />
+						<div className="bg-vscode-editor-background border rounded-xs p-1 overflow-hidden whitespace-pre-wrap">
+							{isEditing ? (
+								<div className="flex flex-col gap-2 p-2">
+									<ChatTextArea
+										inputValue={editedContent}
+										setInputValue={setEditedContent}
+										sendingDisabled={false}
+										selectApiConfigDisabled={true}
+										placeholderText={t("chat:editMessage.placeholder")}
+										selectedImages={editImages}
+										setSelectedImages={setEditImages}
+										onSend={handleSaveEdit}
+										onSelectImages={handleSelectImages}
+										shouldDisableImages={false}
+										mode={editMode}
+										setMode={setEditMode}
+										modeShortcutText=""
+										isEditMode={true}
+										onCancel={handleCancelEdit}
+									/>
 								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									disabled={isStreaming}
-									onClick={(e) => {
-										e.stopPropagation()
-										vscode.postMessage({ type: "deleteMessage", value: message.ts })
-									}}>
-									<span className="codicon codicon-trash" />
-								</Button>
-							</div>
-							{message.images && message.images.length > 0 && (
+							) : (
+								<div className="flex justify-between">
+									<div className="flex-grow px-2 py-1 wrap-anywhere">
+										<Mention text={message.text} withShadow />
+									</div>
+									<div className="flex">
+										<Button
+											variant="ghost"
+											size="icon"
+											className="shrink-0 hidden"
+											disabled={isStreaming}
+											onClick={(e) => {
+												e.stopPropagation()
+												handleEditClick()
+											}}>
+											<span className="codicon codicon-edit" />
+										</Button>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="shrink-0"
+											disabled={isStreaming}
+											onClick={(e) => {
+												e.stopPropagation()
+												vscode.postMessage({ type: "deleteMessage", value: message.ts })
+											}}>
+											<span className="codicon codicon-trash" />
+										</Button>
+									</div>
+								</div>
+							)}
+							{!isEditing && message.images && message.images.length > 0 && (
 								<Thumbnails images={message.images} style={{ marginTop: "8px" }} />
 							)}
 						</div>
@@ -898,7 +1126,7 @@ export const ChatRowContent = ({
 								language="diff"
 								isFeedback={true}
 								isExpanded={isExpanded}
-								onToggleExpand={onToggleExpand}
+								onToggleExpand={handleToggleExpand}
 							/>
 						</div>
 					)
@@ -928,28 +1156,6 @@ export const ChatRowContent = ({
 					)
 				case "shell_integration_warning":
 					return <CommandExecutionError />
-				case "mcp_server_response":
-					return (
-						<>
-							<div style={{ paddingTop: 0 }}>
-								<div
-									style={{
-										marginBottom: "4px",
-										opacity: 0.8,
-										fontSize: "12px",
-										textTransform: "uppercase",
-									}}>
-									{t("chat:response")}
-								</div>
-								<CodeAccordian
-									code={message.text}
-									language="json"
-									isExpanded={true}
-									onToggleExpand={onToggleExpand}
-								/>
-							</div>
-						</>
-					)
 				case "checkpoint_saved":
 					return (
 						<CheckpointSaved
@@ -964,6 +1170,8 @@ export const ChatRowContent = ({
 						return <CondensingContextRow />
 					}
 					return message.contextCondense ? <ContextCondenseRow {...message.contextCondense} /> : null
+				case "condense_context_error":
+					return <CondenseContextErrorRow errorText={message.text} />
 				case "codebase_search_result":
 					let parsed: {
 						content: {
@@ -991,9 +1199,11 @@ export const ChatRowContent = ({
 						return <div>Error displaying search results.</div>
 					}
 
-					const { query = "", results = [] } = parsed?.content || {}
+					const { results = [] } = parsed?.content || {}
 
-					return <CodebaseSearchResultsDisplay query={query} results={results} />
+					return <CodebaseSearchResultsDisplay results={results} />
+				case "user_edit_todos":
+					return <UpdateTodoListToolBlock userEdited onChange={() => {}} />
 				default:
 					return (
 						<>
@@ -1031,7 +1241,17 @@ export const ChatRowContent = ({
 						/>
 					)
 				case "use_mcp_server":
-					const useMcpServer = safeJsonParse<ClineAskUseMcpServer>(message.text)
+					// Parse the message text to get the MCP server request
+					const messageJson = safeJsonParse<any>(message.text, {})
+
+					// Extract the response field if it exists
+					const { response, ...mcpServerRequest } = messageJson
+
+					// Create the useMcpServer object with the response field
+					const useMcpServer: ClineAskUseMcpServer = {
+						...mcpServerRequest,
+						response,
+					}
 
 					if (!useMcpServer) {
 						return null
@@ -1045,13 +1265,7 @@ export const ChatRowContent = ({
 								{icon}
 								{title}
 							</div>
-							<div
-								style={{
-									background: "var(--vscode-textCodeBlock-background)",
-									borderRadius: "3px",
-									padding: "8px 10px",
-									marginTop: "8px",
-								}}>
+							<div className="w-full bg-vscode-editor-background border border-vscode-border rounded-xs p-2 mt-2">
 								{useMcpServer.type === "access_mcp_resource" && (
 									<McpResourceRow
 										item={{
@@ -1071,45 +1285,16 @@ export const ChatRowContent = ({
 									/>
 								)}
 								{useMcpServer.type === "use_mcp_tool" && (
-									<>
-										<div onClick={(e) => e.stopPropagation()}>
-											<McpToolRow
-												tool={{
-													name: useMcpServer.toolName || "",
-													description:
-														server?.tools?.find(
-															(tool) => tool.name === useMcpServer.toolName,
-														)?.description || "",
-													alwaysAllow:
-														server?.tools?.find(
-															(tool) => tool.name === useMcpServer.toolName,
-														)?.alwaysAllow || false,
-												}}
-												serverName={useMcpServer.serverName}
-												serverSource={server?.source}
-												alwaysAllowMcp={alwaysAllowMcp}
-											/>
-										</div>
-										{useMcpServer.arguments && useMcpServer.arguments !== "{}" && (
-											<div style={{ marginTop: "8px" }}>
-												<div
-													style={{
-														marginBottom: "4px",
-														opacity: 0.8,
-														fontSize: "12px",
-														textTransform: "uppercase",
-													}}>
-													{t("chat:arguments")}
-												</div>
-												<CodeAccordian
-													code={useMcpServer.arguments}
-													language="json"
-													isExpanded={true}
-													onToggleExpand={onToggleExpand}
-												/>
-											</div>
-										)}
-									</>
+									<McpExecution
+										executionId={message.ts.toString()}
+										text={useMcpServer.arguments !== "{}" ? useMcpServer.arguments : undefined}
+										serverName={useMcpServer.serverName}
+										toolName={useMcpServer.toolName}
+										isArguments={true}
+										server={server}
+										useMcpServer={useMcpServer}
+										alwaysAllowMcp={alwaysAllowMcp}
+									/>
 								)}
 							</div>
 						</>
@@ -1148,6 +1333,8 @@ export const ChatRowContent = ({
 								suggestions={followUpData?.suggest}
 								onSuggestionClick={onSuggestionClick}
 								ts={message?.ts}
+								onCancelAutoApproval={onFollowUpUnmount}
+								isAnswered={isFollowUpAnswered}
 							/>
 						</>
 					)

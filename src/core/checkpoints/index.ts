@@ -1,16 +1,19 @@
 import pWaitFor from "p-wait-for"
 import * as vscode from "vscode"
 
+import { TelemetryService } from "@roo-code/telemetry"
+
 import { Task } from "../task/Task"
 
 import { getWorkspacePath } from "../../utils/path"
+import { checkGitInstalled } from "../../utils/git"
+import { t } from "../../i18n"
 
 import { ClineApiReqInfo } from "../../shared/ExtensionMessage"
 import { getApiMetrics } from "../../shared/getApiMetrics"
 
 import { DIFF_VIEW_URI_SCHEME } from "../../integrations/editor/DiffViewProvider"
 
-import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { CheckpointServiceOptions, RepoPerTaskCheckpointService } from "../../services/checkpoints"
 
 export function getCheckpointService(cline: Task) {
@@ -23,7 +26,7 @@ export function getCheckpointService(cline: Task) {
 	}
 
 	if (cline.checkpointServiceInitializing) {
-		console.log("[Cline#getCheckpointService] checkpoint service is still initializing")
+		console.log("[Task#getCheckpointService] checkpoint service is still initializing")
 		return undefined
 	}
 
@@ -39,13 +42,13 @@ export function getCheckpointService(cline: Task) {
 		}
 	}
 
-	console.log("[Cline#getCheckpointService] initializing checkpoints service")
+	console.log("[Task#getCheckpointService] initializing checkpoints service")
 
 	try {
 		const workspaceDir = getWorkspacePath()
 
 		if (!workspaceDir) {
-			log("[Cline#getCheckpointService] workspace folder not found, disabling checkpoints")
+			log("[Task#getCheckpointService] workspace folder not found, disabling checkpoints")
 			cline.enableCheckpoints = false
 			return undefined
 		}
@@ -53,7 +56,7 @@ export function getCheckpointService(cline: Task) {
 		const globalStorageDir = provider?.context.globalStorageUri.fsPath
 
 		if (!globalStorageDir) {
-			log("[Cline#getCheckpointService] globalStorageDir not found, disabling checkpoints")
+			log("[Task#getCheckpointService] globalStorageDir not found, disabling checkpoints")
 			cline.enableCheckpoints = false
 			return undefined
 		}
@@ -69,8 +72,49 @@ export function getCheckpointService(cline: Task) {
 
 		cline.checkpointServiceInitializing = true
 
+		// Check if Git is installed before initializing the service
+		// Note: This is intentionally fire-and-forget to match the original IIFE pattern
+		// The service is returned immediately while Git check happens asynchronously
+		checkGitInstallation(cline, service, log, provider)
+
+		return service
+	} catch (err) {
+		log(`[Task#getCheckpointService] ${err.message}`)
+		cline.enableCheckpoints = false
+		return undefined
+	}
+}
+
+async function checkGitInstallation(
+	cline: Task,
+	service: RepoPerTaskCheckpointService,
+	log: (message: string) => void,
+	provider: any,
+) {
+	try {
+		const gitInstalled = await checkGitInstalled()
+
+		if (!gitInstalled) {
+			log("[Task#getCheckpointService] Git is not installed, disabling checkpoints")
+			cline.enableCheckpoints = false
+			cline.checkpointServiceInitializing = false
+
+			// Show user-friendly notification
+			const selection = await vscode.window.showWarningMessage(
+				t("common:errors.git_not_installed"),
+				t("common:buttons.learn_more"),
+			)
+
+			if (selection === t("common:buttons.learn_more")) {
+				await vscode.env.openExternal(vscode.Uri.parse("https://git-scm.com/downloads"))
+			}
+
+			return
+		}
+
+		// Git is installed, proceed with initialization
 		service.on("initialize", () => {
-			log("[Cline#getCheckpointService] service initialized")
+			log("[Task#getCheckpointService] service initialized")
 
 			try {
 				const isCheckpointNeeded =
@@ -80,11 +124,11 @@ export function getCheckpointService(cline: Task) {
 				cline.checkpointServiceInitializing = false
 
 				if (isCheckpointNeeded) {
-					log("[Cline#getCheckpointService] no checkpoints found, saving initial checkpoint")
+					log("[Task#getCheckpointService] no checkpoints found, saving initial checkpoint")
 					checkpointSave(cline)
 				}
 			} catch (err) {
-				log("[Cline#getCheckpointService] caught error in on('initialize'), disabling checkpoints")
+				log("[Task#getCheckpointService] caught error in on('initialize'), disabling checkpoints")
 				cline.enableCheckpoints = false
 			}
 		})
@@ -98,32 +142,27 @@ export function getCheckpointService(cline: Task) {
 						isNonInteractive: true,
 					})
 					.catch((err) => {
-						log("[Cline#getCheckpointService] caught unexpected error in say('checkpoint_saved')")
+						log("[Task#getCheckpointService] caught unexpected error in say('checkpoint_saved')")
 						console.error(err)
 					})
 			} catch (err) {
-				log("[Cline#getCheckpointService] caught unexpected error in on('checkpoint'), disabling checkpoints")
+				log("[Task#getCheckpointService] caught unexpected error in on('checkpoint'), disabling checkpoints")
 				console.error(err)
 				cline.enableCheckpoints = false
 			}
 		})
 
-		log("[Cline#getCheckpointService] initializing shadow git")
+		log("[Task#getCheckpointService] initializing shadow git")
 
 		service.initShadowGit().catch((err) => {
-			log(
-				`[Cline#getCheckpointService] caught unexpected error in initShadowGit, disabling checkpoints (${err.message})`,
-			)
-
-			console.error(err)
+			log(`[Task#getCheckpointService] initShadowGit -> ${err.message}`)
 			cline.enableCheckpoints = false
 		})
-
-		return service
 	} catch (err) {
-		log("[Cline#getCheckpointService] caught unexpected error, disabling checkpoints")
+		log(`[Task#getCheckpointService] Unexpected error during Git check: ${err.message}`)
+		console.error("Git check error:", err)
 		cline.enableCheckpoints = false
-		return undefined
+		cline.checkpointServiceInitializing = false
 	}
 }
 
@@ -140,7 +179,7 @@ async function getInitializedCheckpointService(
 	try {
 		await pWaitFor(
 			() => {
-				console.log("[Cline#getCheckpointService] waiting for service to initialize")
+				console.log("[Task#getCheckpointService] waiting for service to initialize")
 				return service.isInitialized
 			},
 			{ interval, timeout },
@@ -152,7 +191,7 @@ async function getInitializedCheckpointService(
 	}
 }
 
-export async function checkpointSave(cline: Task) {
+export async function checkpointSave(cline: Task, force = false) {
 	const service = getCheckpointService(cline)
 
 	if (!service) {
@@ -166,11 +205,11 @@ export async function checkpointSave(cline: Task) {
 		return
 	}
 
-	telemetryService.captureCheckpointCreated(cline.taskId)
+	TelemetryService.instance.captureCheckpointCreated(cline.taskId)
 
 	// Start the checkpoint process in the background.
-	return service.saveCheckpoint(`Task: ${cline.taskId}, Time: ${Date.now()}`).catch((err) => {
-		console.error("[Cline#checkpointSave] caught unexpected error, disabling checkpoints", err)
+	return service.saveCheckpoint(`Task: ${cline.taskId}, Time: ${Date.now()}`, { allowEmpty: force }).catch((err) => {
+		console.error("[Task#checkpointSave] caught unexpected error, disabling checkpoints", err)
 		cline.enableCheckpoints = false
 	})
 }
@@ -198,7 +237,7 @@ export async function checkpointRestore(cline: Task, { ts, commitHash, mode }: C
 
 	try {
 		await service.restoreCheckpoint(commitHash)
-		telemetryService.captureCheckpointRestored(cline.taskId)
+		TelemetryService.instance.captureCheckpointRestored(cline.taskId)
 		await provider?.postMessageToWebview({ type: "currentCheckpointUpdated", text: commitHash })
 
 		if (mode === "restore") {
@@ -256,7 +295,7 @@ export async function checkpointDiff(cline: Task, { ts, previousCommitHash, comm
 		return
 	}
 
-	telemetryService.captureCheckpointDiffed(cline.taskId)
+	TelemetryService.instance.captureCheckpointDiffed(cline.taskId)
 
 	if (!previousCommitHash && mode === "checkpoint") {
 		const previousCheckpoint = cline.clineMessages

@@ -1,9 +1,11 @@
-import type { ProviderName, ModelInfo } from "@roo-code/types"
-
 import {
+	type ProviderName,
+	type ModelInfo,
 	anthropicModels,
 	bedrockModels,
+	claudeCodeModels,
 	deepSeekModels,
+	moonshotModels,
 	geminiModels,
 	mistralModels,
 	openAiNativeModels,
@@ -11,14 +13,14 @@ import {
 	xaiModels,
 	groqModels,
 	chutesModels,
-} from "@roo/api"
-
-export { AWS_REGIONS } from "@roo/aws_regions"
+} from "@roo-code/types"
 
 export const MODELS_BY_PROVIDER: Partial<Record<ProviderName, Record<string, ModelInfo>>> = {
 	anthropic: anthropicModels,
+	"claude-code": claudeCodeModels,
 	bedrock: bedrockModels,
 	deepseek: deepSeekModels,
+	moonshot: moonshotModels,
 	gemini: geminiModels,
 	mistral: mistralModels,
 	"openai-native": openAiNativeModels,
@@ -31,8 +33,10 @@ export const MODELS_BY_PROVIDER: Partial<Record<ProviderName, Record<string, Mod
 export const PROVIDERS = [
 	{ value: "openrouter", label: "OpenRouter" },
 	{ value: "anthropic", label: "Anthropic" },
+	{ value: "claude-code", label: "Claude Code" },
 	{ value: "gemini", label: "Google Gemini" },
 	{ value: "deepseek", label: "DeepSeek" },
+	{ value: "moonshot", label: "Moonshot" },
 	{ value: "openai-native", label: "OpenAI" },
 	{ value: "openai", label: "OpenAI Compatible" },
 	{ value: "vertex", label: "GCP Vertex AI" },
@@ -47,14 +51,7 @@ export const PROVIDERS = [
 	{ value: "human-relay", label: "Human Relay" },
 	{ value: "xai", label: "xAI (Grok)" },
 	{ value: "groq", label: "Groq" },
+	{ value: "huggingface", label: "Hugging Face" },
 	{ value: "chutes", label: "Chutes AI" },
 	{ value: "litellm", label: "LiteLLM" },
 ].sort((a, b) => a.label.localeCompare(b.label))
-
-export const VERTEX_REGIONS = [
-	{ value: "us-east5", label: "us-east5" },
-	{ value: "us-central1", label: "us-central1" },
-	{ value: "europe-west1", label: "europe-west1" },
-	{ value: "europe-west4", label: "europe-west4" },
-	{ value: "asia-southeast1", label: "asia-southeast1" },
-]

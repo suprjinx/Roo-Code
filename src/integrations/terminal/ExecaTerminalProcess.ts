@@ -40,6 +40,12 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 				shell: true,
 				cwd: this.terminal.getCurrentWorkingDirectory(),
 				all: true,
+				env: {
+					...process.env,
+					// Ensure UTF-8 encoding for Ruby, CocoaPods, etc.
+					LANG: "en_US.UTF-8",
+					LC_ALL: "en_US.UTF-8",
+				},
 			})`${command}`
 
 			this.pid = subprocess.pid
@@ -67,6 +73,8 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 				let timeoutId: NodeJS.Timeout | undefined
 
 				const kill = new Promise<void>((resolve) => {
+					console.log(`[ExecaTerminalProcess#run] SIGKILL -> ${this.pid}`)
+
 					timeoutId = setTimeout(() => {
 						try {
 							subprocess.kill("SIGKILL")
@@ -80,7 +88,7 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 					await Promise.race([subprocess, kill])
 				} catch (error) {
 					console.log(
-						`[ExecaTerminalProcess] subprocess termination error: ${error instanceof Error ? error.message : String(error)}`,
+						`[ExecaTerminalProcess#run] subprocess termination error: ${error instanceof Error ? error.message : String(error)}`,
 					)
 				}
 
@@ -92,12 +100,13 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 			this.emit("shell_execution_complete", { exitCode: 0 })
 		} catch (error) {
 			if (error instanceof ExecaError) {
-				console.error(`[ExecaTerminalProcess] shell execution error: ${error.message}`)
+				console.error(`[ExecaTerminalProcess#run] shell execution error: ${error.message}`)
 				this.emit("shell_execution_complete", { exitCode: error.exitCode ?? 0, signalName: error.signal })
 			} else {
 				console.error(
-					`[ExecaTerminalProcess] shell execution error: ${error instanceof Error ? error.message : String(error)}`,
+					`[ExecaTerminalProcess#run] shell execution error: ${error instanceof Error ? error.message : String(error)}`,
 				)
+
 				this.emit("shell_execution_complete", { exitCode: 1 })
 			}
 		}
@@ -122,29 +131,30 @@ export class ExecaTerminalProcess extends BaseTerminalProcess {
 			psTree(this.pid, async (err, children) => {
 				if (!err) {
 					const pids = children.map((p) => parseInt(p.PID))
+					console.error(`[ExecaTerminalProcess#abort] SIGKILL children -> ${pids.join(", ")}`)
 
 					for (const pid of pids) {
 						try {
-							process.kill(pid, "SIGINT")
+							process.kill(pid, "SIGKILL")
 						} catch (e) {
 							console.warn(
-								`[ExecaTerminalProcess] Failed to send SIGINT to child PID ${pid}: ${e instanceof Error ? e.message : String(e)}`,
+								`[ExecaTerminalProcess#abort] Failed to send SIGKILL to child PID ${pid}: ${e instanceof Error ? e.message : String(e)}`,
 							)
-							// Optionally try SIGTERM or SIGKILL on failure, depending on desired behavior.
 						}
 					}
 				} else {
 					console.error(
-						`[ExecaTerminalProcess] Failed to get process tree for PID ${this.pid}: ${err.message}`,
+						`[ExecaTerminalProcess#abort] Failed to get process tree for PID ${this.pid}: ${err.message}`,
 					)
 				}
 			})
 
 			try {
-				process.kill(this.pid, "SIGINT")
+				console.error(`[ExecaTerminalProcess#abort] SIGKILL parent -> ${this.pid}`)
+				process.kill(this.pid, "SIGKILL")
 			} catch (e) {
 				console.warn(
-					`[ExecaTerminalProcess] Failed to send SIGINT to main PID ${this.pid}: ${e instanceof Error ? e.message : String(e)}`,
+					`[ExecaTerminalProcess#abort] Failed to send SIGKILL to main PID ${this.pid}: ${e instanceof Error ? e.message : String(e)}`,
 				)
 			}
 		}

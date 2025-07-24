@@ -22,6 +22,7 @@ import { getAccessMcpResourceDescription } from "./access-mcp-resource"
 import { getSwitchModeDescription } from "./switch-mode"
 import { getNewTaskDescription } from "./new-task"
 import { getCodebaseSearchDescription } from "./codebase-search"
+import { getUpdateTodoListDescription } from "./update-todo-list"
 import { CodeIndexManager } from "../../../services/code-index/manager"
 
 // Map of tool names to their description functions
@@ -35,7 +36,7 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	list_code_definition_names: (args) => getListCodeDefinitionNamesDescription(args),
 	browser_action: (args) => getBrowserActionDescription(args),
 	ask_followup_question: () => getAskFollowupQuestionDescription(),
-	attempt_completion: () => getAttemptCompletionDescription(),
+	attempt_completion: (args) => getAttemptCompletionDescription(args),
 	use_mcp_tool: (args) => getUseMcpToolDescription(args),
 	access_mcp_resource: (args) => getAccessMcpResourceDescription(args),
 	codebase_search: () => getCodebaseSearchDescription(),
@@ -45,6 +46,7 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	search_and_replace: (args) => getSearchAndReplaceDescription(args),
 	apply_diff: (args) =>
 		args.diffStrategy ? args.diffStrategy.getToolDescription({ cwd: args.cwd, toolOptions: args.toolOptions }) : "",
+	update_todo_list: (args) => getUpdateTodoListDescription(args),
 }
 
 export function getToolDescriptionsForMode(
@@ -58,6 +60,7 @@ export function getToolDescriptionsForMode(
 	customModes?: ModeConfig[],
 	experiments?: Record<string, boolean>,
 	partialReadsEnabled?: boolean,
+	settings?: Record<string, any>,
 ): string {
 	const config = getModeConfig(mode, customModes)
 	const args: ToolArgs = {
@@ -67,6 +70,8 @@ export function getToolDescriptionsForMode(
 		browserViewportSize,
 		mcpHub,
 		partialReadsEnabled,
+		settings,
+		experiments,
 	}
 
 	const tools = new Set<string>()
@@ -102,6 +107,11 @@ export function getToolDescriptionsForMode(
 		!(codeIndexManager.isFeatureEnabled && codeIndexManager.isFeatureConfigured && codeIndexManager.isInitialized)
 	) {
 		tools.delete("codebase_search")
+	}
+
+	// Conditionally exclude update_todo_list if disabled in settings
+	if (settings?.todoListEnabled === false) {
+		tools.delete("update_todo_list")
 	}
 
 	// Map tool descriptions for allowed tools

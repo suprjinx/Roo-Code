@@ -28,36 +28,107 @@
 		"notifications": "Notificaciones",
 		"contextManagement": "Contexto",
 		"terminal": "Terminal",
+		"prompts": "Indicaciones",
 		"experimental": "Experimental",
 		"language": "Idioma",
 		"about": "Acerca de Roo Code"
 	},
+	"prompts": {
+		"description": "Configura indicaciones de soporte que se utilizan para acciones rápidas como mejorar indicaciones, explicar código y solucionar problemas. Estas indicaciones ayudan a Roo a brindar mejor asistencia para tareas comunes de desarrollo."
+	},
 	"codeIndex": {
 		"title": "Indexación de código",
+		"description": "Configura los ajustes de indexación de código para habilitar búsqueda semántica en tu proyecto. <0>Más información</0>",
+		"statusTitle": "Estado",
 		"enableLabel": "Habilitar indexación de código",
-		"enableDescription": "<0>La indexación de código</0> es una función experimental que crea un índice de búsqueda semántica de tu proyecto usando embeddings de IA. Esto permite a Roo Code entender mejor y navegar grandes bases de código encontrando código relevante basado en significado en lugar de solo palabras clave.",
+		"enableDescription": "Habilita la indexación de código para mejorar la búsqueda y la comprensión del contexto",
+		"settingsTitle": "Configuración de indexación",
+		"disabledMessage": "La indexación de código está actualmente deshabilitada. Habilítala en la configuración global para configurar las opciones de indexación.",
 		"providerLabel": "Proveedor de embeddings",
+		"embedderProviderLabel": "Proveedor de embedder",
 		"selectProviderPlaceholder": "Seleccionar proveedor",
 		"openaiProvider": "OpenAI",
 		"ollamaProvider": "Ollama",
-		"openaiKeyLabel": "Clave de OpenAI:",
+		"geminiProvider": "Gemini",
+		"geminiApiKeyLabel": "Clave API:",
+		"geminiApiKeyPlaceholder": "Introduce tu clave de API de Gemini",
+		"mistralProvider": "Mistral",
+		"mistralApiKeyLabel": "Clave API:",
+		"mistralApiKeyPlaceholder": "Introduce tu clave de API de Mistral",
+		"openaiCompatibleProvider": "Compatible con OpenAI",
+		"openAiKeyLabel": "Clave API de OpenAI",
+		"openAiKeyPlaceholder": "Introduce tu clave API de OpenAI",
+		"openAiCompatibleBaseUrlLabel": "URL base",
+		"openAiCompatibleApiKeyLabel": "Clave API",
+		"openAiCompatibleApiKeyPlaceholder": "Introduce tu clave API",
+		"openAiCompatibleModelDimensionLabel": "Dimensión de Embedding:",
+		"modelDimensionLabel": "Dimensión del modelo",
+		"openAiCompatibleModelDimensionPlaceholder": "ej., 1536",
+		"openAiCompatibleModelDimensionDescription": "La dimensión de embedding (tamaño de salida) para tu modelo. Consulta la documentación de tu proveedor para este valor. Valores comunes: 384, 768, 1536, 3072.",
 		"modelLabel": "Modelo",
+		"modelPlaceholder": "Introduce el nombre del modelo",
+		"selectModel": "Seleccionar un modelo",
 		"selectModelPlaceholder": "Seleccionar modelo",
 		"ollamaUrlLabel": "URL de Ollama:",
+		"ollamaBaseUrlLabel": "URL base de Ollama",
 		"qdrantUrlLabel": "URL de Qdrant",
 		"qdrantKeyLabel": "Clave de Qdrant:",
-		"startIndexingButton": "Iniciar indexación",
-		"clearIndexDataButton": "Borrar datos de índice",
+		"qdrantApiKeyLabel": "Clave API de Qdrant",
+		"qdrantApiKeyPlaceholder": "Introduce tu clave API de Qdrant (opcional)",
+		"setupConfigLabel": "Configuración",
+		"startIndexingButton": "Iniciar",
+		"clearIndexDataButton": "Borrar índice",
 		"unsavedSettingsMessage": "Por favor guarda tus ajustes antes de iniciar el proceso de indexación.",
 		"clearDataDialog": {
 			"title": "¿Estás seguro?",
 			"description": "Esta acción no se puede deshacer. Esto eliminará permanentemente los datos de índice de tu base de código.",
 			"cancelButton": "Cancelar",
 			"confirmButton": "Borrar datos"
-		}
+		},
+		"ollamaUrlPlaceholder": "http://localhost:11434",
+		"openAiCompatibleBaseUrlPlaceholder": "https://api.example.com",
+		"modelDimensionPlaceholder": "1536",
+		"qdrantUrlPlaceholder": "http://localhost:6333",
+		"saveError": "Error al guardar la configuración",
+		"modelDimensions": "({{dimension}} dimensiones)",
+		"saveSuccess": "Configuración guardada exitosamente",
+		"saving": "Guardando...",
+		"saveSettings": "Guardar",
+		"indexingStatuses": {
+			"standby": "En espera",
+			"indexing": "Indexando",
+			"indexed": "Indexado",
+			"error": "Error"
+		},
+		"close": "Cerrar",
+		"validation": {
+			"invalidQdrantUrl": "URL de Qdrant no válida",
+			"invalidOllamaUrl": "URL de Ollama no válida",
+			"invalidBaseUrl": "URL base no válida",
+			"qdrantUrlRequired": "Se requiere la URL de Qdrant",
+			"openaiApiKeyRequired": "Se requiere la clave API de OpenAI",
+			"modelSelectionRequired": "Se requiere la selección de un modelo",
+			"apiKeyRequired": "Se requiere la clave API",
+			"modelIdRequired": "Se requiere el ID del modelo",
+			"modelDimensionRequired": "Se requiere la dimensión del modelo",
+			"geminiApiKeyRequired": "Se requiere la clave API de Gemini",
+			"mistralApiKeyRequired": "Se requiere la clave de API de Mistral",
+			"ollamaBaseUrlRequired": "Se requiere la URL base de Ollama",
+			"baseUrlRequired": "Se requiere la URL base",
+			"modelDimensionMinValue": "La dimensión del modelo debe ser mayor que 0"
+		},
+		"advancedConfigLabel": "Configuración avanzada",
+		"searchMinScoreLabel": "Umbral de puntuación de búsqueda",
+		"searchMinScoreDescription": "Puntuación mínima de similitud (0.0-1.0) requerida para los resultados de búsqueda. Valores más bajos devuelven más resultados pero pueden ser menos relevantes. Valores más altos devuelven menos resultados pero más relevantes.",
+		"searchMinScoreResetTooltip": "Restablecer al valor predeterminado (0.4)",
+		"searchMaxResultsLabel": "Resultados máximos de búsqueda",
+		"searchMaxResultsDescription": "Número máximo de resultados de búsqueda a devolver al consultar el índice de código. Valores más altos proporcionan más contexto pero pueden incluir resultados menos relevantes.",
+		"resetToDefault": "Restablecer al valor predeterminado"
 	},
 	"autoApprove": {
 		"description": "Permitir que Roo realice operaciones automáticamente sin requerir aprobación. Habilite esta configuración solo si confía plenamente en la IA y comprende los riesgos de seguridad asociados.",
+		"toggleAriaLabel": "Alternar aprobación automática",
+		"disabledAriaLabel": "Aprobación automática desactivada: seleccione primero las opciones",
 		"readOnly": {
 			"label": "Lectura",
 			"description": "Cuando está habilitado, Roo verá automáticamente el contenido del directorio y leerá archivos sin que necesite hacer clic en el botón Aprobar.",
@@ -73,6 +144,10 @@
 			"outsideWorkspace": {
 				"label": "Incluir archivos fuera del espacio de trabajo",
 				"description": "Permitir a Roo crear y editar archivos fuera del espacio de trabajo actual sin requerir aprobación."
+			},
+			"protected": {
+				"label": "Incluir archivos protegidos",
+				"description": "Permitir a Roo crear y editar archivos protegidos (como .rooignore y archivos de configuración .roo/) sin requerir aprobación."
 			}
 		},
 		"browser": {
@@ -96,19 +171,33 @@
 			"label": "Subtareas",
 			"description": "Permitir la creación y finalización de subtareas sin requerir aprobación"
 		},
+		"followupQuestions": {
+			"label": "Pregunta",
+			"description": "Seleccionar automáticamente la primera respuesta sugerida para preguntas de seguimiento después del tiempo de espera configurado",
+			"timeoutLabel": "Tiempo de espera antes de seleccionar automáticamente la primera respuesta"
+		},
 		"execute": {
 			"label": "Ejecutar",
 			"description": "Ejecutar automáticamente comandos de terminal permitidos sin requerir aprobación",
 			"allowedCommands": "Comandos de auto-ejecución permitidos",
 			"allowedCommandsDescription": "Prefijos de comandos que pueden ser ejecutados automáticamente cuando \"Aprobar siempre operaciones de ejecución\" está habilitado. Añade * para permitir todos los comandos (usar con precaución).",
+			"deniedCommands": "Comandos denegados",
+			"deniedCommandsDescription": "Prefijos de comandos que serán automáticamente denegados sin pedir aprobación. En caso de conflictos con comandos permitidos, la coincidencia de prefijo más larga tiene prioridad. Añade * para denegar todos los comandos.",
 			"commandPlaceholder": "Ingrese prefijo de comando (ej. 'git ')",
-			"addButton": "Añadir"
+			"deniedCommandPlaceholder": "Ingrese prefijo de comando a denegar (ej. 'rm -rf')",
+			"addButton": "Añadir",
+			"autoDenied": "Los comandos con el prefijo `{{prefix}}` han sido prohibidos por el usuario. No eludes esta restricción ejecutando otro comando."
+		},
+		"updateTodoList": {
+			"label": "Todo",
+			"description": "La lista de tareas se actualiza automáticamente sin aprobación"
 		},
 		"apiRequestLimit": {
 			"title": "Solicitudes máximas",
 			"description": "Realizar automáticamente esta cantidad de solicitudes a la API antes de pedir aprobación para continuar con la tarea.",
 			"unlimited": "Ilimitado"
-		}
+		},
+		"selectOptionsFirst": "Selecciona al menos una opción a continuación para habilitar la aprobación automática"
 	},
 	"providers": {
 		"providerDocumentation": "Documentación de {{provider}}",
@@ -128,6 +217,8 @@
 		"createProfile": "Crear perfil",
 		"cannotDeleteOnlyProfile": "No se puede eliminar el único perfil",
 		"searchPlaceholder": "Buscar perfiles",
+		"searchProviderPlaceholder": "Buscar proveedores",
+		"noProviderMatchFound": "No se encontraron proveedores",
 		"noMatchFound": "No se encontraron perfiles coincidentes",
 		"vscodeLmDescription": "La API del Modelo de Lenguaje de VS Code le permite ejecutar modelos proporcionados por otras extensiones de VS Code (incluido, entre otros, GitHub Copilot). La forma más sencilla de empezar es instalar las extensiones Copilot y Copilot Chat desde el VS Code Marketplace.",
 		"awsCustomArnUse": "Ingrese un ARN de Amazon Bedrock válido para el modelo que desea utilizar. Ejemplos de formato:",
@@ -162,11 +253,28 @@
 		"getChutesApiKey": "Obtener clave API de Chutes",
 		"deepSeekApiKey": "Clave API de DeepSeek",
 		"getDeepSeekApiKey": "Obtener clave API de DeepSeek",
+		"moonshotApiKey": "Clave API de Moonshot",
+		"getMoonshotApiKey": "Obtener clave API de Moonshot",
+		"moonshotBaseUrl": "Punto de entrada de Moonshot",
 		"geminiApiKey": "Clave API de Gemini",
 		"getGroqApiKey": "Obtener clave API de Groq",
 		"groqApiKey": "Clave API de Groq",
+		"getHuggingFaceApiKey": "Obtener clave API de Hugging Face",
+		"huggingFaceApiKey": "Clave API de Hugging Face",
+		"huggingFaceModelId": "ID del modelo",
+		"huggingFaceLoading": "Cargando...",
+		"huggingFaceModelsCount": "({{count}} modelos)",
+		"huggingFaceSelectModel": "Seleccionar un modelo...",
+		"huggingFaceSearchModels": "Buscar modelos...",
+		"huggingFaceNoModelsFound": "No se encontraron modelos",
+		"huggingFaceProvider": "Proveedor",
+		"huggingFaceProviderAuto": "Automático",
+		"huggingFaceSelectProvider": "Seleccionar un proveedor...",
+		"huggingFaceSearchProviders": "Buscar proveedores...",
+		"huggingFaceNoProvidersFound": "No se encontraron proveedores",
 		"getGeminiApiKey": "Obtener clave API de Gemini",
 		"openAiApiKey": "Clave API de OpenAI",
+		"apiKey": "Clave API",
 		"openAiBaseUrl": "URL base",
 		"getOpenAiApiKey": "Obtener clave API de OpenAI",
 		"mistralApiKey": "Clave API de Mistral",
@@ -185,6 +293,11 @@
 		"awsSessionToken": "Token de sesión de AWS",
 		"awsRegion": "Región de AWS",
 		"awsCrossRegion": "Usar inferencia entre regiones",
+		"awsBedrockVpc": {
+			"useCustomVpcEndpoint": "Usar punto de conexión VPC personalizado",
+			"vpcEndpointUrlPlaceholder": "Ingrese URL del punto de conexión VPC (opcional)",
+			"examples": "Ejemplos:"
+		},
 		"enablePromptCaching": "Habilitar caché de prompts",
 		"enablePromptCachingTitle": "Habilitar el caché de prompts para mejorar el rendimiento y reducir costos para modelos compatibles.",
 		"cacheUsageNote": "Nota: Si no ve el uso del caché, intente seleccionar un modelo diferente y luego seleccionar nuevamente su modelo deseado.",
@@ -277,13 +390,26 @@
 			"label": "Límite de tasa",
 			"description": "Tiempo mínimo entre solicitudes de API."
 		},
+		"consecutiveMistakeLimit": {
+			"label": "Límite de errores y repeticiones",
+			"description": "Número de errores consecutivos o acciones repetidas antes de mostrar el diálogo 'Roo está teniendo problemas'",
+			"unlimitedDescription": "Reintentos ilimitados habilitados (proceder automáticamente). El diálogo nunca aparecerá.",
+			"warning": "⚠️ Establecer en 0 permite reintentos ilimitados que pueden consumir un uso significativo de la API"
+		},
 		"reasoningEffort": {
 			"label": "Esfuerzo de razonamiento del modelo",
 			"high": "Alto",
 			"medium": "Medio",
 			"low": "Bajo"
 		},
-		"setReasoningLevel": "Habilitar esfuerzo de razonamiento"
+		"setReasoningLevel": "Habilitar esfuerzo de razonamiento",
+		"claudeCode": {
+			"pathLabel": "Ruta de Claude Code",
+			"description": "Ruta opcional a su CLI de Claude Code. Por defecto, es 'claude' si no se establece.",
+			"placeholder": "Por defecto: claude",
+			"maxTokensLabel": "Tokens máximos de salida",
+			"maxTokensDescription": "Número máximo de tokens de salida para las respuestas de Claude Code. El valor predeterminado es 8000."
+		}
 	},
 	"browser": {
 		"enable": {
@@ -333,6 +459,26 @@
 	},
 	"contextManagement": {
 		"description": "Controle qué información se incluye en la ventana de contexto de la IA, afectando el uso de token y la calidad de respuesta",
+		"autoCondenseContextPercent": {
+			"label": "Umbral para activar la condensación inteligente de contexto",
+			"description": "Cuando la ventana de contexto alcanza este umbral, Roo la condensará automáticamente."
+		},
+		"condensingApiConfiguration": {
+			"label": "Configuración de API para condensación de contexto",
+			"description": "Seleccione qué configuración de API usar para operaciones de condensación de contexto. Deje sin seleccionar para usar la configuración activa actual.",
+			"useCurrentConfig": "Usar configuración actual"
+		},
+		"customCondensingPrompt": {
+			"label": "Prompt personalizado para condensación de contexto",
+			"description": "Personalice el prompt del sistema utilizado para la condensación de contexto. Deje vacío para usar el prompt predeterminado.",
+			"placeholder": "Ingrese su prompt de condensación personalizado aquí...\n\nPuede usar la misma estructura que el prompt predeterminado:\n- Conversación anterior\n- Trabajo actual\n- Conceptos técnicos clave\n- Archivos y código relevantes\n- Resolución de problemas\n- Tareas pendientes y próximos pasos",
+			"reset": "Restablecer a predeterminado",
+			"hint": "Vacío = usar prompt predeterminado"
+		},
+		"autoCondenseContext": {
+			"name": "Activar automáticamente la condensación inteligente de contexto",
+			"description": "Cuando está habilitado, Roo condensará automáticamente el contexto cuando se alcance el umbral. Cuando está deshabilitado, aún puedes activar manualmente la condensación de contexto."
+		},
 		"openTabs": {
 			"label": "Límite de contexto de pestañas abiertas",
 			"description": "Número máximo de pestañas abiertas de VSCode a incluir en el contexto. Valores más altos proporcionan más contexto pero aumentan el uso de token."
@@ -350,6 +496,35 @@
 			"description": "Roo lee este número de líneas cuando el modelo omite valores de inicio/fin. Si este número es menor que el total del archivo, Roo genera un índice de números de línea de las definiciones de código. Casos especiales: -1 indica a Roo que lea el archivo completo (sin indexación), y 0 indica que no lea líneas y proporcione solo índices de línea para un contexto mínimo. Valores más bajos minimizan el uso inicial de contexto, permitiendo lecturas posteriores de rangos de líneas precisos. Las solicitudes con inicio/fin explícitos no están limitadas por esta configuración.",
 			"lines": "líneas",
 			"always_full_read": "Siempre leer el archivo completo"
+		},
+		"maxConcurrentFileReads": {
+			"label": "Límite de lecturas simultáneas",
+			"description": "Número máximo de archivos que la herramienta 'read_file' puede procesar simultáneamente. Valores más altos pueden acelerar la lectura de múltiples archivos pequeños pero aumentan el uso de memoria."
+		},
+		"diagnostics": {
+			"includeMessages": {
+				"label": "Incluir automáticamente diagnósticos en el contexto",
+				"description": "Cuando está habilitado, los mensajes de diagnóstico (errores) de los archivos editados se incluirán automáticamente en el contexto. Siempre puedes incluir manualmente todos los diagnósticos del espacio de trabajo usando @problems."
+			},
+			"maxMessages": {
+				"label": "Máximo de mensajes de diagnóstico",
+				"description": "Número máximo de mensajes de diagnóstico a incluir por archivo. Este límite se aplica tanto a la inclusión automática (cuando la casilla está habilitada) como a las menciones manuales de @problems. Valores más altos proporcionan más contexto pero aumentan el uso de tokens.",
+				"resetTooltip": "Restablecer al valor predeterminado (50)",
+				"unlimitedLabel": "Ilimitado"
+			},
+			"delayAfterWrite": {
+				"label": "Retraso después de escrituras para permitir que los diagnósticos detecten problemas potenciales",
+				"description": "Tiempo de espera después de escrituras de archivos antes de continuar, permitiendo que las herramientas de diagnóstico procesen cambios y detecten problemas."
+			}
+		},
+		"condensingThreshold": {
+			"label": "Umbral de condensación de contexto",
+			"selectProfile": "Configurar umbral para perfil",
+			"defaultProfile": "Predeterminado global (todos los perfiles)",
+			"defaultDescription": "Cuando el contexto alcance este porcentaje, se condensará automáticamente para todos los perfiles a menos que tengan configuraciones personalizadas",
+			"profileDescription": "Umbral personalizado solo para este perfil (anula el predeterminado global)",
+			"inheritDescription": "Este perfil hereda el umbral predeterminado global ({{threshold}}%)",
+			"usesGlobal": "(usa global {{threshold}}%)"
 		}
 	},
 	"terminal": {
@@ -364,6 +539,10 @@
 		"outputLineLimit": {
 			"label": "Límite de salida de terminal",
 			"description": "Número máximo de líneas a incluir en la salida del terminal al ejecutar comandos. Cuando se excede, se eliminarán líneas del medio, ahorrando token. <0>Más información</0>"
+		},
+		"outputCharacterLimit": {
+			"label": "Límite de caracteres del terminal",
+			"description": "Número máximo de caracteres a incluir en la salida del terminal al ejecutar comandos. Este límite tiene prioridad sobre el límite de líneas para evitar problemas de memoria con líneas extremadamente largas. Cuando se excede, la salida se truncará. <0>Aprende más</0>"
 		},
 		"shellIntegrationTimeout": {
 			"label": "Tiempo de espera de integración del shell del terminal",
@@ -406,6 +585,9 @@
 			"description": "Cuando está habilitado, el terminal hereda las variables de entorno del proceso padre de VSCode, como la configuración de integración del shell definida en el perfil del usuario. Esto alterna directamente la configuración global de VSCode `terminal.integrated.inheritEnv`. <0>Más información</0>"
 		}
 	},
+	"advancedSettings": {
+		"title": "Configuración avanzada"
+	},
 	"advanced": {
 		"diff": {
 			"label": "Habilitar edición a través de diffs",
@@ -427,29 +609,13 @@
 				"label": "Precisión de coincidencia",
 				"description": "Este control deslizante controla cuán precisamente deben coincidir las secciones de código al aplicar diffs. Valores más bajos permiten coincidencias más flexibles pero aumentan el riesgo de reemplazos incorrectos. Use valores por debajo del 100% con extrema precaución."
 			}
+		},
+		"todoList": {
+			"label": "Habilitar herramienta de lista de tareas",
+			"description": "Cuando está habilitado, Roo puede crear y gestionar listas de tareas para hacer seguimiento del progreso. Esto ayuda a organizar tareas complejas en pasos manejables."
 		}
 	},
 	"experimental": {
-		"autoCondenseContextPercent": {
-			"label": "Umbral para activar la condensación inteligente de contexto",
-			"description": "Cuando la ventana de contexto alcanza este umbral, Roo la condensará automáticamente."
-		},
-		"condensingApiConfiguration": {
-			"label": "Configuración de API para condensación de contexto",
-			"description": "Seleccione qué configuración de API usar para operaciones de condensación de contexto. Deje sin seleccionar para usar la configuración activa actual.",
-			"useCurrentConfig": "Usar configuración actual"
-		},
-		"customCondensingPrompt": {
-			"label": "Prompt personalizado para condensación de contexto",
-			"description": "Personalice el prompt del sistema utilizado para la condensación de contexto. Deje vacío para usar el prompt predeterminado.",
-			"placeholder": "Ingrese su prompt de condensación personalizado aquí...\n\nPuede usar la misma estructura que el prompt predeterminado:\n- Conversación anterior\n- Trabajo actual\n- Conceptos técnicos clave\n- Archivos y código relevantes\n- Resolución de problemas\n- Tareas pendientes y próximos pasos",
-			"reset": "Restablecer a predeterminado",
-			"hint": "Vacío = usar prompt predeterminado"
-		},
-		"AUTO_CONDENSE_CONTEXT": {
-			"name": "Activar automáticamente la condensación inteligente de contexto",
-			"description": "La condensación inteligente de contexto utiliza una llamada LLM para resumir la conversación anterior cuando la ventana de contexto de la tarea alcanza un umbral preestablecido, en lugar de eliminar mensajes antiguos cuando el contexto se llena."
-		},
 		"DIFF_STRATEGY_UNIFIED": {
 			"name": "Usar estrategia de diff unificada experimental",
 			"description": "Habilitar la estrategia de diff unificada experimental. Esta estrategia podría reducir el número de reintentos causados por errores del modelo, pero puede causar comportamientos inesperados o ediciones incorrectas. Habilítela solo si comprende los riesgos y está dispuesto a revisar cuidadosamente todos los cambios."
@@ -469,6 +635,18 @@
 		"MULTI_SEARCH_AND_REPLACE": {
 			"name": "Usar herramienta experimental de diff de bloques múltiples",
 			"description": "Cuando está habilitado, Roo usará la herramienta de diff de bloques múltiples. Esto intentará actualizar múltiples bloques de código en el archivo en una sola solicitud."
+		},
+		"CONCURRENT_FILE_READS": {
+			"name": "Habilitar lectura concurrente de archivos",
+			"description": "Cuando está habilitado, Roo puede leer múltiples archivos en una sola solicitud. Cuando está deshabilitado, Roo debe leer archivos uno a la vez. Deshabilitarlo puede ayudar cuando se trabaja con modelos menos capaces o cuando deseas más control sobre el acceso a archivos."
+		},
+		"MARKETPLACE": {
+			"name": "Habilitar Marketplace",
+			"description": "Cuando está habilitado, puedes instalar MCP y modos personalizados del Marketplace."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Habilitar ediciones de archivos concurrentes",
+			"description": "Cuando está habilitado, Roo puede editar múltiples archivos en una sola solicitud. Cuando está deshabilitado, Roo debe editar archivos de uno en uno. Deshabilitar esto puede ayudar cuando trabajas con modelos menos capaces o cuando quieres más control sobre las modificaciones de archivos."
 		}
 	},
 	"promptCaching": {
@@ -537,7 +715,10 @@
 			"invalidFormat": "Formato de ARN no válido. Por favor, verifique los requisitos de formato.",
 			"regionMismatch": "Advertencia: La región en su ARN ({{arnRegion}}) no coincide con su región seleccionada ({{region}}). Esto puede causar problemas de acceso. El proveedor usará la región del ARN."
 		},
-		"modelAvailability": "El ID de modelo ({{modelId}}) que proporcionó no está disponible. Por favor, elija un modelo diferente."
+		"modelAvailability": "El ID de modelo ({{modelId}}) que proporcionó no está disponible. Por favor, elija un modelo diferente.",
+		"providerNotAllowed": "El proveedor '{{provider}}' no está permitido por su organización",
+		"modelNotAllowed": "El modelo '{{model}}' no está permitido para el proveedor '{{provider}}' por su organización",
+		"profileInvalid": "Este perfil contiene un proveedor o modelo que no está permitido por su organización"
 	},
 	"placeholders": {
 		"apiKey": "Ingrese clave API...",
@@ -571,5 +752,7 @@
 	"labels": {
 		"customArn": "ARN personalizado",
 		"useCustomArn": "Usar ARN personalizado..."
-	}
+	},
+	"includeMaxOutputTokens": "Incluir tokens máximos de salida",
+	"includeMaxOutputTokensDescription": "Enviar parámetro de tokens máximos de salida en solicitudes API. Algunos proveedores pueden no soportar esto."
 }

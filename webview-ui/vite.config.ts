@@ -5,6 +5,7 @@ import { execSync } from "child_process"
 import { defineConfig, type PluginOption, type Plugin } from "vite"
 import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
+import { sourcemapPlugin } from "./src/vite-plugins/sourcemapPlugin"
 
 function getGitSha() {
 	let gitSha: string | undefined = undefined
@@ -79,7 +80,7 @@ export default defineConfig(({ mode }) => {
 		define["process.env.PKG_OUTPUT_CHANNEL"] = JSON.stringify("Roo-Code-Nightly")
 	}
 
-	const plugins: PluginOption[] = [react(), tailwindcss(), persistPortPlugin(), wasmPlugin()]
+	const plugins: PluginOption[] = [react(), tailwindcss(), persistPortPlugin(), wasmPlugin(), sourcemapPlugin()]
 
 	return {
 		plugins,
@@ -94,12 +95,59 @@ export default defineConfig(({ mode }) => {
 			outDir,
 			emptyOutDir: true,
 			reportCompressedSize: false,
+			// Generate complete source maps with original TypeScript sources
 			sourcemap: true,
+			// Ensure source maps are properly included in the build
+			minify: mode === "production" ? "esbuild" : false,
 			rollupOptions: {
 				output: {
 					entryFileNames: `assets/[name].js`,
-					chunkFileNames: `assets/[name].js`,
-					assetFileNames: `assets/[name].[ext]`,
+					chunkFileNames: (chunkInfo) => {
+						if (chunkInfo.name === "mermaid-bundle") {
+							return `assets/mermaid-bundle.js`
+						}
+						// Default naming for other chunks, ensuring uniqueness from entry
+						return `assets/chunk-[hash].js`
+					},
+					assetFileNames: (assetInfo) => {
+						if (
+							assetInfo.name &&
+							(assetInfo.name.endsWith(".woff2") ||
+								assetInfo.name.endsWith(".woff") ||
+								assetInfo.name.endsWith(".ttf"))
+						) {
+							return "assets/fonts/[name][extname]"
+						}
+						// Ensure source maps are included in the build
+						if (assetInfo.name && assetInfo.name.endsWith(".map")) {
+							return "assets/[name]"
+						}
+						return "assets/[name][extname]"
+					},
+					manualChunks: (id, { getModuleInfo }) => {
+						// Consolidate all mermaid code and its direct large dependencies (like dagre)
+						// into a single chunk. The 'channel.js' error often points to dagre.
+						if (
+							id.includes("node_modules/mermaid") ||
+							id.includes("node_modules/dagre") || // dagre is a common dep for graph layout
+							id.includes("node_modules/cytoscape") // another potential graph lib
+							// Add other known large mermaid dependencies if identified
+						) {
+							return "mermaid-bundle"
+						}
+
+						// Check if the module is part of any explicitly defined mermaid-related dynamic import
+						// This is a more advanced check if simple path matching isn't enough.
+						const moduleInfo = getModuleInfo(id)
+						if (moduleInfo?.importers.some((importer) => importer.includes("node_modules/mermaid"))) {
+							return "mermaid-bundle"
+						}
+						if (
+							moduleInfo?.dynamicImporters.some((importer) => importer.includes("node_modules/mermaid"))
+						) {
+							return "mermaid-bundle"
+						}
+					},
 				},
 			},
 		},
@@ -116,6 +164,11 @@ export default defineConfig(({ mode }) => {
 		},
 		define,
 		optimizeDeps: {
+			include: [
+				"mermaid",
+				"dagre", // Explicitly include dagre for pre-bundling
+				// Add other known large mermaid dependencies if identified
+			],
 			exclude: ["@vscode/codicons", "vscode-oniguruma", "shiki"],
 		},
 		assetsInclude: ["**/*.wasm", "**/*.wav"],

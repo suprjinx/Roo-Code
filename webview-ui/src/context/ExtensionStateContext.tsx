@@ -1,15 +1,16 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
-import { useEvent } from "react-use"
 
-import type {
-	ProviderSettings,
-	ProviderSettingsEntry,
-	CustomModePrompts,
-	ModeConfig,
-	ExperimentId,
+import {
+	type ProviderSettings,
+	type ProviderSettingsEntry,
+	type CustomModePrompts,
+	type ModeConfig,
+	type ExperimentId,
+	type OrganizationAllowList,
+	ORGANIZATION_ALLOW_ALL,
 } from "@roo-code/types"
 
-import { ExtensionMessage, ExtensionState } from "@roo/ExtensionMessage"
+import { ExtensionMessage, ExtensionState, MarketplaceInstalledMetadata } from "@roo/ExtensionMessage"
 import { findLastIndex } from "@roo/array"
 import { McpServer } from "@roo/mcp"
 import { checkExistKey } from "@roo/checkExistApiConfig"
@@ -32,10 +33,25 @@ export interface ExtensionStateContextType extends ExtensionState {
 	currentCheckpoint?: string
 	filePaths: string[]
 	openedTabs: Array<{ label: string; isActive: boolean; path?: string }>
+	organizationAllowList: OrganizationAllowList
+	cloudIsAuthenticated: boolean
+	sharingEnabled: boolean
+	maxConcurrentFileReads?: number
+	mdmCompliant?: boolean
+	hasOpenedModeSelector: boolean // New property to track if user has opened mode selector
+	setHasOpenedModeSelector: (value: boolean) => void // Setter for the new property
+	alwaysAllowFollowupQuestions: boolean // New property for follow-up questions auto-approve
+	setAlwaysAllowFollowupQuestions: (value: boolean) => void // Setter for the new property
+	followupAutoApproveTimeoutMs: number | undefined // Timeout in ms for auto-approving follow-up questions
+	setFollowupAutoApproveTimeoutMs: (value: number) => void // Setter for the timeout
 	condensingApiConfigId?: string
 	setCondensingApiConfigId: (value: string) => void
 	customCondensingPrompt?: string
 	setCustomCondensingPrompt: (value: string) => void
+	marketplaceItems?: any[]
+	marketplaceInstalledMetadata?: MarketplaceInstalledMetadata
+	profileThresholds: Record<string, number>
+	setProfileThresholds: (value: Record<string, number>) => void
 	setApiConfiguration: (config: ProviderSettings) => void
 	setCustomInstructions: (value?: string) => void
 	setAlwaysAllowReadOnly: (value: boolean) => void
@@ -51,6 +67,7 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setShowRooIgnoredFiles: (value: boolean) => void
 	setShowAnnouncement: (value: boolean) => void
 	setAllowedCommands: (value: string[]) => void
+	setDeniedCommands: (value: string[]) => void
 	setAllowedMaxRequests: (value: number | undefined) => void
 	setSoundEnabled: (value: boolean) => void
 	setSoundVolume: (value: number) => void
@@ -71,6 +88,8 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setScreenshotQuality: (value: number) => void
 	terminalOutputLineLimit?: number
 	setTerminalOutputLineLimit: (value: number) => void
+	terminalOutputCharacterLimit?: number
+	setTerminalOutputCharacterLimit: (value: number) => void
 	mcpEnabled: boolean
 	setMcpEnabled: (value: boolean) => void
 	enableMcpServerCreation: boolean
@@ -108,47 +127,49 @@ export interface ExtensionStateContextType extends ExtensionState {
 	terminalCompressProgressBar?: boolean
 	setTerminalCompressProgressBar: (value: boolean) => void
 	setHistoryPreviewCollapsed: (value: boolean) => void
+	autoCondenseContext: boolean
+	setAutoCondenseContext: (value: boolean) => void
 	autoCondenseContextPercent: number
 	setAutoCondenseContextPercent: (value: number) => void
 	routerModels?: RouterModels
+	alwaysAllowUpdateTodoList?: boolean
+	setAlwaysAllowUpdateTodoList: (value: boolean) => void
+	includeDiagnosticMessages?: boolean
+	setIncludeDiagnosticMessages: (value: boolean) => void
+	maxDiagnosticMessages?: number
+	setMaxDiagnosticMessages: (value: number) => void
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
 
 export const mergeExtensionState = (prevState: ExtensionState, newState: ExtensionState) => {
-	const {
-		customModePrompts: prevCustomModePrompts,
-		customSupportPrompts: prevCustomSupportPrompts,
-		experiments: prevExperiments,
-		...prevRest
-	} = prevState
+	const { customModePrompts: prevCustomModePrompts, experiments: prevExperiments, ...prevRest } = prevState
 
 	const {
 		apiConfiguration,
 		customModePrompts: newCustomModePrompts,
-		customSupportPrompts: newCustomSupportPrompts,
+		customSupportPrompts,
 		experiments: newExperiments,
 		...newRest
 	} = newState
 
 	const customModePrompts = { ...prevCustomModePrompts, ...newCustomModePrompts }
-	const customSupportPrompts = { ...prevCustomSupportPrompts, ...newCustomSupportPrompts }
 	const experiments = { ...prevExperiments, ...newExperiments }
 	const rest = { ...prevRest, ...newRest }
 
-	// Note that we completely replace the previous apiConfiguration object with
-	// a new one since the state that is broadcast is the entire apiConfiguration
-	// and therefore merging is not necessary.
+	// Note that we completely replace the previous apiConfiguration and customSupportPrompts objects
+	// with new ones since the state that is broadcast is the entire objects so merging is not necessary.
 	return { ...rest, apiConfiguration, customModePrompts, customSupportPrompts, experiments }
 }
 
 export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [state, setState] = useState<ExtensionState>({
+	const [state, setState] = useState<ExtensionState & { organizationAllowList?: OrganizationAllowList }>({
 		version: "",
 		clineMessages: [],
 		taskHistory: [],
 		shouldShowAnnouncement: false,
 		allowedCommands: [],
+		deniedCommands: [],
 		soundEnabled: false,
 		soundVolume: 0.5,
 		ttsEnabled: false,
@@ -161,9 +182,10 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		browserViewportSize: "900x600",
 		screenshotQuality: 75,
 		terminalOutputLineLimit: 500,
+		terminalOutputCharacterLimit: 50000,
 		terminalShellIntegrationTimeout: 4000,
 		mcpEnabled: true,
-		enableMcpServerCreation: true,
+		enableMcpServerCreation: false,
 		alwaysApproveResubmit: false,
 		requestDelaySeconds: 5,
 		currentApiConfigName: "default",
@@ -175,6 +197,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		enhancementApiConfigId: "",
 		condensingApiConfigId: "", // Default empty string for condensing API config ID
 		customCondensingPrompt: "", // Default empty string for custom condensing prompt
+		hasOpenedModeSelector: false, // Default to false (not opened yet)
 		autoApprovalEnabled: false,
 		customModes: [],
 		maxOpenTabsContext: 20,
@@ -187,19 +210,31 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		maxReadFileLine: -1, // Default max read file line limit
 		pinnedApiConfigs: {}, // Empty object for pinned API configs
 		terminalZshOhMy: false, // Default Oh My Zsh integration setting
+		maxConcurrentFileReads: 5, // Default concurrent file reads
 		terminalZshP10k: false, // Default Powerlevel10k integration setting
 		terminalZdotdir: false, // Default ZDOTDIR handling setting
 		terminalCompressProgressBar: true, // Default to compress progress bar output
 		historyPreviewCollapsed: false, // Initialize the new state (default to expanded)
+		cloudUserInfo: null,
+		cloudIsAuthenticated: false,
+		sharingEnabled: false,
+		organizationAllowList: ORGANIZATION_ALLOW_ALL,
+		autoCondenseContext: true,
 		autoCondenseContextPercent: 100,
+		profileThresholds: {},
 		codebaseIndexConfig: {
-			codebaseIndexEnabled: false,
+			codebaseIndexEnabled: true,
 			codebaseIndexQdrantUrl: "http://localhost:6333",
 			codebaseIndexEmbedderProvider: "openai",
 			codebaseIndexEmbedderBaseUrl: "",
 			codebaseIndexEmbedderModelId: "",
+			codebaseIndexSearchMaxResults: undefined,
+			codebaseIndexSearchMinScore: undefined,
 		},
 		codebaseIndexModels: { ollama: {}, openai: {} },
+		alwaysAllowUpdateTodoList: true,
+		includeDiagnosticMessages: true,
+		maxDiagnosticMessages: 50,
 	})
 
 	const [didHydrateState, setDidHydrateState] = useState(false)
@@ -210,6 +245,13 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 	const [mcpServers, setMcpServers] = useState<McpServer[]>([])
 	const [currentCheckpoint, setCurrentCheckpoint] = useState<string>()
 	const [extensionRouterModels, setExtensionRouterModels] = useState<RouterModels | undefined>(undefined)
+	const [marketplaceItems, setMarketplaceItems] = useState<any[]>([])
+	const [alwaysAllowFollowupQuestions, setAlwaysAllowFollowupQuestions] = useState(false) // Add state for follow-up questions auto-approve
+	const [followupAutoApproveTimeoutMs, setFollowupAutoApproveTimeoutMs] = useState<number | undefined>(undefined) // Will be set from global settings
+	const [marketplaceInstalledMetadata, setMarketplaceInstalledMetadata] = useState<MarketplaceInstalledMetadata>({
+		project: {},
+		global: {},
+	})
 
 	const setListApiConfigMeta = useCallback(
 		(value: ProviderSettingsEntry[]) => setState((prevState) => ({ ...prevState, listApiConfigMeta: value })),
@@ -235,6 +277,21 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					setState((prevState) => mergeExtensionState(prevState, newState))
 					setShowWelcome(!checkExistKey(newState.apiConfiguration))
 					setDidHydrateState(true)
+					// Update alwaysAllowFollowupQuestions if present in state message
+					if ((newState as any).alwaysAllowFollowupQuestions !== undefined) {
+						setAlwaysAllowFollowupQuestions((newState as any).alwaysAllowFollowupQuestions)
+					}
+					// Update followupAutoApproveTimeoutMs if present in state message
+					if ((newState as any).followupAutoApproveTimeoutMs !== undefined) {
+						setFollowupAutoApproveTimeoutMs((newState as any).followupAutoApproveTimeoutMs)
+					}
+					// Handle marketplace data if present in state message
+					if (newState.marketplaceItems !== undefined) {
+						setMarketplaceItems(newState.marketplaceItems)
+					}
+					if (newState.marketplaceInstalledMetadata !== undefined) {
+						setMarketplaceInstalledMetadata(newState.marketplaceInstalledMetadata)
+					}
 					break
 				}
 				case "theme": {
@@ -251,14 +308,14 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					setOpenedTabs(tabs)
 					break
 				}
-				case "partialMessage": {
-					const partialMessage = message.partialMessage!
+				case "messageUpdated": {
+					const clineMessage = message.clineMessage!
 					setState((prevState) => {
 						// worth noting it will never be possible for a more up-to-date message to be sent here or in normal messages post since the presentAssistantContent function uses lock
-						const lastIndex = findLastIndex(prevState.clineMessages, (msg) => msg.ts === partialMessage.ts)
+						const lastIndex = findLastIndex(prevState.clineMessages, (msg) => msg.ts === clineMessage.ts)
 						if (lastIndex !== -1) {
 							const newClineMessages = [...prevState.clineMessages]
-							newClineMessages[lastIndex] = partialMessage
+							newClineMessages[lastIndex] = clineMessage
 							return { ...prevState, clineMessages: newClineMessages }
 						}
 						return prevState
@@ -281,12 +338,26 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					setExtensionRouterModels(message.routerModels)
 					break
 				}
+				case "marketplaceData": {
+					if (message.marketplaceItems !== undefined) {
+						setMarketplaceItems(message.marketplaceItems)
+					}
+					if (message.marketplaceInstalledMetadata !== undefined) {
+						setMarketplaceInstalledMetadata(message.marketplaceInstalledMetadata)
+					}
+					break
+				}
 			}
 		},
 		[setListApiConfigMeta],
 	)
 
-	useEvent("message", handleMessage)
+	useEffect(() => {
+		window.addEventListener("message", handleMessage)
+		return () => {
+			window.removeEventListener("message", handleMessage)
+		}
+	}, [handleMessage])
 
 	useEffect(() => {
 		vscode.postMessage({ type: "webviewDidLaunch" })
@@ -307,6 +378,12 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		writeDelayMs: state.writeDelayMs,
 		screenshotQuality: state.screenshotQuality,
 		routerModels: extensionRouterModels,
+		cloudIsAuthenticated: state.cloudIsAuthenticated ?? false,
+		marketplaceItems,
+		marketplaceInstalledMetadata,
+		profileThresholds: state.profileThresholds ?? {},
+		alwaysAllowFollowupQuestions,
+		followupAutoApproveTimeoutMs,
 		setExperimentEnabled: (id, enabled) =>
 			setState((prevState) => ({ ...prevState, experiments: { ...prevState.experiments, [id]: enabled } })),
 		setApiConfiguration,
@@ -322,8 +399,12 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setAlwaysAllowMcp: (value) => setState((prevState) => ({ ...prevState, alwaysAllowMcp: value })),
 		setAlwaysAllowModeSwitch: (value) => setState((prevState) => ({ ...prevState, alwaysAllowModeSwitch: value })),
 		setAlwaysAllowSubtasks: (value) => setState((prevState) => ({ ...prevState, alwaysAllowSubtasks: value })),
+		setAlwaysAllowFollowupQuestions,
+		setFollowupAutoApproveTimeoutMs: (value) =>
+			setState((prevState) => ({ ...prevState, followupAutoApproveTimeoutMs: value })),
 		setShowAnnouncement: (value) => setState((prevState) => ({ ...prevState, shouldShowAnnouncement: value })),
 		setAllowedCommands: (value) => setState((prevState) => ({ ...prevState, allowedCommands: value })),
+		setDeniedCommands: (value) => setState((prevState) => ({ ...prevState, deniedCommands: value })),
 		setAllowedMaxRequests: (value) => setState((prevState) => ({ ...prevState, allowedMaxRequests: value })),
 		setSoundEnabled: (value) => setState((prevState) => ({ ...prevState, soundEnabled: value })),
 		setSoundVolume: (value) => setState((prevState) => ({ ...prevState, soundVolume: value })),
@@ -338,6 +419,8 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setScreenshotQuality: (value) => setState((prevState) => ({ ...prevState, screenshotQuality: value })),
 		setTerminalOutputLineLimit: (value) =>
 			setState((prevState) => ({ ...prevState, terminalOutputLineLimit: value })),
+		setTerminalOutputCharacterLimit: (value) =>
+			setState((prevState) => ({ ...prevState, terminalOutputCharacterLimit: value })),
 		setTerminalShellIntegrationTimeout: (value) =>
 			setState((prevState) => ({ ...prevState, terminalShellIntegrationTimeout: value })),
 		setTerminalShellIntegrationDisabled: (value) =>
@@ -385,11 +468,26 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 			}),
 		setHistoryPreviewCollapsed: (value) =>
 			setState((prevState) => ({ ...prevState, historyPreviewCollapsed: value })),
+		setHasOpenedModeSelector: (value) => setState((prevState) => ({ ...prevState, hasOpenedModeSelector: value })),
+		setAutoCondenseContext: (value) => setState((prevState) => ({ ...prevState, autoCondenseContext: value })),
 		setAutoCondenseContextPercent: (value) =>
 			setState((prevState) => ({ ...prevState, autoCondenseContextPercent: value })),
 		setCondensingApiConfigId: (value) => setState((prevState) => ({ ...prevState, condensingApiConfigId: value })),
 		setCustomCondensingPrompt: (value) =>
 			setState((prevState) => ({ ...prevState, customCondensingPrompt: value })),
+		setProfileThresholds: (value) => setState((prevState) => ({ ...prevState, profileThresholds: value })),
+		alwaysAllowUpdateTodoList: state.alwaysAllowUpdateTodoList,
+		setAlwaysAllowUpdateTodoList: (value) => {
+			setState((prevState) => ({ ...prevState, alwaysAllowUpdateTodoList: value }))
+		},
+		includeDiagnosticMessages: state.includeDiagnosticMessages,
+		setIncludeDiagnosticMessages: (value) => {
+			setState((prevState) => ({ ...prevState, includeDiagnosticMessages: value }))
+		},
+		maxDiagnosticMessages: state.maxDiagnosticMessages,
+		setMaxDiagnosticMessages: (value) => {
+			setState((prevState) => ({ ...prevState, maxDiagnosticMessages: value }))
+		},
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

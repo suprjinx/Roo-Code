@@ -11,6 +11,7 @@ import { ClineSayTool } from "../../shared/ExtensionMessage"
 import { getReadablePath } from "../../utils/path"
 import { fileExistsAtPath } from "../../utils/fs"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
+import { DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
 
 /**
  * Tool for performing search and replace operations on files
@@ -115,6 +116,17 @@ export async function searchAndReplaceTool(
 			endLine: endLine,
 		}
 
+		const accessAllowed = cline.rooIgnoreController?.validateAccess(validRelPath)
+
+		if (!accessAllowed) {
+			await cline.say("rooignore_error", validRelPath)
+			pushToolResult(formatResponse.toolError(formatResponse.rooIgnoreError(validRelPath)))
+			return
+		}
+
+		// Check if file is write-protected
+		const isWriteProtected = cline.rooProtectedController?.isWriteProtected(validRelPath) || false
+
 		const absolutePath = path.resolve(cline.cwd, validRelPath)
 		const fileExists = await fileExistsAtPath(absolutePath)
 
@@ -199,9 +211,13 @@ export async function searchAndReplaceTool(
 		await cline.diffViewProvider.update(newContent, true)
 
 		// Request user approval for changes
-		const completeMessage = JSON.stringify({ ...sharedMessageProps, diff } satisfies ClineSayTool)
+		const completeMessage = JSON.stringify({
+			...sharedMessageProps,
+			diff,
+			isProtected: isWriteProtected,
+		} satisfies ClineSayTool)
 		const didApprove = await cline
-			.ask("tool", completeMessage, false)
+			.ask("tool", completeMessage, isWriteProtected)
 			.then((response) => response.response === "yesButtonClicked")
 
 		if (!didApprove) {
@@ -211,7 +227,12 @@ export async function searchAndReplaceTool(
 			return
 		}
 
-		const { newProblemsMessage, userEdits, finalContent } = await cline.diffViewProvider.saveChanges()
+		// Call saveChanges to update the DiffViewProvider properties
+		const provider = cline.providerRef.deref()
+		const state = await provider?.getState()
+		const diagnosticsEnabled = state?.diagnosticsEnabled ?? true
+		const writeDelayMs = state?.writeDelayMs ?? DEFAULT_WRITE_DELAY_MS
+		await cline.diffViewProvider.saveChanges(diagnosticsEnabled, writeDelayMs)
 
 		// Track file edit operation
 		if (relPath) {
@@ -220,34 +241,14 @@ export async function searchAndReplaceTool(
 
 		cline.didEditFile = true
 
-		if (!userEdits) {
-			pushToolResult(`The content was successfully replaced in ${relPath}.${newProblemsMessage}`)
-			await cline.diffViewProvider.reset()
-			return
-		}
-
-		await cline.say(
-			"user_feedback_diff",
-			JSON.stringify({
-				tool: "appliedDiff",
-				path: getReadablePath(cline.cwd, relPath),
-				diff: userEdits,
-			} satisfies ClineSayTool),
+		// Get the formatted response message
+		const message = await cline.diffViewProvider.pushToolWriteResult(
+			cline,
+			cline.cwd,
+			false, // Always false for search_and_replace
 		)
 
-		// Format and send response with user's updates
-		const resultMessage = [
-			`The user made the following updates to your content:\n\n${userEdits}\n\n`,
-			`The updated content has been successfully saved to ${validRelPath.toPosix()}. Here is the full, updated content of the file:\n\n`,
-			`<final_file_content path="${validRelPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n`,
-			`Please note:\n`,
-			`1. You do not need to re-write the file with these changes, as they have already been applied.\n`,
-			`2. Proceed with the task using the updated file content as the new baseline.\n`,
-			`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.`,
-			newProblemsMessage,
-		].join("")
-
-		pushToolResult(resultMessage)
+		pushToolResult(message)
 
 		// Record successful tool usage and cleanup
 		cline.recordToolUsage("search_and_replace")

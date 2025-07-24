@@ -11,11 +11,19 @@ export async function processUserContentMentions({
 	cwd,
 	urlContentFetcher,
 	fileContextTracker,
+	rooIgnoreController,
+	showRooIgnoredFiles = true,
+	includeDiagnosticMessages = true,
+	maxDiagnosticMessages = 50,
 }: {
 	userContent: Anthropic.Messages.ContentBlockParam[]
 	cwd: string
 	urlContentFetcher: UrlContentFetcher
 	fileContextTracker: FileContextTracker
+	rooIgnoreController?: any
+	showRooIgnoredFiles?: boolean
+	includeDiagnosticMessages?: boolean
+	maxDiagnosticMessages?: number
 }) {
 	// Process userContent array, which contains various block types:
 	// TextBlockParam, ImageBlockParam, ToolUseBlockParam, and ToolResultBlockParam.
@@ -35,7 +43,16 @@ export async function processUserContentMentions({
 				if (shouldProcessMentions(block.text)) {
 					return {
 						...block,
-						text: await parseMentions(block.text, cwd, urlContentFetcher, fileContextTracker),
+						text: await parseMentions(
+							block.text,
+							cwd,
+							urlContentFetcher,
+							fileContextTracker,
+							rooIgnoreController,
+							showRooIgnoredFiles,
+							includeDiagnosticMessages,
+							maxDiagnosticMessages,
+						),
 					}
 				}
 
@@ -45,7 +62,16 @@ export async function processUserContentMentions({
 					if (shouldProcessMentions(block.content)) {
 						return {
 							...block,
-							content: await parseMentions(block.content, cwd, urlContentFetcher, fileContextTracker),
+							content: await parseMentions(
+								block.content,
+								cwd,
+								urlContentFetcher,
+								fileContextTracker,
+								rooIgnoreController,
+								showRooIgnoredFiles,
+								includeDiagnosticMessages,
+								maxDiagnosticMessages,
+							),
 						}
 					}
 
@@ -61,6 +87,10 @@ export async function processUserContentMentions({
 										cwd,
 										urlContentFetcher,
 										fileContextTracker,
+										rooIgnoreController,
+										showRooIgnoredFiles,
+										includeDiagnosticMessages,
+										maxDiagnosticMessages,
 									),
 								}
 							}

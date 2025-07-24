@@ -1,8 +1,6 @@
 import { memo, useMemo } from "react"
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react"
-
-import type { ToolProgressStatus } from "@roo-code/types"
-
+import { type ToolProgressStatus } from "@roo-code/types"
 import { getLanguageFromPath } from "@src/utils/getLanguageFromPath"
 import { removeLeadingNonAlphanumeric } from "@src/utils/removeLeadingNonAlphanumeric"
 
@@ -18,6 +16,8 @@ interface CodeAccordianProps {
 	isExpanded: boolean
 	isFeedback?: boolean
 	onToggleExpand: () => void
+	header?: string
+	onJumpToFile?: () => void
 }
 
 const CodeAccordian = ({
@@ -29,17 +29,24 @@ const CodeAccordian = ({
 	isExpanded,
 	isFeedback,
 	onToggleExpand,
+	header,
+	onJumpToFile,
 }: CodeAccordianProps) => {
 	const inferredLanguage = useMemo(() => language ?? (path ? getLanguageFromPath(path) : "txt"), [path, language])
 	const source = useMemo(() => code.trim(), [code])
-	const hasHeader = Boolean(path || isFeedback)
+	const hasHeader = Boolean(path || isFeedback || header)
 
 	return (
 		<ToolUseBlock>
 			{hasHeader && (
 				<ToolUseBlockHeader onClick={onToggleExpand}>
 					{isLoading && <VSCodeProgressRing className="size-3 mr-2" />}
-					{isFeedback ? (
+					{header ? (
+						<div className="flex items-center">
+							<span className="codicon codicon-server mr-1.5"></span>
+							<span className="whitespace-nowrap overflow-hidden text-ellipsis mr-2">{header}</span>
+						</div>
+					) : isFeedback ? (
 						<div className="flex items-center">
 							<span className={`codicon codicon-${isFeedback ? "feedback" : "codicon-output"} mr-1.5`} />
 							<span className="whitespace-nowrap overflow-hidden text-ellipsis mr-2 rtl">
@@ -63,7 +70,18 @@ const CodeAccordian = ({
 							</span>
 						</>
 					)}
-					<span className={`codicon codicon-chevron-${isExpanded ? "up" : "down"}`}></span>
+					{onJumpToFile && path && (
+						<span
+							className="codicon codicon-link-external mr-1"
+							style={{ fontSize: 13.5 }}
+							onClick={(e) => {
+								e.stopPropagation()
+								onJumpToFile()
+							}}
+							aria-label={`Open file: ${path}`}
+						/>
+					)}
+					{!onJumpToFile && <span className={`codicon codicon-chevron-${isExpanded ? "up" : "down"}`}></span>}
 				</ToolUseBlockHeader>
 			)}
 			{(!hasHeader || isExpanded) && (
@@ -75,6 +93,4 @@ const CodeAccordian = ({
 	)
 }
 
-// Memo does shallow comparison of props, so if you need it to re-render when a
-// nested object changes, you need to pass a custom comparison function.
 export default memo(CodeAccordian)

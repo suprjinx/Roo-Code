@@ -1,5 +1,476 @@
 # Roo Code Changelog
 
+## [3.23.19] - 2025-07-23
+
+- Add Roo Code Cloud Waitlist CTAs (thanks @brunobergher!)
+- Split commands on newlines when evaluating auto-approve
+- Smarter auto-deny of commands
+
+## [3.23.18] - 2025-07-23
+
+- Fix: Resolve 'Bad substitution' error in command parsing (#5978 by @KJ7LNW, PR by @daniel-lxs)
+- Fix: Add ErrorBoundary component for better error handling (#5731 by @elianiva, PR by @KJ7LNW)
+- Fix: Todo list toggle not working (thanks @chrarnoldus!)
+- Improve: Use SIGKILL for command execution timeouts in the "execa" variant (thanks @cte!)
+
+## [3.23.17] - 2025-07-22
+
+- Add: todo list tool enable checkbox to provider advanced settings
+- Add: Moonshot provider (thanks @CellenLee!)
+- Add: Qwen/Qwen3-235B-A22B-Instruct-2507 model to Chutes AI provider
+- Fix: move context condensing prompt to Prompts section (thanks @SannidhyaSah!)
+- Add: jump icon for newly created files
+- Fix: add character limit to prevent terminal output context explosion
+- Fix: resolve global mode export not including rules files
+- Fix: enable export, share, and copy buttons during API operations (thanks @MuriloFP!)
+- Add: configurable timeout for evals (5-10 min)
+- Add: auto-omit MCP content when no servers are configured
+- Fix: sort symlinked rules files by symlink names, not target names
+- Docs: clarify when to use update_todo_list tool
+- Add: Mistral embedding provider (thanks @SannidhyaSah!)
+- Fix: add run parameter to vitest command in rules (thanks @KJ7LNW!)
+- Update: the max_tokens fallback logic in the sliding window
+- Fix: Bedrock and Vertext token counting improvements (thanks @daniel-lxs!)
+- Add: llama-4-maverick model to Vertex AI provider (thanks @MuriloFP!)
+- Fix: properly distinguish between user cancellations and API failures
+- Fix: add case sensitivity mention to suggested fixes in apply_diff error message
+
+## [3.23.16] - 2025-07-19
+
+- Add global rate limiting for OpenAI-compatible embeddings (thanks @daniel-lxs!)
+- Add batch limiting to code indexer (thanks @daniel-lxs!)
+- Fix Docker port conflicts for evals services
+
+## [3.23.15] - 2025-07-18
+
+- Fix configurable delay for diagnostics to prevent premature error reporting
+- Add command timeout allowlist
+- Add description and whenToUse fields to custom modes in .roomodes (thanks @RandalSchwartz!)
+- Fix Claude model detection by name for API protocol selection (thanks @daniel-lxs!)
+- Move marketplace icon from overflow menu to top navigation
+- Optional setting to prevent completion with open todos
+- Added YouTube to website footer (thanks @thill2323!)
+
+## [3.23.14] - 2025-07-17
+
+- Log api-initiated tasks to a tmp directory
+
+## [3.23.13] - 2025-07-17
+
+- Add the ability to "undo" enhance prompt changes
+- Fix a bug where the path component of the baseURL for the LiteLLM provider contains path in it (thanks @ChuKhaLi)
+- Add support for Vertex AI model name formatting when using Claude Code with Vertex AI (thanks @janaki-sasidhar)
+- The list-files tool must include at least the first-level directory contents (thanks @qdaxb)
+- Add a configurable limit that controls both consecutive errors and tool repetitions (thanks @MuriloFP)
+- Add `.terraform/` and `.terragrunt-cache/` directories to the checkpoint exclusion patterns (thanks @MuriloFP)
+- Increase Ollama API timeout values (thanks @daniel-lxs)
+- Fix an issue where you need to "discard changes" before saving even though there are no settings changes
+- Fix `DirectoryScanner` memory leak and improve file limit handling (thanks @daniel-lxs)
+- Fix time formatting in environment (thanks @chrarnoldus)
+- Prevent empty mode names from being saved (thanks @daniel-lxs)
+- Improve auto-approve checkbox UX
+- Improve the chat message edit / delete functionality (thanks @liwilliam2021)
+- Add `commandExecutionTimeout` to `GlobalSettings`
+
+## [3.23.12] - 2025-07-15
+
+- Update the max-token calculation in model-params to better support Kimi K2 and others
+
+## [3.23.11] - 2025-07-14
+
+- Add Kimi K2 model to Groq along with fixes to context condensing math
+- Add Cmd+Shift+. keyboard shortcut for previous mode switching
+
+## [3.23.10] - 2025-07-14
+
+- Prioritize built-in model dimensions over custom dimensions (thanks @daniel-lxs!)
+- Add padding to the index model options
+
+## [3.23.9] - 2025-07-14
+
+- Enable Claude Code provider to run natively on Windows (thanks @SannidhyaSah!)
+- Add gemini-embedding-001 model to code-index service (thanks @daniel-lxs!)
+- Resolve vector dimension mismatch error when switching embedding models
+- Return the cwd in the exec tool's response so that the model is not lost after subsequent calls (thanks @chris-garrett!)
+- Add configurable timeout for command execution in VS Code settings
+
+## [3.23.8] - 2025-07-13
+
+- Add enable/disable toggle for code indexing (thanks @daniel-lxs!)
+- Add a command auto-deny list to auto-approve settings
+- Add navigation link to history tab in HistoryPreview
+
+## [3.23.7] - 2025-07-11
+
+- Fix Mermaid syntax warning (thanks @MuriloFP!)
+- Expand Vertex AI region config to include all available regions in GCP Vertex AI (thanks @shubhamgupta731!)
+- Handle Qdrant vector dimension mismatch when switching embedding models (thanks @daniel-lxs!)
+- Fix typos in comment & document (thanks @noritaka1166!)
+- Improve the display of codebase search results
+- Correct translation fallback logic for embedding errors (thanks @daniel-lxs!)
+- Clean up MCP tool disabling
+- Link to marketplace from modes and MCP tab
+- Fix TTS button display (thanks @sensei-woo!)
+- Add Devstral Medium model support
+- Add comprehensive error telemetry to code-index service (thanks @daniel-lxs!)
+- Exclude cache tokens from context window calculation (thanks @daniel-lxs!)
+- Enable dynamic tool selection in architect mode for context discovery
+- Add configurable max output tokens setting for claude-code
+
+## [3.23.6] - 2025-07-10
+
+- Grok 4
+
+## [3.23.5] - 2025-07-09
+
+- Fix: use decodeURIComponent in openFile (thanks @vivekfyi!)
+- Fix(embeddings): Translate error messages before sending to UI (thanks @daniel-lxs!)
+- Make account tab visible
+
+## [3.23.4] - 2025-07-09
+
+- Update chat area icons for better discoverability & consistency
+- Fix a bug that allowed `list_files` to return directory results that should be excluded by .gitignore
+- Add an overflow header menu to make the UI a little tidier (thanks @dlab-anton)
+- Fix a bug the issue where null custom modes configuration files cause a 'Cannot read properties of null' error (thanks @daniel-lxs!)
+- Replace native title attributes with StandardTooltip component for consistency (thanks @daniel-lxs!)
+
+## [3.23.3] - 2025-07-09
+
+- Remove erroneous line from announcement modal
+
+## [3.23.2] - 2025-07-09
+
+- Fix bug where auto-approval was intermittently failing
+
+## [3.23.1] - 2025-07-09
+
+- Always show the code indexing dot under the chat text area
+
+## [3.23.0] - 2025-07-08
+
+- Move codebase indexing out of experimental (thanks @daniel-lxs and @MuriloFP!)
+- Add todo list tool (thanks @qdaxb!)
+- Fix code index secret persistence and improve settings UX (thanks @daniel-lxs!)
+- Add Gemini embedding provider for codebase indexing (thanks @SannidhyaSah!)
+- Support full endpoint URLs in OpenAI Compatible provider (thanks @SannidhyaSah!)
+- Add markdown support to codebase indexing (thanks @MuriloFP!)
+- Add Search/Filter Functionality to API Provider Selection in Settings (thanks @GOODBOY008!)
+- Add configurable max search results (thanks @MuriloFP!)
+- Add copy prompt button to task actions (thanks @Juice10 and @vultrnerd!)
+- Fix insertContentTool to create new files with content (thanks @Ruakij!)
+- Fix typescript compiler watch path inconsistency (thanks @bbenshalom!)
+- Use actual max_completion_tokens from OpenRouter API (thanks @shariqriazz!)
+- Prevent completion sound from replaying when reopening completed tasks (thanks @SannidhyaSah!)
+- Fix access_mcp_resource fails to handle images correctly (thanks @s97712!)
+- Prevent chatbox focus loss during automated file editing (thanks @hannesrudolph!)
+- Resolve intermittent hangs and lack of clear error feedback in apply_diff tool (thanks @lhish!)
+- Resolve Go duplicate references in tree-sitter queries (thanks @MuriloFP!)
+- Chat UI consistency and layout shifts (thanks @seedlord!)
+- Chat index UI enhancements (thanks @MuriloFP!)
+- Fix model search being prefilled on dropdown (thanks @kevinvandijk!)
+- Improve chat UI - add camera icon margin and make placeholder non-selectable (thanks @MuriloFP!)
+- Delete .roo/rules-{mode} folder when custom mode is deleted
+- Enforce file restrictions for all edit tools in architect mode
+- Add User-Agent header to API providers
+- Fix auto question timer unmount (thanks @liwilliam2021!)
+- Fix new_task tool streaming issue
+- Optimize file listing when maxWorkspaceFiles is 0 (thanks @daniel-lxs!)
+- Correct export/import of OpenAI Compatible codebase indexing settings (thanks @MuriloFP!)
+- Resolve workspace path inconsistency in code indexing for multi-workspace scenarios
+
+## [3.22.6] - 2025-07-02
+
+- Add timer-based auto approve for follow up questions (thanks @liwilliam2021!)
+- Add import/export modes functionality
+- Add persistent version indicator on chat screen
+- Add automatic configuration import on extension startup (thanks @takakoutso!)
+- Add user-configurable search score threshold slider for semantic search (thanks @hannesrudolph!)
+- Add default headers and testing for litellm fetcher (thanks @andrewshu2000!)
+- Fix consistent cancellation error messages for thinking vs streaming phases
+- Fix AWS Bedrock cross-region inference profile mapping (thanks @KevinZhao!)
+- Fix URL loading timeout issues in @ mentions (thanks @MuriloFP!)
+- Fix API retry exponential backoff capped at 10 minutes (thanks @MuriloFP!)
+- Fix Qdrant URL field auto-filling with default value (thanks @SannidhyaSah!)
+- Fix profile context condensation threshold (thanks @PaperBoardOfficial!)
+- Fix apply_diff tool documentation for multi-file capabilities
+- Fix cache files excluded from rules compilation (thanks @MuriloFP!)
+- Add streamlined extension installation and documentation (thanks @devxpain!)
+- Prevent Architect mode from providing time estimates
+- Remove context size from environment details
+- Change default mode to architect for new installations
+- Suppress Mermaid error rendering
+- Improve Mermaid buttons with light background in light mode (thanks @chrarnoldus!)
+- Add .vscode/ to write-protected files/directories
+- Update AWS Bedrock cross-region inference profile mapping (thanks @KevinZhao!)
+
+## [3.22.5] - 2025-06-28
+
+- Remove Gemini CLI provider while we work with Google on a better integration
+
+## [3.22.4] - 2025-06-27
+
+- Fix: resolve E2BIG error by passing large prompts via stdin to Claude CLI (thanks @Fovty!)
+- Add optional mode suggestions to follow-up questions
+- Fix: move StandardTooltip inside PopoverTrigger in ShareButton (thanks @daniel-lxs!)
+
+## [3.22.3] - 2025-06-27
+
+- Restore JSON backwards compatibility for .roomodes files (thanks @daniel-lxs!)
+
+## [3.22.2] - 2025-06-27
+
+- Fix: eliminate XSS vulnerability in CodeBlock component (thanks @KJ7LNW!)
+- Fix terminal keyboard shortcut error when adding content to context (thanks @MuriloFP!)
+- Fix checkpoint popover not opening due to StandardTooltip wrapper conflict (thanks @daniel-lxs!)
+- Fix(i18n): correct gemini cli error translation paths (thanks @daniel-lxs!)
+- Code Index (Qdrant) recreate services when change configurations (thanks @catrielmuller!)
+
+## [3.22.1] - 2025-06-26
+
+- Add Gemini CLI provider (thanks Cline!)
+- Fix undefined mcp command (thanks @qdaxb!)
+- Use upstream_inference_cost for OpenRouter BYOK cost calculation and show cached token count (thanks @chrarnoldus!)
+- Update maxTokens value for qwen/qwen3-32b model on Groq (thanks @KanTakahiro!)
+- Standardize tooltip delays to 300ms
+
+## [3.22.0] - 2025-06-25
+
+- Add 1-click task sharing
+- Add support for loading rules from a global .roo directory (thanks @samhvw8!)
+- Modes selector improvements (thanks @brunobergher!)
+- Use safeWriteJson for all JSON file writes to avoid task history corruption (thanks @KJ7LNW!)
+- Improve YAML error handling when editing modes
+- Register importSettings as VSCode command (thanks @shivamd1810!)
+- Add default task names for empty tasks (thanks @daniel-lxs!)
+- Improve translation workflow to avoid unnecessary file reads (thanks @KJ7LNW!)
+- Allow write_to_file to handle newline-only and empty content (thanks @Githubguy132010!)
+- Address multiple memory leaks in CodeBlock component (thanks @kiwina!)
+- Memory cleanup (thanks @xyOz-dev!)
+- Fix port handling bug in code indexing for HTTPS URLs (thanks @benashby!)
+- Improve Bedrock error handling for throttling and streaming contexts
+- Handle long Claude code messages (thanks @daniel-lxs!)
+- Fixes to Claude Code caching and image upload
+- Disable reasoning budget UI controls for Claude Code provider
+- Remove temperature parameter for Azure OpenAI reasoning models (thanks @ExactDoug!)
+- Allowed commands import/export (thanks @catrielmuller!)
+- Add VS Code setting to disable quick fix context actions (thanks @OlegOAndreev!)
+
+## [3.21.5] - 2025-06-23
+
+- Fix Qdrant URL prefix handling for QdrantClient initialization (thanks @CW-B-W!)
+- Improve LM Studio model detection to show all downloaded models (thanks @daniel-lxs!)
+- Resolve Claude Code provider JSON parsing and reasoning block display
+
+## [3.21.4] - 2025-06-23
+
+- Fix start line not working in multiple apply diff (thanks @samhvw8!)
+- Resolve diff editor issues with markdown preview associations (thanks @daniel-lxs!)
+- Resolve URL port handling bug for HTTPS URLs in Qdrant (thanks @benashby!)
+- Mark unused Ollama schema properties as optional (thanks @daniel-lxs!)
+- Close the local browser when used as fallback for remote (thanks @markijbema!)
+- Add Claude Code provider for local CLI integration (thanks @BarreiroT!)
+
+## [3.21.3] - 2025-06-21
+
+- Add profile-specific context condensing thresholds (thanks @SannidhyaSah!)
+- Fix context length for lmstudio and ollama (thanks @thecolorblue!)
+- Resolve MCP tool eye icon state and hide in chat context (thanks @daniel-lxs!)
+
+## [3.21.2] - 2025-06-20
+
+- Add LaTeX math equation rendering in chat window
+- Add toggle for excluding MCP server tools from the prompt (thanks @Rexarrior!)
+- Add symlink support to list_files tool
+- Fix marketplace blanking after populating
+- Fix recursive directory scanning in @ mention "Add Folder" functionality (thanks @village-way!)
+- Resolve phantom subtask display on cancel during API retry
+- Correct Gemini 2.5 Flash pricing (thanks @daniel-lxs!)
+- Resolve marketplace timeout issues and display installed MCPs (thanks @daniel-lxs!)
+- Onboarding tweaks to emphasize modes (thanks @brunobergher!)
+- Rename 'Boomerang Tasks' to 'Task Orchestration' for clarity
+- Remove command execution from attempt_completion
+- Fix markdown for links followed by punctuation (thanks @xyOz-dev!)
+
+## [3.21.1] - 2025-06-19
+
+- Fix tree-sitter issues that were preventing codebase indexing from working correctly
+- Improve error handling for codebase search embeddings
+- Resolve MCP server execution on Windows with node version managers
+- Default 'Enable MCP Server Creation' to false
+- Rate limit correctly when starting a subtask (thanks @olweraltuve!)
+
+## [3.21.0] - 2025-06-17
+
+- Add Roo Marketplace to make it easy to discover and install great MCPs and modes!
+- Add Gemini 2.5 models (Pro, Flash and Flash Lite) (thanks @daniel-lxs!)
+- Add support for Excel (.xlsx) files in tools (thanks @chrarnoldus!)
+- Add max tokens checkbox option for OpenAI compatible provider (thanks @AlexandruSmirnov!)
+- Update provider models and prices for Groq & Mistral (thanks @KanTakahiro!)
+- Add proper error handling for API conversation history issues (thanks @KJ7LNW!)
+- Fix ambiguous model id error (thanks @elianiva!)
+- Fix save/discard/revert flow for Prompt Settings (thanks @hassoncs!)
+- Fix codebase indexing alignment with list-files hidden directory filtering (thanks @daniel-lxs!)
+- Fix subtask completion mismatch (thanks @feifei325!)
+- Fix Windows path normalization in MCP variable injection (thanks @daniel-lxs!)
+- Update marketplace branding to 'Roo Marketplace' (thanks @SannidhyaSah!)
+- Refactor to more consistent history UI (thanks @elianiva!)
+- Adjust context menu positioning to be near Copilot
+- Update evals Docker setup to work on Windows (thanks @StevenTCramer!)
+- Include current working directory in terminal details
+- Encourage use of start_line in multi-file diff to match legacy diff
+- Always focus the panel when clicked to ensure menu buttons are visible (thanks @hassoncs!)
+
+## [3.20.3] - 2025-06-13
+
+- Resolve diff editor race condition in multi-monitor setups (thanks @daniel-lxs!)
+- Add logic to prevent auto-approving edits of configuration files
+- Adjust searching and listing files outside of the workspace to respect the auto-approve settings
+- Add Indonesian translation support (thanks @chrarnoldus and @daniel-lxs!)
+- Fix multi-file diff error handling and UI feedback (thanks @daniel-lxs!)
+- Improve prompt history navigation to not interfere with text editing (thanks @daniel-lxs!)
+- Fix errant maxReadFileLine default
+
+## [3.20.2] - 2025-06-13
+
+- Limit search_files to only look within the workspace for improved security
+- Force tar-fs >=2.1.3 for security vulnerability fix
+- Add cache breakpoints for custom vertex models on Unbound (thanks @pugazhendhi-m!)
+- Reapply reasoning for bedrock with fix (thanks @daniel-lxs!)
+- Sync BatchDiffApproval styling with BatchFilePermission for UI consistency (thanks @samhvw8!)
+- Add max height constraint to MCP execution response for better UX (thanks @samhvw8!)
+- Prevent MCP 'installed' label from being squeezed #4630 (thanks @daniel-lxs!)
+- Allow a lower context condesning threshold (thanks @SECKainersdorfer!)
+- Avoid type system duplication for cleaner codebase (thanks @EamonNerbonne!)
+
+## [3.20.1] - 2025-06-12
+
+- Temporarily revert thinking support for Bedrock models
+- Improve performance of MCP execution block
+- Add indexing status badge to chat view
+
+## [3.20.0] - 2025-06-12
+
+- Add experimental Marketplace for extensions and modes (thanks @Smartsheet-JB-Brown, @elianiva, @monkeyDluffy6017, @NamesMT, @daniel-lxs, Cline, and more!)
+- Add experimental multi-file edits (thanks @samhvw8!)
+- Move concurrent reads setting to context settings with default of 5
+- Improve MCP execution UX (thanks @samhvw8!)
+- Add magic variables support for MCPs with `workspaceFolder` injection (thanks @NamesMT!)
+- Add prompt history navigation via arrow up/down in prompt field
+- Add support for escaping context mentions (thanks @KJ7LNW!)
+- Add DeepSeek R1 support to Chutes provider
+- Add reasoning budget support to Bedrock models for extended thinking
+- Add mermaid diagram support buttons (thanks @qdaxb!)
+- Update XAI models and pricing (thanks @edwin-truthsearch-io!)
+- Update O3 model pricing
+- Add manual OpenAI-compatible format specification and parsing (thanks @dflatline!)
+- Add core tools integration tests for comprehensive coverage
+- Add JSDoc documentation for ClineAsk and ClineSay types (thanks @hannesrudolph!)
+- Populate whenToUse descriptions for built-in modes
+- Fix file write tool with early relPath & newContent validation checks (thanks @Ruakij!)
+- Fix TaskItem display and copy issues with HTML tags in task messages (thanks @forestyoo!)
+- Fix OpenRouter cost calculation with BYOK (thanks @chrarnoldus!)
+- Fix terminal busy state reset after manual commands complete
+- Fix undefined output on multi-file apply_diff operations (thanks @daniel-lxs!)
+
+## [3.19.7] - 2025-06-11
+
+- Fix McpHub sidebar focus behavior to prevent unwanted focus grabbing
+- Disable checkpoint functionality when nested git repositories are detected to prevent conflicts
+- Remove unused Storybook components and dependencies to reduce bundle size
+- Add data-testid ESLint rule for improved testing standards (thanks @elianiva!)
+- Update development dependencies including eslint, knip, @types/node, i18next, fast-xml-parser, and @google/genai
+- Improve CI infrastructure with GitHub Actions and Blacksmith runner migrations
+
+## [3.19.6] - 2025-06-09
+
+- Replace explicit caching with implicit caching to reduce latency for Gemini models
+- Clarify that the default concurrent file read limit is 15 files (thanks @olearycrew!)
+- Fix copy button logic (thanks @samhvw8!)
+- Fade buttons on history preview if no interaction in progress (thanks @sachasayan!)
+- Allow MCP server refreshing, fix state changes in MCP server management UI view (thanks @taylorwilsdon!)
+- Remove unnecessary npx usage in some npm scripts (thanks @user202729!)
+- Bug fix for trailing slash error when using LiteLLM provider (thanks @kcwhite!)
+
+## [3.19.5] - 2025-06-05
+
+- Fix Gemini 2.5 Pro Preview thinking budget bug
+
+## [3.19.4] - 2025-06-05
+
+- Add Gemini Pro 06-05 model support (thanks @daniel-lxs and @shariqriazz!)
+- Fix reading PDF, DOCX, and IPYNB files in read_file tool (thanks @samhvw8!)
+- Fix Mermaid CSP errors with enhanced bundling strategy (thanks @KJ7LNW!)
+- Improve model info detection for custom Bedrock ARNs (thanks @adamhill!)
+- Add OpenAI Compatible embedder for codebase indexing (thanks @SannidhyaSah!)
+- Fix multiple memory leaks in ChatView component (thanks @kiwina!)
+- Fix WorkspaceTracker resource leaks by disposing FileSystemWatcher (thanks @kiwina!)
+- Fix RooTips setTimeout cleanup to prevent state updates on unmounted components (thanks @kiwina!)
+- Fix FileSystemWatcher leak in RooIgnoreController (thanks @kiwina!)
+- Fix clipboard memory leak by clearing setTimeout in useCopyToClipboard (thanks @kiwina!)
+- Fix ClineProvider instance cleanup (thanks @xyOz-dev!)
+- Enforce codebase_search as primary tool for code understanding tasks (thanks @hannesrudolph!)
+- Improve Docker setup for evals
+- Move evals into pnpm workspace, switch from SQLite to Postgres
+- Refactor MCP to use getDefaultEnvironment for stdio client transport (thanks @samhvw8!)
+- Get rid of "partial" component in names referencing not necessarily partial messages (thanks @wkordalski!)
+- Improve feature request template (thanks @elianiva!)
+
+## [3.19.3] - 2025-06-02
+
+- Fix SSE MCP Invocation - Fixed SSE connection issue in McpHub.ts by ensuring transport.start override only applies to stdio transports, allowing SSE and streamable-http transports to retain their original start methods (thanks @taylorwilsdon!)
+
+## [3.19.2] - 2025-06-01
+
+- Add support for Streamable HTTP Transport MCP servers (thanks @taylorwilsdon!)
+- Add cached read and writes to stats and cost calculation for LiteLLM provider (thanks @mollux!)
+- Prevent dump of an entire file into the context on user edit (thanks @KJ7LNW!)
+- Fix directory link handling in markdown (thanks @KJ7LNW!)
+- Prevent start_line/end_line in apply_diff REPLACE (thanks @KJ7LNW!)
+- Unify history item UI with TaskItem and TaskItemHeader (thanks @KJ7LNW!)
+- Fix the label of the OpenAI-compatible API keys
+- Fix Virtuoso footer re-rendering issue (thanks @kiwina!)
+- Optimize ChatRowContent layout and styles (thanks @zhangtony239!)
+- Release memory in apply diff (thanks @xyOz-dev!)
+- Upgrade Node.js to v20.19.2 for security enhancements (thanks @PeterDaveHello!)
+- Fix typos (thanks @noritaka1166!)
+
+## [3.19.1] - 2025-05-30
+
+- Experimental feature to allow reading multiple files at once (thanks @samhvw8!)
+- Fix to correctly pass headers to SSE MCP servers
+- Adding support for custom VPC endpoints when using Amazon Bedrock (thanks @kcwhite!)
+- Fix bug with context condensing in Amazon Bedrock
+- Fix UTF-8 encoding in ExecaTerminalProcess (thanks @mr-ryan-james!)
+- Set sidebar name bugfix (thanks @chrarnoldus!)
+- Fix link to CONTRIBUTING.md in feature request template (thanks @cannuri!)
+- Add task metadata to Unbound and improve caching logic (thanks @pugazhendhi-m!)
+
+## [3.19.0] - 2025-05-29
+
+- Enable intelligent content condensing by default and move condense button out of expanded task menu
+- Skip condense and show error if context grows during condensing
+- Transform Prompts tab into Modes tab and move support prompts to Settings for better organization
+- Add DeepSeek R1 0528 model support to Chutes provider (thanks @zeozeozeo!)
+- Fix @directory not respecting .rooignore files (thanks @xyOz-dev!)
+- Add rooignore checking for insert_content and search_and_replace tools
+- Fix menu breaking when Roo is moved between primary and secondary sidebars (thanks @chrarnoldus!)
+- Resolve memory leak in ChatView by stabilizing callback props (thanks @samhvw8!)
+- Fix write_to_file to properly create empty files when content is empty (thanks @Ruakij!)
+- Fix chat input clearing during running tasks (thanks @xyOz-dev!)
+- Update AWS regions to include Spain and Hyderabad
+- Improve POSIX shell compatibility in pre-push hook (thanks @PeterDaveHello and @chrarnoldus!)
+- Update PAGER environment variable for Windows compatibility in Terminal (thanks @SmartManoj!)
+- Add environment variable injection support for whole MCP config (thanks @NamesMT!)
+- Update codebase search description to emphasize English query requirements (thanks @ChuKhaLi!)
+
+## [3.18.5] - 2025-05-27
+
+- Add thinking controls for Requesty (thanks @dtrugman!)
+- Re-enable telemetry
+- Improve zh-TW Traditional Chinese locale (thanks @PeterDaveHello and @chrarnoldus!)
+- Improve model metadata for LiteLLM
+
 ## [3.18.4] - 2025-05-25
 
 - Fix codebase indexing settings saving and Ollama indexing (thanks @daniel-lxs!)
@@ -29,7 +500,7 @@
 - Fix vscode-material-icons in the filer picker
 - Fix global settings export
 - Respect user-configured terminal integration timeout (thanks @KJ7LNW)
-- Contex condensing enhancements (thanks @SannidhyaSah)
+- Context condensing enhancements (thanks @SannidhyaSah)
 
 ## [3.18.1] - 2025-05-22
 
@@ -541,7 +1012,7 @@
 
 ## [3.10.1] - 2025-03-20
 
-- Make the suggested responses optional to not break overriden system prompts
+- Make the suggested responses optional to not break overridden system prompts
 
 ## [3.10.0] - 2025-03-20
 

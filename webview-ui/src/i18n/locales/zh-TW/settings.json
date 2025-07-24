@@ -28,36 +28,107 @@
 		"notifications": "通知",
 		"contextManagement": "上下文",
 		"terminal": "終端機",
+		"prompts": "提示詞",
 		"experimental": "實驗性",
 		"language": "語言",
 		"about": "關於 Roo Code"
 	},
+	"prompts": {
+		"description": "設定用於快速操作的支援提示詞，如增強提示詞、解釋程式碼和修復問題。這些提示詞幫助 Roo 為常見開發工作提供更好的支援。"
+	},
 	"codeIndex": {
 		"title": "程式碼庫索引",
 		"enableLabel": "啟用程式碼庫索引",
-		"enableDescription": "<0>程式碼庫索引</0>是一個實驗性功能，使用 AI 嵌入為您的專案建立語義搜尋索引。這使 Roo Code 能夠透過基於含義而非僅僅關鍵詞來尋找相關程式碼，從而更好地理解和導覽大型程式碼庫。",
+		"enableDescription": "啟用程式碼索引以改進搜尋和上下文理解",
 		"providerLabel": "嵌入提供者",
 		"selectProviderPlaceholder": "選擇提供者",
 		"openaiProvider": "OpenAI",
 		"ollamaProvider": "Ollama",
-		"openaiKeyLabel": "OpenAI 金鑰：",
+		"geminiProvider": "Gemini",
+		"geminiApiKeyLabel": "API 金鑰：",
+		"geminiApiKeyPlaceholder": "輸入您的Gemini API金鑰",
+		"mistralProvider": "Mistral",
+		"mistralApiKeyLabel": "API 金鑰：",
+		"mistralApiKeyPlaceholder": "輸入您的 Mistral API 金鑰",
+		"openaiCompatibleProvider": "OpenAI 相容",
+		"openAiKeyLabel": "OpenAI API 金鑰",
+		"openAiKeyPlaceholder": "輸入您的 OpenAI API 金鑰",
+		"openAiCompatibleBaseUrlLabel": "基礎 URL",
+		"openAiCompatibleApiKeyLabel": "API 金鑰",
+		"openAiCompatibleApiKeyPlaceholder": "輸入您的 API 金鑰",
+		"openAiCompatibleModelDimensionLabel": "嵌入維度：",
+		"modelDimensionLabel": "模型維度",
+		"openAiCompatibleModelDimensionPlaceholder": "例如，1536",
+		"openAiCompatibleModelDimensionDescription": "模型的嵌入維度（輸出大小）。請查閱您的提供商文件獲取此值。常見值：384、768、1536、3072。",
 		"modelLabel": "模型",
 		"selectModelPlaceholder": "選擇模型",
 		"ollamaUrlLabel": "Ollama URL：",
 		"qdrantUrlLabel": "Qdrant URL",
 		"qdrantKeyLabel": "Qdrant 金鑰：",
-		"startIndexingButton": "開始索引",
-		"clearIndexDataButton": "清除索引資料",
+		"startIndexingButton": "開始",
+		"clearIndexDataButton": "清除索引",
 		"unsavedSettingsMessage": "請先儲存設定再開始索引程序。",
 		"clearDataDialog": {
 			"title": "確定要繼續嗎？",
 			"description": "此操作無法復原。這將永久刪除您的程式碼庫索引資料。",
 			"cancelButton": "取消",
 			"confirmButton": "清除資料"
-		}
+		},
+		"description": "設定程式碼庫索引設定以啟用專案的語意搜尋。<0>了解更多</0>",
+		"statusTitle": "狀態",
+		"settingsTitle": "索引設定",
+		"disabledMessage": "程式碼庫索引目前已停用。請在全域設定中啟用以設定索引選項。",
+		"embedderProviderLabel": "嵌入器提供者",
+		"modelPlaceholder": "輸入模型名稱",
+		"selectModel": "選擇模型",
+		"ollamaBaseUrlLabel": "Ollama 基礎 URL",
+		"qdrantApiKeyLabel": "Qdrant API 金鑰",
+		"qdrantApiKeyPlaceholder": "輸入您的 Qdrant API 金鑰（選用）",
+		"setupConfigLabel": "設定",
+		"ollamaUrlPlaceholder": "http://localhost:11434",
+		"openAiCompatibleBaseUrlPlaceholder": "https://api.example.com",
+		"modelDimensionPlaceholder": "1536",
+		"qdrantUrlPlaceholder": "http://localhost:6333",
+		"saveError": "無法儲存設定",
+		"modelDimensions": "({{dimension}} 維度)",
+		"saveSuccess": "設定已成功儲存",
+		"saving": "儲存中...",
+		"saveSettings": "儲存",
+		"indexingStatuses": {
+			"standby": "待命",
+			"indexing": "索引中",
+			"indexed": "已索引",
+			"error": "錯誤"
+		},
+		"close": "關閉",
+		"validation": {
+			"invalidQdrantUrl": "無效的 Qdrant URL",
+			"invalidOllamaUrl": "無效的 Ollama URL",
+			"invalidBaseUrl": "無效的基礎 URL",
+			"qdrantUrlRequired": "需要 Qdrant URL",
+			"openaiApiKeyRequired": "需要 OpenAI API 金鑰",
+			"modelSelectionRequired": "需要選擇模型",
+			"apiKeyRequired": "需要 API 金鑰",
+			"modelIdRequired": "需要模型 ID",
+			"modelDimensionRequired": "需要模型維度",
+			"geminiApiKeyRequired": "需要 Gemini API 金鑰",
+			"mistralApiKeyRequired": "需要 Mistral API 金鑰",
+			"ollamaBaseUrlRequired": "需要 Ollama 基礎 URL",
+			"baseUrlRequired": "需要基礎 URL",
+			"modelDimensionMinValue": "模型維度必須大於 0"
+		},
+		"advancedConfigLabel": "進階設定",
+		"searchMinScoreLabel": "搜尋分數閾值",
+		"searchMinScoreDescription": "搜尋結果所需的最低相似度分數（0.0-1.0）。較低的值會傳回更多結果，但可能較不相關。較高的值會傳回較少但更相關的結果。",
+		"searchMinScoreResetTooltip": "重設為預設值 (0.4)",
+		"searchMaxResultsLabel": "最大搜尋結果數",
+		"searchMaxResultsDescription": "查詢程式碼庫索引時傳回的最大搜尋結果數。較高的值提供更多上下文，但可能包含相關性較低的結果。",
+		"resetToDefault": "重設為預設值"
 	},
 	"autoApprove": {
 		"description": "允許 Roo 無需核准即執行操作。僅在您完全信任 AI 並了解相關安全風險時啟用這些設定。",
+		"toggleAriaLabel": "切換自動核准",
+		"disabledAriaLabel": "自動核准已停用 - 請先選取選項",
 		"readOnly": {
 			"label": "讀取",
 			"description": "啟用後，Roo 將自動檢視目錄內容並讀取檔案，無需點選核准按鈕。",
@@ -73,6 +144,10 @@
 			"outsideWorkspace": {
 				"label": "包含工作區外的檔案",
 				"description": "允許 Roo 在目前工作區外建立和編輯檔案，無需核准。"
+			},
+			"protected": {
+				"label": "包含受保護的檔案",
+				"description": "允許 Roo 建立和編輯受保護的檔案（如 .rooignore 和 .roo/ 設定檔），無需核准。"
 			}
 		},
 		"browser": {
@@ -96,19 +171,33 @@
 			"label": "子工作",
 			"description": "允許建立和完成子工作而無需核准"
 		},
+		"followupQuestions": {
+			"label": "問題",
+			"description": "在設定的逾時時間後自動選擇後續問題的第一個建議答案",
+			"timeoutLabel": "自動選擇第一個答案前的等待時間"
+		},
 		"execute": {
 			"label": "執行",
 			"description": "自動執行允許的終端機命令而無需核准",
 			"allowedCommands": "允許自動執行的命令",
 			"allowedCommandsDescription": "當「始終核准執行操作」啟用時可以自動執行的命令前綴。新增 * 以允許所有命令（請謹慎使用）。",
+			"deniedCommands": "拒絕的命令",
+			"deniedCommandsDescription": "將自動拒絕的命令前綴，無需使用者核准。與允許命令衝突時，最長前綴匹配優先。新增 * 拒絕所有命令。",
 			"commandPlaceholder": "輸入命令前綴（例如 'git '）",
-			"addButton": "新增"
+			"deniedCommandPlaceholder": "輸入要拒絕的命令前綴（例如 'rm -rf'）",
+			"addButton": "新增",
+			"autoDenied": "前綴為 `{{prefix}}` 的命令已被使用者禁止。不要透過執行其他命令來繞過此限制。"
+		},
+		"updateTodoList": {
+			"label": "待辦",
+			"description": "自動更新待辦清單無需批准"
 		},
 		"apiRequestLimit": {
 			"title": "最大請求數",
 			"description": "在請求批准以繼續執行工作之前，自動發出此數量的 API 請求。",
 			"unlimited": "無限制"
-		}
+		},
+		"selectOptionsFirst": "請至少選擇以下一個選項以啟用自動核准"
 	},
 	"providers": {
 		"providerDocumentation": "{{provider}} 文件",
@@ -128,6 +217,8 @@
 		"createProfile": "建立設定檔",
 		"cannotDeleteOnlyProfile": "無法刪除唯一的設定檔",
 		"searchPlaceholder": "搜尋設定檔",
+		"searchProviderPlaceholder": "搜尋供應商",
+		"noProviderMatchFound": "找不到供應商",
 		"noMatchFound": "找不到符合的設定檔",
 		"vscodeLmDescription": "VS Code 語言模型 API 可以讓您使用其他擴充功能（如 GitHub Copilot）提供的模型。最簡單的方式是從 VS Code Marketplace 安裝 Copilot 和 Copilot Chat 擴充套件。",
 		"awsCustomArnUse": "輸入您要使用的模型的有效 Amazon Bedrock ARN。格式範例：",
@@ -162,11 +253,28 @@
 		"getChutesApiKey": "取得 Chutes API 金鑰",
 		"deepSeekApiKey": "DeepSeek API 金鑰",
 		"getDeepSeekApiKey": "取得 DeepSeek API 金鑰",
+		"moonshotApiKey": "Moonshot API 金鑰",
+		"getMoonshotApiKey": "取得 Moonshot API 金鑰",
+		"moonshotBaseUrl": "Moonshot 服務站點",
 		"geminiApiKey": "Gemini API 金鑰",
 		"getGroqApiKey": "取得 Groq API 金鑰",
 		"groqApiKey": "Groq API 金鑰",
+		"getHuggingFaceApiKey": "取得 Hugging Face API 金鑰",
+		"huggingFaceApiKey": "Hugging Face API 金鑰",
+		"huggingFaceModelId": "模型 ID",
+		"huggingFaceLoading": "載入中...",
+		"huggingFaceModelsCount": "({{count}} 個模型)",
+		"huggingFaceSelectModel": "選擇模型...",
+		"huggingFaceSearchModels": "搜尋模型...",
+		"huggingFaceNoModelsFound": "找不到模型",
+		"huggingFaceProvider": "提供者",
+		"huggingFaceProviderAuto": "自動",
+		"huggingFaceSelectProvider": "選擇提供者...",
+		"huggingFaceSearchProviders": "搜尋提供者...",
+		"huggingFaceNoProvidersFound": "找不到提供者",
 		"getGeminiApiKey": "取得 Gemini API 金鑰",
 		"openAiApiKey": "OpenAI API 金鑰",
+		"apiKey": "API 金鑰",
 		"openAiBaseUrl": "基礎 URL",
 		"getOpenAiApiKey": "取得 OpenAI API 金鑰",
 		"mistralApiKey": "Mistral API 金鑰",
@@ -185,6 +293,11 @@
 		"awsSessionToken": "AWS 工作階段權杖",
 		"awsRegion": "AWS 區域",
 		"awsCrossRegion": "使用跨區域推論",
+		"awsBedrockVpc": {
+			"useCustomVpcEndpoint": "使用自訂 VPC 端點",
+			"vpcEndpointUrlPlaceholder": "輸入 VPC 端點 URL（選填）",
+			"examples": "範例："
+		},
 		"enablePromptCaching": "啟用提示快取",
 		"enablePromptCachingTitle": "啟用提示快取以提升支援的模型效能並降低成本。",
 		"cacheUsageNote": "注意：如果您沒有看到快取使用情況，請嘗試選擇其他模型，然後重新選擇您想要的模型。",
@@ -277,13 +390,26 @@
 			"label": "速率限制",
 			"description": "API 請求間的最短時間"
 		},
+		"consecutiveMistakeLimit": {
+			"label": "錯誤和重複限制",
+			"description": "在顯示「Roo 遇到問題」對話方塊前允許的連續錯誤或重複操作次數",
+			"unlimitedDescription": "已啟用無限重試（自動繼續）。對話方塊將永遠不會出現。",
+			"warning": "⚠️ 設定為 0 允許無限重試，這可能會消耗大量 API 使用量"
+		},
 		"reasoningEffort": {
 			"label": "模型推理強度",
 			"high": "高",
 			"medium": "中",
 			"low": "低"
 		},
-		"setReasoningLevel": "啟用推理工作量"
+		"setReasoningLevel": "啟用推理工作量",
+		"claudeCode": {
+			"pathLabel": "Claude Code 路徑",
+			"description": "可選的 Claude Code CLI 路徑。如果未設定，則預設為 'claude'。",
+			"placeholder": "預設：claude",
+			"maxTokensLabel": "最大輸出 Token",
+			"maxTokensDescription": "Claude Code 回應的最大輸出 Token 數量。預設為 8000。"
+		}
 	},
 	"browser": {
 		"enable": {
@@ -333,6 +459,26 @@
 	},
 	"contextManagement": {
 		"description": "控制 AI 上下文視窗中要包含哪些資訊，會影響 token 用量和回應品質",
+		"autoCondenseContextPercent": {
+			"label": "觸發智慧上下文壓縮的閾值",
+			"description": "當上下文視窗達到此閾值時，Roo 將自動壓縮它。"
+		},
+		"condensingApiConfiguration": {
+			"label": "上下文壓縮的API配置",
+			"description": "選擇用於上下文壓縮操作的API配置。留空則使用當前活動的配置。",
+			"useCurrentConfig": "使用當前配置"
+		},
+		"customCondensingPrompt": {
+			"label": "自訂上下文壓縮提示",
+			"description": "自訂用於上下文壓縮的系統提示。留空則使用預設提示。",
+			"placeholder": "請在此輸入您的自訂上下文壓縮提示...\n\n您可以參考預設提示的結構：\n- 先前對話\n- 目前工作\n- 主要技術概念\n- 相關檔案與程式碼\n- 問題解決\n- 未完成的任務與後續步驟",
+			"reset": "重設為預設值",
+			"hint": "留空 = 使用預設提示"
+		},
+		"autoCondenseContext": {
+			"name": "自動觸發智慧上下文壓縮",
+			"description": "啟用時，Roo 會在達到閾值時自動壓縮上下文。停用時，您仍可手動觸發上下文壓縮。"
+		},
 		"openTabs": {
 			"label": "開啟分頁的上下文限制",
 			"description": "上下文中最多包含多少個 VS Code 開啟的分頁。數值越高提供的上下文越多，但 token 用量也會增加。"
@@ -350,6 +496,36 @@
 			"description": "當模型未指定起始/結束值時，Roo 讀取的行數。如果此數值小於檔案總行數，Roo 將產生程式碼定義的行號索引。特殊情況：-1 指示 Roo 讀取整個檔案（不建立索引），0 指示不讀取任何行並僅提供行索引以取得最小上下文。較低的值可最小化初始上下文使用，允許後續精確的行範圍讀取。明確指定起始/結束的請求不受此設定限制。 <0>瞭解更多</0>",
 			"lines": "行",
 			"always_full_read": "始終讀取整個檔案"
+		},
+		"maxConcurrentFileReads": {
+			"label": "並行檔案讀取限制",
+			"description": "read_file 工具可以同時處理的最大檔案數。較高的值可能會加快讀取多個小檔案的速度，但會增加記憶體使用量。"
+		},
+		"diagnostics": {
+			"includeMessages": {
+				"label": "自動在上下文中包含診斷",
+				"description": "啟用後，來自已編輯檔案的診斷訊息（錯誤）將自動包含在上下文中。您隨時可以使用 @problems 手動包含所有工作區診斷。"
+			},
+			"maxMessages": {
+				"label": "最大診斷訊息數",
+				"description": "每個檔案包含的最大診斷訊息數。此限制適用於自動包含（當核取方塊啟用時）和手動 @problems 提及。較高的值提供更多上下文，但會增加權杖使用量。",
+				"resetTooltip": "重設為預設值 (50)",
+				"unlimited": "無限制診斷訊息",
+				"unlimitedLabel": "無限制"
+			},
+			"delayAfterWrite": {
+				"label": "寫入後延遲以允許診斷程式偵測潛在問題",
+				"description": "在繼續之前寫入檔案後等待的時間，允許診斷工具處理變更並偵測問題。"
+			}
+		},
+		"condensingThreshold": {
+			"label": "壓縮觸發閾值",
+			"selectProfile": "設定檔案閾值",
+			"defaultProfile": "全域預設（所有檔案）",
+			"defaultDescription": "當上下文達到此百分比時，將自動為所有檔案壓縮，除非它們有自訂設定",
+			"profileDescription": "僅此檔案的自訂閾值（覆蓋全域預設）",
+			"inheritDescription": "此檔案繼承全域預設閾值（{{threshold}}%）",
+			"usesGlobal": "（使用全域 {{threshold}}%）"
 		}
 	},
 	"terminal": {
@@ -364,6 +540,10 @@
 		"outputLineLimit": {
 			"label": "終端機輸出行數限制",
 			"description": "執行命令時終端機輸出的最大行數。超過此限制時，會從中間移除多餘的行數，以節省 token 用量。 <0>瞭解更多</0>"
+		},
+		"outputCharacterLimit": {
+			"label": "終端機字元限制",
+			"description": "執行指令時在終端輸出中包含的最大字元數。此限制優先於行數限制，以防止因行過長而導致的記憶體問題。超過後，輸出將被截斷。 <0>了解更多</0>"
 		},
 		"shellIntegrationTimeout": {
 			"label": "終端機 Shell 整合逾時",
@@ -406,6 +586,9 @@
 			"description": "啟用後，終端機將從 VSCode 父程序繼承環境變數，如使用者設定檔中定義的 shell 整合設定。這直接切換 VSCode 全域設定 `terminal.integrated.inheritEnv`。 <0>瞭解更多</0>"
 		}
 	},
+	"advancedSettings": {
+		"title": "進階設定"
+	},
 	"advanced": {
 		"diff": {
 			"label": "透過差異比對編輯",
@@ -427,29 +610,13 @@
 				"label": "比對精確度",
 				"description": "此滑桿控制套用差異時程式碼區段的比對精確度。較低的數值允許更彈性的比對，但也會增加錯誤取代的風險。使用低於 100% 的數值時請特別謹慎。"
 			}
+		},
+		"todoList": {
+			"label": "啟用待辦事項清單工具",
+			"description": "啟用後，Roo 可以建立和管理待辦事項清單來追蹤任務進度。這有助於將複雜任務組織成可管理的步驟。"
 		}
 	},
 	"experimental": {
-		"condensingApiConfiguration": {
-			"label": "API Configuration for Context Condensing",
-			"description": "Select which API configuration to use for context condensing operations. Leave unselected to use the current active configuration.",
-			"useCurrentConfig": "Default"
-		},
-		"customCondensingPrompt": {
-			"label": "自訂上下文壓縮提示",
-			"description": "自訂用於上下文壓縮的系統提示。留空則使用預設提示。",
-			"placeholder": "請在此輸入您的自訂上下文壓縮提示...\n\n您可以參考預設提示的結構：\n- 先前對話\n- 目前工作\n- 主要技術概念\n- 相關檔案與程式碼\n- 問題解決\n- 未完成的任務與後續步驟",
-			"reset": "重設為預設值",
-			"hint": "Empty = use default prompt"
-		},
-		"autoCondenseContextPercent": {
-			"label": "觸發智慧上下文壓縮的閾值",
-			"description": "當上下文視窗達到此閾值時，Roo 將自動壓縮它。"
-		},
-		"AUTO_CONDENSE_CONTEXT": {
-			"name": "自動觸發智慧上下文壓縮",
-			"description": "智慧上下文壓縮使用 LLM 呼叫來摘要過去的對話，在工作的上下文視窗達到預設閾值時進行，而非在上下文填滿時捨棄舊訊息。"
-		},
 		"DIFF_STRATEGY_UNIFIED": {
 			"name": "使用實驗性統一差異比對策略",
 			"description": "啟用實驗性的統一差異比對策略。此策略可能減少因模型錯誤而導致的重試次數，但也可能導致意外行為或錯誤的編輯。請務必了解風險，並願意仔細檢查所有變更後再啟用。"
@@ -469,6 +636,18 @@
 		"MULTI_SEARCH_AND_REPLACE": {
 			"name": "使用實驗性多區塊差異比對工具",
 			"description": "啟用後，Roo 將使用多區塊差異比對工具，嘗試在單一請求中更新檔案內的多個程式碼區塊。"
+		},
+		"CONCURRENT_FILE_READS": {
+			"name": "啟用並行檔案讀取",
+			"description": "啟用後，Roo 可以在單一請求中讀取多個檔案（最多 15 個檔案）。停用後，Roo 必須逐一讀取檔案。在使用能力較弱的模型或希望對檔案存取有更多控制時，停用此功能可能會有所幫助。"
+		},
+		"MARKETPLACE": {
+			"name": "啟用 Marketplace",
+			"description": "啟用後，您可以從 Marketplace 安裝 MCP 和自訂模式。"
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "啟用並行檔案編輯",
+			"description": "啟用後 Roo 可在單個請求中編輯多個檔案。停用後 Roo 必須逐個編輯檔案。停用此功能有助於使用能力較弱的模型或需要更精確控制檔案修改時。"
 		}
 	},
 	"promptCaching": {
@@ -537,7 +716,10 @@
 			"invalidFormat": "ARN 格式無效，請檢查格式要求。",
 			"regionMismatch": "警告：您 ARN 中的區域 ({{arnRegion}}) 與您選擇的區域 ({{region}}) 不符，可能導致存取問題。系統將使用 ARN 中指定的區域。"
 		},
-		"modelAvailability": "您指定的模型 ID ({{modelId}}) 目前無法使用，請選擇其他模型。"
+		"modelAvailability": "您指定的模型 ID ({{modelId}}) 目前無法使用，請選擇其他模型。",
+		"providerNotAllowed": "供應商 '{{provider}}' 不允許用於您的組織。",
+		"modelNotAllowed": "模型 '{{model}}' 不允許用於供應商 '{{provider}}'，您的組織不允許",
+		"profileInvalid": "此設定檔包含您的組織不允許的供應商或模型"
 	},
 	"placeholders": {
 		"apiKey": "請輸入 API 金鑰...",
@@ -571,5 +753,7 @@
 	"labels": {
 		"customArn": "自訂 ARN",
 		"useCustomArn": "使用自訂 ARN..."
-	}
+	},
+	"includeMaxOutputTokens": "包含最大輸出 Token 數",
+	"includeMaxOutputTokensDescription": "在 API 請求中傳送最大輸出 Token 參數。某些提供商可能不支援此功能。"
 }

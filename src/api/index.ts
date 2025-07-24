@@ -17,6 +17,7 @@ import {
 	GeminiHandler,
 	OpenAiNativeHandler,
 	DeepSeekHandler,
+	MoonshotHandler,
 	MistralHandler,
 	VsCodeLmHandler,
 	UnboundHandler,
@@ -25,8 +26,10 @@ import {
 	FakeAIHandler,
 	XAIHandler,
 	GroqHandler,
+	HuggingFaceHandler,
 	ChutesHandler,
 	LiteLLMHandler,
+	ClaudeCodeHandler,
 } from "./providers"
 
 export interface SingleCompletionHandler {
@@ -81,6 +84,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				options.apiKey = getEnvVar("ANTHROPIC_API_KEY", options.apiKey)
 			}
 			return new AnthropicHandler(options)
+		case "claude-code":
+			return new ClaudeCodeHandler(options)
 		case "glama":
 			if (options.glamaApiKeyUseEnvVar) {
 				options.glamaApiKey = getEnvVar("GLAMA_API_KEY", options.glamaApiKey)
@@ -121,6 +126,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				options.deepSeekApiKey = getEnvVar("DEEP_SEEK_API_KEY", options.deepSeekApiKey)
 			}
 			return new DeepSeekHandler(options)
+		case "moonshot":
+			return new MoonshotHandler(options)
 		case "vscode-lm":
 			return new VsCodeLmHandler(options)
 		case "mistral":
@@ -152,6 +159,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				options.groqApiKey = getEnvVar("GROQ_API_KEY", options.groqApiKey)
 			}
 			return new GroqHandler(options)
+		case "huggingface":
+			return new HuggingFaceHandler(options)
 		case "chutes":
 			if (options.chutesApiKeyUseEnvVar) {
 				options.chutesApiKey = getEnvVar("CHUTES_API_KEY", options.chutesApiKey)
@@ -163,9 +172,6 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			}
 			return new LiteLLMHandler(options)
 		default:
-			if (options.anthropicApiKeyUseEnvVar) {
-				options.apiKey = getEnvVar("ANTROPIC_API_KEY", options.apiKey)
-			}
-			return new AnthropicHandler(options)
+			apiProvider satisfies "gemini-cli" | undefined
 	}
 }

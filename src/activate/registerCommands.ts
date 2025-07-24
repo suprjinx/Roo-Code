@@ -2,16 +2,20 @@ import * as vscode from "vscode"
 import delay from "delay"
 
 import type { CommandId } from "@roo-code/types"
+import { TelemetryService } from "@roo-code/telemetry"
 
 import { Package } from "../shared/package"
 import { getCommand } from "../utils/commands"
 import { ClineProvider } from "../core/webview/ClineProvider"
 import { ContextProxy } from "../core/config/ContextProxy"
-import { telemetryService } from "../services/telemetry/TelemetryService"
+import { focusPanel } from "../utils/focusPanel"
 
 import { registerHumanRelayCallback, unregisterHumanRelayCallback, handleHumanRelayResponse } from "./humanRelay"
 import { handleNewTask } from "./handleTask"
 import { CodeIndexManager } from "../services/code-index/manager"
+import { importSettingsWithFeedback } from "../core/config/importExport"
+import { MdmService } from "../services/mdm/MdmService"
+import { t } from "../i18n"
 
 /**
  * Helper to get the visible ClineProvider instance or log if not found.
@@ -70,6 +74,17 @@ export const registerCommands = (options: RegisterCommandOptions) => {
 
 const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOptions): Record<CommandId, any> => ({
 	activationCompleted: () => {},
+	accountButtonClicked: () => {
+		const visibleProvider = getVisibleProviderOrLog(outputChannel)
+
+		if (!visibleProvider) {
+			return
+		}
+
+		TelemetryService.instance.captureTitleButtonClicked("account")
+
+		visibleProvider.postMessageToWebview({ type: "action", action: "accountButtonClicked" })
+	},
 	plusButtonClicked: async () => {
 		const visibleProvider = getVisibleProviderOrLog(outputChannel)
 
@@ -77,7 +92,7 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			return
 		}
 
-		telemetryService.captureTitleButtonClicked("plus")
+		TelemetryService.instance.captureTitleButtonClicked("plus")
 
 		await visibleProvider.removeClineFromStack()
 		await visibleProvider.postStateToWebview()
@@ -90,7 +105,7 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			return
 		}
 
-		telemetryService.captureTitleButtonClicked("mcp")
+		TelemetryService.instance.captureTitleButtonClicked("mcp")
 
 		visibleProvider.postMessageToWebview({ type: "action", action: "mcpButtonClicked" })
 	},
@@ -101,12 +116,12 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			return
 		}
 
-		telemetryService.captureTitleButtonClicked("prompts")
+		TelemetryService.instance.captureTitleButtonClicked("prompts")
 
 		visibleProvider.postMessageToWebview({ type: "action", action: "promptsButtonClicked" })
 	},
 	popoutButtonClicked: () => {
-		telemetryService.captureTitleButtonClicked("popout")
+		TelemetryService.instance.captureTitleButtonClicked("popout")
 
 		return openClineInNewTab({ context, outputChannel })
 	},
@@ -118,7 +133,7 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			return
 		}
 
-		telemetryService.captureTitleButtonClicked("settings")
+		TelemetryService.instance.captureTitleButtonClicked("settings")
 
 		visibleProvider.postMessageToWebview({ type: "action", action: "settingsButtonClicked" })
 		// Also explicitly post the visibility message to trigger scroll reliably
@@ -131,9 +146,14 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 			return
 		}
 
-		telemetryService.captureTitleButtonClicked("history")
+		TelemetryService.instance.captureTitleButtonClicked("history")
 
 		visibleProvider.postMessageToWebview({ type: "action", action: "historyButtonClicked" })
+	},
+	marketplaceButtonClicked: () => {
+		const visibleProvider = getVisibleProviderOrLog(outputChannel)
+		if (!visibleProvider) return
+		visibleProvider.postMessageToWebview({ type: "action", action: "marketplaceButtonClicked" })
 	},
 	showHumanRelayDialog: (params: { requestId: string; promptText: string }) => {
 		const panel = getPanel()
@@ -154,20 +174,39 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 		const { promptForCustomStoragePath } = await import("../utils/storage")
 		await promptForCustomStoragePath()
 	},
+	importSettings: async (filePath?: string) => {
+		const visibleProvider = getVisibleProviderOrLog(outputChannel)
+		if (!visibleProvider) {
+			return
+		}
+
+		await importSettingsWithFeedback(
+			{
+				providerSettingsManager: visibleProvider.providerSettingsManager,
+				contextProxy: visibleProvider.contextProxy,
+				customModesManager: visibleProvider.customModesManager,
+				provider: visibleProvider,
+			},
+			filePath,
+		)
+	},
 	focusInput: async () => {
 		try {
-			const panel = getPanel()
+			await focusPanel(tabPanel, sidebarPanel)
 
-			if (!panel) {
-				await vscode.commands.executeCommand(`workbench.view.extension.${Package.name}-ActivityBar`)
-			} else if (panel === tabPanel) {
-				panel.reveal(vscode.ViewColumn.Active, false)
-			} else if (panel === sidebarPanel) {
-				await vscode.commands.executeCommand(`${ClineProvider.sideBarId}.focus`)
+			// Send focus input message only for sidebar panels
+			if (sidebarPanel && getPanel() === sidebarPanel) {
 				provider.postMessageToWebview({ type: "action", action: "focusInput" })
 			}
 		} catch (error) {
 			outputChannel.appendLine(`Error focusing input: ${error}`)
+		}
+	},
+	focusPanel: async () => {
+		try {
+			await focusPanel(tabPanel, sidebarPanel)
+		} catch (error) {
+			outputChannel.appendLine(`Error focusing panel: ${error}`)
 		}
 	},
 	acceptInput: () => {
@@ -188,7 +227,17 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 	// https://github.com/microsoft/vscode-extension-samples/blob/main/webview-sample/src/extension.ts
 	const contextProxy = await ContextProxy.getInstance(context)
 	const codeIndexManager = CodeIndexManager.getInstance(context)
-	const tabProvider = new ClineProvider(context, outputChannel, "editor", contextProxy, codeIndexManager)
+
+	// Get the existing MDM service instance to ensure consistent policy enforcement
+	let mdmService: MdmService | undefined
+	try {
+		mdmService = MdmService.getInstance()
+	} catch (error) {
+		// MDM service not initialized, which is fine - extension can work without it
+		mdmService = undefined
+	}
+
+	const tabProvider = new ClineProvider(context, outputChannel, "editor", contextProxy, codeIndexManager, mdmService)
 	const lastCol = Math.max(...vscode.window.visibleTextEditors.map((editor) => editor.viewColumn || 0))
 
 	// Check if there are any visible text editors, otherwise open a new group

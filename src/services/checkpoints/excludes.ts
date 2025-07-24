@@ -3,8 +3,6 @@ import { join } from "path"
 
 import { fileExistsAtPath } from "../../utils/fs"
 
-import { GIT_DISABLED_SUFFIX } from "./constants"
-
 const getBuildArtifactPatterns = () => [
 	".gradle/",
 	".idea/",
@@ -13,6 +11,8 @@ const getBuildArtifactPatterns = () => [
 	".next/",
 	".nuxt/",
 	".sass-cache/",
+	".terraform/",
+	".terragrunt-cache/",
 	".vs/",
 	".vscode/",
 	"Pods/",
@@ -200,7 +200,6 @@ const getLfsPatterns = async (workspacePath: string) => {
 
 export const getExcludePatterns = async (workspacePath: string) => [
 	".git/",
-	`.git${GIT_DISABLED_SUFFIX}/`,
 	...getBuildArtifactPatterns(),
 	...getMediaFilePatterns(),
 	...getCacheFilePatterns(),

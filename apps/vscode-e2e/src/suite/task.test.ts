@@ -3,8 +3,11 @@ import * as assert from "assert"
 import type { ClineMessage } from "@roo-code/types"
 
 import { waitUntilCompleted } from "./utils"
+import { setDefaultSuiteTimeout } from "./test-utils"
 
-suite("Roo Code Task", () => {
+suite("Roo Code Task", function () {
+	setDefaultSuiteTimeout(this)
+
 	test("Should handle prompt and response correctly", async () => {
 		const api = globalThis.api
 
@@ -17,7 +20,7 @@ suite("Roo Code Task", () => {
 		})
 
 		const taskId = await api.startNewTask({
-			configuration: { mode: "Ask", alwaysAllowModeSwitch: true, autoApprovalEnabled: true },
+			configuration: { mode: "ask", alwaysAllowModeSwitch: true, autoApprovalEnabled: true },
 			text: "Hello world, what is your name? Respond with 'My name is ...'",
 		})
 
