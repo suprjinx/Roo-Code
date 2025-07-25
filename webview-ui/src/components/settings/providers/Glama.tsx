@@ -1,5 +1,3 @@
-import { useCallback } from "react"
-
 import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
@@ -7,7 +5,6 @@ import type { RouterModels } from "@roo/api"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getGlamaAuthUrl } from "@src/oauth/urls"
 
-import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { ApiKey } from "../ApiKey"
 

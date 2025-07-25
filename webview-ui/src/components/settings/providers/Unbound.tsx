@@ -1,4 +1,3 @@
-import { useCallback, useState, useRef } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelId } from "@roo-code/types"
@@ -9,7 +8,6 @@ import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { vscode } from "@src/utils/vscode"
 import { Button } from "@src/components/ui"
 
-import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { ApiKey } from "../ApiKey"
 

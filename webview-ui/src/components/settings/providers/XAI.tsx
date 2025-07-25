@@ -1,10 +1,7 @@
-import { useCallback } from "react"
-
 import type { ProviderSettings } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
-import { inputEventTransform } from "../transforms"
 import { ApiKey } from "../ApiKey"
 
 type XAIProps = {
