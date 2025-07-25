@@ -1,5 +1,4 @@
 import { useCallback, useState, useRef } from "react"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelId } from "@roo-code/types"
@@ -7,7 +6,6 @@ import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelI
 import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 import { vscode } from "@src/utils/vscode"
 import { Button } from "@src/components/ui"
 
@@ -38,17 +36,6 @@ export const Unbound = ({
 	// Add refs to store timer IDs
 	const didRefetchTimerRef = useRef<NodeJS.Timeout>()
 	const invalidKeyTimerRef = useRef<NodeJS.Timeout>()
-
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	const saveConfiguration = useCallback(async () => {
 		vscode.postMessage({
