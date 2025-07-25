@@ -58,6 +58,9 @@ export const Requesty = ({
 				apiKeyLabel={t("settings:providers.requestyApiKey")}
 				getApiKeyUrl="https://app.requesty.ai/api-keys"
 				getApiKeyLabel={t("settings:providers.getRequestyApiKey")}
+				balanceDisplay={apiConfiguration?.requestyApiKey && (
+					<RequestyBalanceDisplay apiKey={apiConfiguration.requestyApiKey} />
+				)}
 			/>
 			<Button
 				variant="outline"

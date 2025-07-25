@@ -62,6 +62,12 @@ export const OpenRouter = ({
 				apiKeyLabel={t("settings:providers.openRouterApiKey")}
 				getApiKeyUrl={getOpenRouterAuthUrl(uriScheme)}
 				getApiKeyLabel={t("settings:providers.getOpenRouterApiKey")}
+				balanceDisplay={apiConfiguration?.openRouterApiKey && (
+					<OpenRouterBalanceDisplay
+						apiKey={apiConfiguration.openRouterApiKey}
+						baseUrl={apiConfiguration.openRouterBaseUrl}
+					/>
+				)}
 			/>
 			{!fromWelcomeView && (
 				<>

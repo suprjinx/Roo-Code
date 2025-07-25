@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
@@ -14,6 +14,7 @@ type ApiKeyProps = {
     getApiKeyUrl?: string
     getApiKeyLabel?: string
     disabled?: boolean
+    balanceDisplay?: ReactNode
 }
 
 export const ApiKey = ({
@@ -26,6 +27,7 @@ export const ApiKey = ({
     getApiKeyUrl,
     getApiKeyLabel,
     disabled = false,
+    balanceDisplay,
 }: ApiKeyProps) => {
 
     const env = (window as any).PROCESS_ENV || {}
@@ -46,7 +48,10 @@ export const ApiKey = ({
                 placeholder={t("settings:placeholders.apiKey")}
                 className="w-full"
                 disabled={useEnvVar || disabled}>
-                <label className="block font-medium mb-1">{apiKeyLabel}</label>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="block font-medium">{apiKeyLabel}</label>
+                    {apiKey && balanceDisplay && balanceDisplay}
+                </div>
             </VSCodeTextField>
             <div className="text-sm text-vscode-descriptionForeground -mt-2">
                 {t("settings:providers.apiKeyStorageNotice")}
