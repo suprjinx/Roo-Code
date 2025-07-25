@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useState } from "react"
 
 import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId } from "@roo-code/types"
 
