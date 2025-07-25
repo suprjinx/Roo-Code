@@ -113,23 +113,28 @@ function getValueAtPath(obj, path) {
 
 // Set value at a dotted path in an object
 function setValueAtPath(obj, path, value) {
-    const parts = path.split(".")
-    let current = obj
+	const parts = path.split(".")
+	let current = obj
 
-    for (let i = 0; i < parts.length; i++) {
-        const part = parts[i]
+	for (let i = 0; i < parts.length; i++) {
+		const part = parts[i]
 
-        // If it's the last part, set the value
-        if (i === parts.length - 1) {
-            current[part] = value
-        } else {
-            // If the key doesn't exist or isn't an object, create an empty object
-            if (current[part] === undefined || typeof current[part] !== "object") {
-                current[part] = {}
-            }
-            current = current[part]
-        }
-    }
+		// Guard against prototype pollution
+		if (part === "__proto__" || part === "constructor" || part === "prototype") {
+			continue
+		}
+
+		// If it's the last part, set the value
+		if (i === parts.length - 1) {
+			current[part] = value
+		} else {
+			// If the key doesn't exist or isn't an object, create an empty object
+			if (current[part] === undefined || typeof current[part] !== "object") {
+				current[part] = {}
+			}
+			current = current[part]
+		}
+	}
 }
 
 // Function to check translations for a specific area
