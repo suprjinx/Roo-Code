@@ -105,8 +105,7 @@ const ApiOptions = ({
 	fromWelcomeView,
 	errorMessage,
 	setErrorMessage,
-	// eslint-disable-next-line no-unused-vars
-	env = {}
+	env: _env = {}
 }: ApiOptionsProps) => {
 	const { t } = useAppTranslation()
 	const { organizationAllowList } = useExtensionState()
