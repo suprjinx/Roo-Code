@@ -5,7 +5,6 @@ import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import type { ProviderSettings } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform, noTransform } from "../transforms"
 import { ApiKey } from "../ApiKey"

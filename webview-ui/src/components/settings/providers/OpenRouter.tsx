@@ -9,7 +9,6 @@ import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getOpenRouterAuthUrl } from "@src/oauth/urls"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform, noTransform } from "../transforms"
 

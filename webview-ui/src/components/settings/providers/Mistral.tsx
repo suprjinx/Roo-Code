@@ -6,7 +6,6 @@ import { type ProviderSettings, mistralDefaultModelId } from "@roo-code/types"
 import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
 import { ApiKey } from "../ApiKey"

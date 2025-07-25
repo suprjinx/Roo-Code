@@ -1,5 +1,4 @@
 import { useCallback } from "react"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId } from "@roo-code/types"
 
@@ -7,7 +6,6 @@ import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { getGlamaAuthUrl } from "@src/oauth/urls"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
@@ -31,17 +29,6 @@ export const Glama = ({
 	modelValidationError,
 }: GlamaProps) => {
 	const { t } = useAppTranslation()
-
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	return (
 		<>

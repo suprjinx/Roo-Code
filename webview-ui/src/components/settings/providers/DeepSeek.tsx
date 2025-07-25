@@ -1,10 +1,8 @@
 import { useCallback } from "react"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
 import { ApiKey } from "../ApiKey"
@@ -16,17 +14,6 @@ type DeepSeekProps = {
 
 export const DeepSeek = ({ apiConfiguration, setApiConfigurationField }: DeepSeekProps) => {
 	const { t } = useAppTranslation()
-
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	return (
 		<>
