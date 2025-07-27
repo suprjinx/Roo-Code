@@ -46,10 +46,10 @@ export const Gemini = ({ apiConfiguration, setApiConfigurationField }: GeminiPro
 			/>
 			<div>
 				<Checkbox
+					data-testid="checkbox-custom-base-url"
 					checked={googleGeminiBaseUrlSelected}
 					onChange={(checked: boolean) => {
 						setGoogleGeminiBaseUrlSelected(checked)
-
 						if (!checked) {
 							setApiConfigurationField("googleGeminiBaseUrl", "")
 						}
@@ -65,6 +65,27 @@ export const Gemini = ({ apiConfiguration, setApiConfigurationField }: GeminiPro
 						className="w-full mt-1"
 					/>
 				)}
+
+				<Checkbox
+					className="mt-6"
+					data-testid="checkbox-url-context"
+					checked={!!apiConfiguration.enableUrlContext}
+					onChange={(checked: boolean) => setApiConfigurationField("enableUrlContext", checked)}>
+					{t("settings:providers.geminiParameters.urlContext.title")}
+				</Checkbox>
+				<div className="text-sm text-vscode-descriptionForeground mb-3 mt-1.5">
+					{t("settings:providers.geminiParameters.urlContext.description")}
+				</div>
+
+				<Checkbox
+					data-testid="checkbox-grounding-search"
+					checked={!!apiConfiguration.enableGrounding}
+					onChange={(checked: boolean) => setApiConfigurationField("enableGrounding", checked)}>
+					{t("settings:providers.geminiParameters.groundingSearch.title")}
+				</Checkbox>
+				<div className="text-sm text-vscode-descriptionForeground mb-3 mt-1.5">
+					{t("settings:providers.geminiParameters.groundingSearch.description")}
+				</div>
 			</div>
 		</>
 	)
