@@ -132,10 +132,10 @@ export const OpenAICompatible = ({
 			</VSCodeTextField>
 			<ApiKey
 				apiKey={apiConfiguration?.openAiApiKey || ""}
-				apiKeyEnvVar="OPEN_AI_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.openAiApiKeyUseEnvVar}
+				apiKeyEnvVar="OPENAI_API_KEY"
+				configUseEnvVars={!!apiConfiguration?.openAiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openAiApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("openAiApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openAiConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.openAiApiKey")}
 			/>
 			<ModelPicker

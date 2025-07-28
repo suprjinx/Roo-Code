@@ -17,9 +17,9 @@ export const XAI = ({ apiConfiguration, setApiConfigurationField }: XAIProps) =>
 			<ApiKey
 				apiKey={apiConfiguration?.xaiApiKey || ""}
 				apiKeyEnvVar="XAI_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.xaiApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.xaiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("xaiApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("xaiApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("xaiConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.xaiApiKey")}
 				getApiKeyUrl="https://api.x.ai/docs"
 				getApiKeyLabel={t("settings:providers.getXaiApiKey")}

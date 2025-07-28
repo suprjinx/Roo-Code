@@ -83,7 +83,7 @@ const apiModelIdProviderModelSchema = baseProviderSettingsSchema.extend({
 
 const anthropicSchema = apiModelIdProviderModelSchema.extend({
 	apiKey: z.string().optional(),
-	anthropicApiKeyUseEnvVar: z.boolean().optional(),
+	anthropicConfigUseEnvVars: z.boolean().optional(),
 	anthropicBaseUrl: z.string().optional(),
 	anthropicUseAuthToken: z.boolean().optional(),
 })
@@ -96,12 +96,12 @@ const claudeCodeSchema = apiModelIdProviderModelSchema.extend({
 const glamaSchema = baseProviderSettingsSchema.extend({
 	glamaModelId: z.string().optional(),
 	glamaApiKey: z.string().optional(),
-	glamaApiKeyUseEnvVar: z.boolean().optional(),
+	glamaConfigUseEnvVars: z.boolean().optional(),
 })
 
 const openRouterSchema = baseProviderSettingsSchema.extend({
 	openRouterApiKey: z.string().optional(),
-	openRouterApiKeyUseEnvVar: z.boolean().optional(),
+	openRouterConfigUseEnvVars: z.boolean().optional(),
 	openRouterModelId: z.string().optional(),
 	openRouterBaseUrl: z.string().optional(),
 	openRouterSpecificProvider: z.string().optional(),
@@ -135,7 +135,7 @@ const vertexSchema = apiModelIdProviderModelSchema.extend({
 const openAiSchema = baseProviderSettingsSchema.extend({
 	openAiBaseUrl: z.string().optional(),
 	openAiApiKey: z.string().optional(),
-	openAiApiKeyUseEnvVar: z.boolean().optional(),
+	openAiConfigUseEnvVars: z.boolean().optional(),
 	openAiLegacyFormat: z.boolean().optional(),
 	openAiR1FormatEnabled: z.boolean().optional(),
 	openAiModelId: z.string().optional(),
@@ -172,7 +172,7 @@ const lmStudioSchema = baseProviderSettingsSchema.extend({
 
 const geminiSchema = apiModelIdProviderModelSchema.extend({
 	geminiApiKey: z.string().optional(),
-	geminiApiKeyUseEnvVar: z.boolean().optional(),
+	geminiConfigUseEnvVars: z.boolean().optional(),
 	googleGeminiBaseUrl: z.string().optional(),
 	enableUrlContext: z.boolean().optional(),
 	enableGrounding: z.boolean().optional(),
@@ -185,20 +185,20 @@ const geminiCliSchema = apiModelIdProviderModelSchema.extend({
 
 const openAiNativeSchema = apiModelIdProviderModelSchema.extend({
 	openAiNativeApiKey: z.string().optional(),
-	openAiNativeApiKeyUseEnvVar: z.boolean().optional(),
+	openAiNativeConfigUseEnvVars: z.boolean().optional(),
 	openAiNativeBaseUrl: z.string().optional(),
 })
 
 const mistralSchema = apiModelIdProviderModelSchema.extend({
 	mistralApiKey: z.string().optional(),
-	mistralApiKeyUseEnvVar: z.boolean().optional(),
+	mistralConfigUseEnvVars: z.boolean().optional(),
 	mistralCodestralUrl: z.string().optional(),
 })
 
 const deepSeekSchema = apiModelIdProviderModelSchema.extend({
 	deepSeekBaseUrl: z.string().optional(),
 	deepSeekApiKey: z.string().optional(),
-	deepSeekApiKeyUseEnvVar: z.boolean().optional(),
+	deepSeekConfigUseEnvVars: z.boolean().optional(),
 })
 
 const moonshotSchema = apiModelIdProviderModelSchema.extend({
@@ -210,13 +210,13 @@ const moonshotSchema = apiModelIdProviderModelSchema.extend({
 
 const unboundSchema = baseProviderSettingsSchema.extend({
 	unboundApiKey: z.string().optional(),
-	unboundApiKeyUseEnvVar: z.boolean().optional(),
+	unboundConfigUseEnvVars: z.boolean().optional(),
 	unboundModelId: z.string().optional(),
 })
 
 const requestySchema = baseProviderSettingsSchema.extend({
 	requestyApiKey: z.string().optional(),
-	requestyApiKeyUseEnvVar: z.boolean().optional(),
+	requestyConfigUseEnvVars: z.boolean().optional(),
 	requestyModelId: z.string().optional(),
 })
 
@@ -228,12 +228,12 @@ const fakeAiSchema = baseProviderSettingsSchema.extend({
 
 const xaiSchema = apiModelIdProviderModelSchema.extend({
 	xaiApiKey: z.string().optional(),
-	xaiApiKeyUseEnvVar: z.boolean().optional(),
+	xaiConfigUseEnvVars: z.boolean().optional(),
 })
 
 const groqSchema = apiModelIdProviderModelSchema.extend({
 	groqApiKey: z.string().optional(),
-	groqApiKeyUseEnvVar: z.boolean().optional(),
+	groqConfigUseEnvVars: z.boolean().optional(),
 })
 
 const huggingFaceSchema = baseProviderSettingsSchema.extend({
@@ -244,13 +244,13 @@ const huggingFaceSchema = baseProviderSettingsSchema.extend({
 
 const chutesSchema = apiModelIdProviderModelSchema.extend({
 	chutesApiKey: z.string().optional(),
-	chutesApiKeyUseEnvVar: z.boolean().optional(),
+	chutesConfigUseEnvVars: z.boolean().optional(),
 })
 
 const litellmSchema = baseProviderSettingsSchema.extend({
 	litellmBaseUrl: z.string().optional(),
 	litellmApiKey: z.string().optional(),
-	litellmApiKeyUseEnvVar: z.boolean().optional(),
+	litellmConfigUseEnvVars: z.boolean().optional(),
 	litellmModelId: z.string().optional(),
 })
 

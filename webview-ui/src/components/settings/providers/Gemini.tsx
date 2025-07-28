@@ -37,9 +37,9 @@ export const Gemini = ({ apiConfiguration, setApiConfigurationField }: GeminiPro
 			<ApiKey
 				apiKey={apiConfiguration?.geminiApiKey || ""}
 				apiKeyEnvVar="GEMINI_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.geminiApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.geminiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("geminiApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("geminiApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("geminiConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.geminiApiKey")}
 				getApiKeyUrl="https://ai.google.dev/"
 				getApiKeyLabel={t("settings:providers.getGeminiApiKey")}

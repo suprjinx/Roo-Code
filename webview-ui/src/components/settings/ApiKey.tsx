@@ -8,9 +8,9 @@ type ApiKeyProps = {
     apiKey: string
     apiKeyEnvVar: string
     setApiKey: (value: string) => void
-    setApiKeyUseEnvVar: (value: boolean) => void
+    setConfigUseEnvVars: (value: boolean) => void
     apiKeyLabel: string
-    apiKeyUseEnvVar: boolean
+    configUseEnvVars: boolean
     getApiKeyUrl?: string
     getApiKeyLabel?: string
     disabled?: boolean
@@ -21,9 +21,9 @@ export const ApiKey = ({
     apiKey,
     apiKeyEnvVar,
     setApiKey,
-    setApiKeyUseEnvVar,
+    setConfigUseEnvVars,
     apiKeyLabel,
-    apiKeyUseEnvVar,
+    configUseEnvVars,
     getApiKeyUrl,
     getApiKeyLabel,
     disabled = false,
@@ -32,11 +32,11 @@ export const ApiKey = ({
 
     const env = (window as any).PROCESS_ENV || {}
     const apiKeyEnvVarExists = !!env[apiKeyEnvVar]
-    const [useEnvVar, setUseEnvVar] = useState(apiKeyUseEnvVar && apiKeyEnvVarExists)
+    const [useEnvVar, setUseEnvVar] = useState(configUseEnvVars && apiKeyEnvVarExists)
 
     const handleUseEnvVarChange = (checked: boolean) => {
         setUseEnvVar(checked)
-        setApiKeyUseEnvVar(checked)
+        setConfigUseEnvVars(checked)
     }
 
     return (

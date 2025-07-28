@@ -17,9 +17,9 @@ export const Chutes = ({ apiConfiguration, setApiConfigurationField }: ChutesPro
 			<ApiKey
 				apiKey={apiConfiguration?.chutesApiKey || ""}
 				apiKeyEnvVar="CHUTES_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.chutesApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.chutesConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("apiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("chutesApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("chutesConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.chutesApiKey")}
 				getApiKeyUrl="https://chutes.ai/app/api"
 				getApiKeyLabel={t("settings:providers.getchutesApiKey")}

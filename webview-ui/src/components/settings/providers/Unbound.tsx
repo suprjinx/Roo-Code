@@ -125,9 +125,9 @@ export const Unbound = ({
 			<ApiKey
 				apiKey={apiConfiguration?.unboundApiKey || ""}
 				apiKeyEnvVar="UNBOUND_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.unboundApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.unboundConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("unboundApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("unboundApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("unboundConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.unboundApiKey")}
 				getApiKeyUrl="https://gateway.getunbound.ai"
 				getApiKeyLabel={t("settings:providers.getUnboundApiKey")}

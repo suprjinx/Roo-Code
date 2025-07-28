@@ -35,9 +35,9 @@ export const Mistral = ({ apiConfiguration, setApiConfigurationField }: MistralP
 			<ApiKey
 				apiKey={apiConfiguration?.mistralApiKey || ""}
 				apiKeyEnvVar="MISTRAL_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.mistralApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.mistralConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("mistralApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("mistralApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("mistralConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.mistralApiKey")}
 				getApiKeyUrl="https://console.mistral.ai/"
 				getApiKeyLabel={t("settings:providers.getMistralApiKey")}

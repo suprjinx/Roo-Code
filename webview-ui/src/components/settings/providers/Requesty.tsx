@@ -38,9 +38,9 @@ export const Requesty = ({
 			<ApiKey
 				apiKey={apiConfiguration?.requestyApiKey || ""}
 				apiKeyEnvVar="REQUESTY_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.requestyApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.requestyConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("requestyApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("requestyApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("requestyConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.requestyApiKey")}
 				getApiKeyUrl="https://app.requesty.ai/api-keys"
 				getApiKeyLabel={t("settings:providers.getRequestyApiKey")}

@@ -56,9 +56,9 @@ export const OpenRouter = ({
 			<ApiKey
 				apiKey={apiConfiguration?.openRouterApiKey || ""}
 				apiKeyEnvVar="OPEN_ROUTER_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.openRouterApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.openRouterConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openRouterApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("openRouterApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openRouterConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.openRouterApiKey")}
 				getApiKeyUrl={getOpenRouterAuthUrl(uriScheme)}
 				getApiKeyLabel={t("settings:providers.getOpenRouterApiKey")}

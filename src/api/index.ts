@@ -80,19 +80,19 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 
 	switch (apiProvider) {
 		case "anthropic":
-			if (options.anthropicApiKeyUseEnvVar) {
+			if (options.anthropicConfigUseEnvVars) {
 				options.apiKey = getEnvVar("ANTHROPIC_API_KEY", options.apiKey)
 			}
 			return new AnthropicHandler(options)
 		case "claude-code":
 			return new ClaudeCodeHandler(options)
 		case "glama":
-			if (options.glamaApiKeyUseEnvVar) {
+			if (options.glamaConfigUseEnvVars) {
 				options.glamaApiKey = getEnvVar("GLAMA_API_KEY", options.glamaApiKey)
 			}
 			return new GlamaHandler(options)
 		case "openrouter":
-			if (options.openRouterApiKeyUseEnvVar) {
+			if (options.openRouterConfigUseEnvVars) {
 				options.openRouterApiKey = getEnvVar("OPEN_ROUTER_API_KEY", options.openRouterApiKey)
 			}
 			return new OpenRouterHandler(options)
@@ -103,8 +103,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				? new AnthropicVertexHandler(options)
 				: new VertexHandler(options)
 		case "openai":
-			if (options.openAiApiKeyUseEnvVar) {
-				options.openAiApiKey = getEnvVar("OPEN_AI_API_KEY", options.openAiApiKey)
+			if (options.openAiConfigUseEnvVars) {
+				options.openAiApiKey = getEnvVar("OPENAI_API_KEY", options.openAiApiKey)
 			}
 			return new OpenAiHandler(options)
 		case "ollama":
@@ -112,17 +112,17 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 		case "lmstudio":
 			return new LmStudioHandler(options)
 		case "gemini":
-			if (options.geminiApiKeyUseEnvVar) {
+			if (options.geminiConfigUseEnvVars) {
 				options.geminiApiKey = getEnvVar("GEMINI_API_KEY", options.geminiApiKey)
 			}
 			return new GeminiHandler(options)
 		case "openai-native":
-			if (options.openAiNativeApiKeyUseEnvVar) {
-				options.openAiNativeApiKey = getEnvVar("OPEN_AI_NATIVE_API_KEY", options.openAiNativeApiKey)
+			if (options.openAiNativeConfigUseEnvVars) {
+				options.openAiNativeApiKey = getEnvVar("OPENAI_API_KEY", options.openAiNativeApiKey)
 			}
 			return new OpenAiNativeHandler(options)
 		case "deepseek":
-			if (options.deepSeekApiKeyUseEnvVar) {
+			if (options.deepSeekConfigUseEnvVars) {
 				options.deepSeekApiKey = getEnvVar("DEEP_SEEK_API_KEY", options.deepSeekApiKey)
 			}
 			return new DeepSeekHandler(options)
@@ -131,17 +131,17 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 		case "vscode-lm":
 			return new VsCodeLmHandler(options)
 		case "mistral":
-			if (options.mistralApiKeyUseEnvVar) {
+			if (options.mistralConfigUseEnvVars) {
 				options.mistralApiKey = getEnvVar("MISTRAL_API_KEY", options.mistralApiKey)
 			}
 			return new MistralHandler(options)
 		case "unbound":
-			if (options.unboundApiKeyUseEnvVar) {
+			if (options.unboundConfigUseEnvVars) {
 				options.unboundApiKey = getEnvVar("UNBOUND_API_KEY", options.unboundApiKey)
 			}
 			return new UnboundHandler(options)
 		case "requesty":
-			if (options.requestyApiKeyUseEnvVar) {
+			if (options.requestyConfigUseEnvVars) {
 				options.requestyApiKey = getEnvVar("REQUESTY_API_KEY", options.requestyApiKey)
 			}
 			return new RequestyHandler(options)
@@ -150,24 +150,24 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 		case "fake-ai":
 			return new FakeAIHandler(options)
 		case "xai":
-			if (options.xaiApiKeyUseEnvVar) {
+			if (options.xaiConfigUseEnvVars) {
 				options.xaiApiKey = getEnvVar("XAI_API_KEY", options.xaiApiKey)
 			}
 			return new XAIHandler(options)
 		case "groq":
-			if (options.groqApiKeyUseEnvVar) {
+			if (options.groqConfigUseEnvVars) {
 				options.groqApiKey = getEnvVar("GROQ_API_KEY", options.groqApiKey)
 			}
 			return new GroqHandler(options)
 		case "huggingface":
 			return new HuggingFaceHandler(options)
 		case "chutes":
-			if (options.chutesApiKeyUseEnvVar) {
+			if (options.chutesConfigUseEnvVars) {
 				options.chutesApiKey = getEnvVar("CHUTES_API_KEY", options.chutesApiKey)
 			}
 			return new ChutesHandler(options)
 		case "litellm":
-			if (options.litellmApiKeyUseEnvVar) {
+			if (options.litellmConfigUseEnvVars) {
 				options.litellmApiKey = getEnvVar("LITELLM_API_KEY", options.litellmApiKey)
 			}
 			return new LiteLLMHandler(options)

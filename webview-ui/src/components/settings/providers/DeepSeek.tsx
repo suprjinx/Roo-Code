@@ -17,9 +17,9 @@ export const DeepSeek = ({ apiConfiguration, setApiConfigurationField }: DeepSee
 			<ApiKey
 				apiKey={apiConfiguration?.deepSeekApiKey || ""}
 				apiKeyEnvVar="DEEP_SEEK_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.deepSeekApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.deepSeekConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("deepSeekApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("deepSeekApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("deepSeekConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.deepSeekApiKey")}
 				getApiKeyUrl="https://platform.deepseek.com/"
 				getApiKeyLabel={t("settings:providers.getDeepSeekApiKey")}

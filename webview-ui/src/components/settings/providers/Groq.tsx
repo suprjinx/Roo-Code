@@ -17,9 +17,9 @@ export const Groq = ({ apiConfiguration, setApiConfigurationField }: GroqProps) 
 			<ApiKey
 				apiKey={apiConfiguration?.groqApiKey || ""}
 				apiKeyEnvVar="GROQ_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.groqApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.groqConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("groqApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("groqApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("groqConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.groqApiKey")}
 				getApiKeyUrl="https://console.groq.com/keys"
 				getApiKeyLabel={t("settings:providers.getGroqApiKey")}

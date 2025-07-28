@@ -102,9 +102,9 @@ export const LiteLLM = ({
 			<ApiKey
 				apiKey={apiConfiguration?.litellmApiKey || ""}
 				apiKeyEnvVar="LITELLM_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.litellmApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.litellmConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("litellmApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("litellmApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("litellmConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.litellmApiKey")}
 				getApiKeyLabel={t("settings:providers.getLitellmApiKey")}
 			/>

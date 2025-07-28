@@ -34,9 +34,9 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 			<ApiKey
 				apiKey={apiConfiguration?.apiKey || ""}
 				apiKeyEnvVar="ANTHROPIC_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.anthropicApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.anthropicConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("apiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("anthropicApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("anthropicConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.anthropicApiKey")}
 				getApiKeyUrl="https://console.anthropic.com/settings/keys"
 				getApiKeyLabel={t("settings:providers.getAnthropicApiKey")}

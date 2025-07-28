@@ -58,10 +58,10 @@ export const OpenAI = ({ apiConfiguration, setApiConfigurationField }: OpenAIPro
 			)}
 			<ApiKey
 				apiKey={apiConfiguration?.openAiNativeApiKey || ""}
-				apiKeyEnvVar="OPEN_AI_NATIVE_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.openAiNativeApiKeyUseEnvVar}
+				apiKeyEnvVar="OPENAI_API_KEY"
+				configUseEnvVars={!!apiConfiguration?.openAiNativeConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openAiNativeApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("openAiNativeApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openAiNativeConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.openAiApiKey")}
 				getApiKeyUrl="https://platform.openai.com/api-keys"
 				getApiKeyLabel={t("settings:providers.getOpenAiApiKey")}

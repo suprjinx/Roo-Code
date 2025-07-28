@@ -32,9 +32,9 @@ export const Glama = ({
 			<ApiKey
 				apiKey={apiConfiguration?.glamaApiKey || ""}
 				apiKeyEnvVar="GLAMA_API_KEY"
-				apiKeyUseEnvVar={!!apiConfiguration?.glamaApiKeyUseEnvVar}
+				configUseEnvVars={!!apiConfiguration?.glamaConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("glamaApiKey", value)}
-				setApiKeyUseEnvVar={(value: boolean) => setApiConfigurationField("glamaApiKeyUseEnvVar", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("glamaConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.glamaApiKey")}
 				getApiKeyUrl={getGlamaAuthUrl(uriScheme)}
 				getApiKeyLabel={t("settings:providers.getGlamaApiKey")}
