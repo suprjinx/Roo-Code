@@ -78,9 +78,9 @@ describe("ApiKey Component", () => {
 		apiKey: "",
 		apiKeyEnvVar: "TEST_API_KEY",
 		setApiKey: vi.fn(),
-		setApiKeyUseEnvVar: vi.fn(),
+		setConfigUseEnvVars: vi.fn(),
 		apiKeyLabel: "Test API Key",
-		apiKeyUseEnvVar: false,
+		configUseEnvVars: false,
 		getApiKeyUrl: "https://example.com/get-key",
 		getApiKeyLabel: "Get API Key",
 		disabled: false,
@@ -114,7 +114,7 @@ describe("ApiKey Component", () => {
 		expect(defaultProps.setApiKey).toHaveBeenCalledWith("new-api-key")
 	})
 
-	it("calls setApiKeyUseEnvVar when checkbox is toggled", () => {
+	it("calls setConfigUseEnvVars when checkbox is toggled", () => {
 		const props = {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
@@ -125,14 +125,14 @@ describe("ApiKey Component", () => {
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		fireEvent.click(checkbox)
 		
-		expect(props.setApiKeyUseEnvVar).toHaveBeenCalledWith(true)
+		expect(props.setConfigUseEnvVars).toHaveBeenCalledWith(true)
 	})
 
 	it("disables input when useEnvVar is true and env var exists", () => {
 		const props = {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
-			apiKeyUseEnvVar: true,
+			configUseEnvVars: true,
 		}
 		
 		render(<ApiKey {...props} />)
@@ -175,7 +175,7 @@ describe("ApiKey Component", () => {
 		const props = {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
-			apiKeyUseEnvVar: true,
+			configUseEnvVars: true,
 		}
 		
 		render(<ApiKey {...props} />)
@@ -211,7 +211,7 @@ describe("ApiKey Component", () => {
 		const props = {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
-			apiKeyUseEnvVar: true,
+			configUseEnvVars: true,
 		}
 		
 		render(<ApiKey {...props} />)
@@ -225,7 +225,7 @@ describe("ApiKey Component", () => {
 		const props = {
 			...defaultProps,
 			apiKeyEnvVar: "NONEXISTENT_API_KEY",
-			apiKeyUseEnvVar: true,
+			configUseEnvVars: true,
 		}
 		
 		render(<ApiKey {...props} />)
