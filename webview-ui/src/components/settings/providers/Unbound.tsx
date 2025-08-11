@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -124,7 +124,7 @@ export const Unbound = ({
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.unboundApiKey || ""}
-				apiKeyEnvVar="UNBOUND_API_KEY"
+				apiKeyEnvVar={API_KEYS.UNBOUND}
 				configUseEnvVars={!!apiConfiguration?.unboundConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("unboundApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("unboundConfigUseEnvVars", value)}

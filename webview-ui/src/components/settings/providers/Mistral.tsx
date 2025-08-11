@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, mistralDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, mistralDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -34,7 +34,7 @@ export const Mistral = ({ apiConfiguration, setApiConfigurationField }: MistralP
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.mistralApiKey || ""}
-				apiKeyEnvVar="MISTRAL_API_KEY"
+				apiKeyEnvVar={API_KEYS.MISTRAL}
 				configUseEnvVars={!!apiConfiguration?.mistralConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("mistralApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("mistralConfigUseEnvVars", value)}

@@ -28,6 +28,7 @@ import {
 	openRouterDefaultModelId,
 	glamaDefaultModelId,
 	ORGANIZATION_ALLOW_ALL,
+	API_KEY_ENV_VAR_NAMES,
 	DEFAULT_TERMINAL_OUTPUT_CHARACTER_LIMIT,
 } from "@roo-code/types"
 import { TelemetryService } from "@roo-code/telemetry"
@@ -716,24 +717,8 @@ export class ClineProvider
 	 * Returns only boolean existence for API keys, not the values.
 	 */
 	private checkEnvVarApiKeys(): Record<string, boolean> {
-		const apiKeyEnvVars = [
-			"ANTHROPIC_API_KEY",
-			"OPENAI_API_KEY",
-			"OPEN_ROUTER_API_KEY",
-			"GLAMA_API_KEY",
-			"GEMINI_API_KEY",
-			"MISTRAL_API_KEY",
-			"DEEP_SEEK_API_KEY",
-			"UNBOUND_API_KEY",
-			"REQUESTY_API_KEY",
-			"XAI_API_KEY",
-			"GROQ_API_KEY",
-			"CHUTES_API_KEY",
-			"LITELLM_API_KEY",
-		]
-
 		const result: Record<string, boolean> = {}
-		apiKeyEnvVars.forEach((envVar) => {
+		API_KEY_ENV_VAR_NAMES.forEach((envVar) => {
 			const exists = !!process.env[envVar]
 			result[envVar] = exists
 			if (exists) {

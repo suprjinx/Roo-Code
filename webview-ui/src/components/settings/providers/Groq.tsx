@@ -1,4 +1,5 @@
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -16,7 +17,7 @@ export const Groq = ({ apiConfiguration, setApiConfigurationField }: GroqProps) 
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.groqApiKey || ""}
-				apiKeyEnvVar="GROQ_API_KEY"
+				apiKeyEnvVar={API_KEYS.GROQ}
 				configUseEnvVars={!!apiConfiguration?.groqConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("groqApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("groqConfigUseEnvVars", value)}

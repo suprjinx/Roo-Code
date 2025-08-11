@@ -10,6 +10,7 @@ import {
 	type OrganizationAllowList,
 	azureOpenAiDefaultApiVersion,
 	openAiModelInfoSaneDefaults,
+	API_KEYS,
 } from "@roo-code/types"
 
 import { ExtensionMessage } from "@roo/ExtensionMessage"
@@ -132,7 +133,7 @@ export const OpenAICompatible = ({
 			</VSCodeTextField>
 			<ApiKey
 				apiKey={apiConfiguration?.openAiApiKey || ""}
-				apiKeyEnvVar="OPENAI_API_KEY"
+				apiKeyEnvVar={API_KEYS.OPENAI}
 				configUseEnvVars={!!apiConfiguration?.openAiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openAiApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openAiConfigUseEnvVars", value)}

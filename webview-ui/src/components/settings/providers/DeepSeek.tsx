@@ -1,4 +1,5 @@
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -16,7 +17,7 @@ export const DeepSeek = ({ apiConfiguration, setApiConfigurationField }: DeepSee
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.deepSeekApiKey || ""}
-				apiKeyEnvVar="DEEP_SEEK_API_KEY"
+				apiKeyEnvVar={API_KEYS.DEEP_SEEK}
 				configUseEnvVars={!!apiConfiguration?.deepSeekConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("deepSeekApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("deepSeekConfigUseEnvVars", value)}

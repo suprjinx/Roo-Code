@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect, useRef } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, type OrganizationAllowList, litellmDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, litellmDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import { RouterName } from "@roo/api"
 import { ExtensionMessage } from "@roo/ExtensionMessage"
@@ -101,7 +101,7 @@ export const LiteLLM = ({
 
 			<ApiKey
 				apiKey={apiConfiguration?.litellmApiKey || ""}
-				apiKeyEnvVar="LITELLM_API_KEY"
+				apiKeyEnvVar={API_KEYS.LITELLM}
 				configUseEnvVars={!!apiConfiguration?.litellmConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("litellmApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("litellmConfigUseEnvVars", value)}

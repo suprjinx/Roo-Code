@@ -3,6 +3,7 @@ import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -33,7 +34,7 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.apiKey || ""}
-				apiKeyEnvVar="ANTHROPIC_API_KEY"
+				apiKeyEnvVar={API_KEYS.ANTHROPIC}
 				configUseEnvVars={!!apiConfiguration?.anthropicConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("apiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("anthropicConfigUseEnvVars", value)}

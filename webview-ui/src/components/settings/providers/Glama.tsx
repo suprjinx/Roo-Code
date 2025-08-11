@@ -1,4 +1,4 @@
-import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -31,7 +31,7 @@ export const Glama = ({
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.glamaApiKey || ""}
-				apiKeyEnvVar="GLAMA_API_KEY"
+				apiKeyEnvVar={API_KEYS.GLAMA}
 				configUseEnvVars={!!apiConfiguration?.glamaConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("glamaApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("glamaConfigUseEnvVars", value)}

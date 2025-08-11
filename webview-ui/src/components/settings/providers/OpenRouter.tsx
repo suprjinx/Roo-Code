@@ -3,7 +3,7 @@ import { Trans } from "react-i18next"
 import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type ProviderSettings, type OrganizationAllowList, openRouterDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, openRouterDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -55,7 +55,7 @@ export const OpenRouter = ({
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.openRouterApiKey || ""}
-				apiKeyEnvVar="OPEN_ROUTER_API_KEY"
+				apiKeyEnvVar={API_KEYS.OPEN_ROUTER}
 				configUseEnvVars={!!apiConfiguration?.openRouterConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openRouterApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openRouterConfigUseEnvVars", value)}

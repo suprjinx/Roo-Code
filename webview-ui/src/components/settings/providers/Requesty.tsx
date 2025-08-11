@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId } from "@roo-code/types"
+import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -37,7 +37,7 @@ export const Requesty = ({
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.requestyApiKey || ""}
-				apiKeyEnvVar="REQUESTY_API_KEY"
+				apiKeyEnvVar={API_KEYS.REQUESTY}
 				configUseEnvVars={!!apiConfiguration?.requestyConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("requestyApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("requestyConfigUseEnvVars", value)}

@@ -3,6 +3,7 @@ import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -58,7 +59,7 @@ export const OpenAI = ({ apiConfiguration, setApiConfigurationField }: OpenAIPro
 			)}
 			<ApiKey
 				apiKey={apiConfiguration?.openAiNativeApiKey || ""}
-				apiKeyEnvVar="OPENAI_API_KEY"
+				apiKeyEnvVar={API_KEYS.OPENAI}
 				configUseEnvVars={!!apiConfiguration?.openAiNativeConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("openAiNativeApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("openAiNativeConfigUseEnvVars", value)}

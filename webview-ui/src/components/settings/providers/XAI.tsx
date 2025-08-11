@@ -1,4 +1,5 @@
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -16,7 +17,7 @@ export const XAI = ({ apiConfiguration, setApiConfigurationField }: XAIProps) =>
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.xaiApiKey || ""}
-				apiKeyEnvVar="XAI_API_KEY"
+				apiKeyEnvVar={API_KEYS.XAI}
 				configUseEnvVars={!!apiConfiguration?.xaiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("xaiApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("xaiConfigUseEnvVars", value)}

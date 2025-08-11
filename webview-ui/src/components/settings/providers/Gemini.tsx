@@ -3,6 +3,7 @@ import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -36,7 +37,7 @@ export const Gemini = ({ apiConfiguration, setApiConfigurationField }: GeminiPro
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.geminiApiKey || ""}
-				apiKeyEnvVar="GEMINI_API_KEY"
+				apiKeyEnvVar={API_KEYS.GEMINI}
 				configUseEnvVars={!!apiConfiguration?.geminiConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("geminiApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("geminiConfigUseEnvVars", value)}

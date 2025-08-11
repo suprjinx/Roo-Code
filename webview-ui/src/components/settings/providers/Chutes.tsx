@@ -1,4 +1,5 @@
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 
@@ -16,7 +17,7 @@ export const Chutes = ({ apiConfiguration, setApiConfigurationField }: ChutesPro
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.chutesApiKey || ""}
-				apiKeyEnvVar="CHUTES_API_KEY"
+				apiKeyEnvVar={API_KEYS.CHUTES}
 				configUseEnvVars={!!apiConfiguration?.chutesConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("apiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("chutesConfigUseEnvVars", value)}

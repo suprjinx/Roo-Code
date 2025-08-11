@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
+import { API_KEYS } from "@roo-code/types"
 
 import { ApiKey } from "../ApiKey"
 
@@ -59,8 +60,8 @@ vi.mock("i18next", () => ({
 
 // Mock window.PROCESS_ENV
 const mockProcessEnv = {
-	ANTHROPIC_API_KEY: "existing-env-value",
-	GEMINI_API_KEY: undefined,
+	[API_KEYS.ANTHROPIC]: "existing-env-value",
+	[API_KEYS.GEMINI]: undefined,
 }
 
 // Mock global window object if not available
@@ -77,8 +78,8 @@ Object.defineProperty(window, "PROCESS_ENV", {
 Object.defineProperty(window, "ENV_VAR_EXISTS", {
 	value: {
 		TEST_API_KEY: true,
-		ANTHROPIC_API_KEY: true,
-		OPENAI_API_KEY: false,
+		[API_KEYS.ANTHROPIC]: true,
+		[API_KEYS.OPENAI]: false,
 	},
 	writable: true,
 })
@@ -127,7 +128,7 @@ describe("ApiKey Component", () => {
 	it("calls setConfigUseEnvVars when checkbox is toggled", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYS.ANTHROPIC, // This exists in mockProcessEnv
 		}
 
 		render(<ApiKey {...props} />)
@@ -141,7 +142,7 @@ describe("ApiKey Component", () => {
 	it("disables input when useEnvVar is true and env var exists", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYS.ANTHROPIC, // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
 
@@ -184,7 +185,7 @@ describe("ApiKey Component", () => {
 	it("does not show get API key button when using env var with existing env value", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYS.ANTHROPIC, // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
 
@@ -208,7 +209,7 @@ describe("ApiKey Component", () => {
 	it("enables checkbox when environment variable exists", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYS.ANTHROPIC, // This exists in mockProcessEnv
 		}
 
 		render(<ApiKey {...props} />)
@@ -220,7 +221,7 @@ describe("ApiKey Component", () => {
 	it("handles checkbox state correctly when env var exists and is initially checked", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYSgy.ANTHROPIC, // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
 
