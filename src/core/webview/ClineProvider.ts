@@ -698,6 +698,7 @@ export class ClineProvider
 						window.IMAGES_BASE_URI = "${imagesUri}"
 						window.AUDIO_BASE_URI = "${audioUri}"
 						window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
+						window.ENV_VAR_EXISTS = ${JSON.stringify(this.checkEnvVarApiKeys())}
 					</script>
 					<title>Roo Code</title>
 				</head>
@@ -708,6 +709,38 @@ export class ClineProvider
 				</body>
 			</html>
 		`
+	}
+
+	/**
+	 * Creates a map of supported API keys with boolean indicating presence.
+	 * Returns only boolean existence for API keys, not the values.
+	 */
+	private checkEnvVarApiKeys(): Record<string, boolean> {
+		const apiKeyEnvVars = [
+			"ANTHROPIC_API_KEY",
+			"OPENAI_API_KEY",
+			"OPEN_ROUTER_API_KEY",
+			"GLAMA_API_KEY",
+			"GEMINI_API_KEY",
+			"MISTRAL_API_KEY",
+			"DEEP_SEEK_API_KEY",
+			"UNBOUND_API_KEY",
+			"REQUESTY_API_KEY",
+			"XAI_API_KEY",
+			"GROQ_API_KEY",
+			"CHUTES_API_KEY",
+			"LITELLM_API_KEY",
+		]
+
+		const result: Record<string, boolean> = {}
+		apiKeyEnvVars.forEach((envVar) => {
+			const exists = !!process.env[envVar]
+			result[envVar] = exists
+			if (exists) {
+				console.log(`[ClineProvider] Found environment variable: ${envVar}`)
+			}
+		})
+		return result
 	}
 
 	/**
@@ -771,7 +804,7 @@ export class ClineProvider
 				window.IMAGES_BASE_URI = "${imagesUri}"
 				window.AUDIO_BASE_URI = "${audioUri}"
 				window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
-				window.PROCESS_ENV = ${JSON.stringify(process.env)}
+				window.ENV_VAR_EXISTS = ${JSON.stringify(this.checkEnvVarApiKeys())}
 			</script>
             <title>Roo Code</title>
           </head>
@@ -1454,7 +1487,7 @@ export class ClineProvider
 		const currentMode = mode ?? defaultModeSlug
 		const hasSystemPromptOverride = await this.hasFileBasedSystemPromptOverride(currentMode)
 
-		return {
+		const stateToReturn = {
 			version: this.context.extension?.packageJSON?.version ?? "",
 			apiConfiguration,
 			customInstructions,
@@ -1565,6 +1598,8 @@ export class ClineProvider
 			includeDiagnosticMessages: includeDiagnosticMessages ?? true,
 			maxDiagnosticMessages: maxDiagnosticMessages ?? 50,
 		}
+
+		return stateToReturn
 	}
 
 	/**

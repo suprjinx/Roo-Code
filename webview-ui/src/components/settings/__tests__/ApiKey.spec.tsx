@@ -64,12 +64,22 @@ const mockProcessEnv = {
 }
 
 // Mock global window object if not available
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
 	global.window = {} as any
 }
 
 Object.defineProperty(window, "PROCESS_ENV", {
 	value: mockProcessEnv,
+	writable: true,
+})
+
+// Mock window.ENV_VAR_EXISTS
+Object.defineProperty(window, "ENV_VAR_EXISTS", {
+	value: {
+		TEST_API_KEY: true,
+		ANTHROPIC_API_KEY: true,
+		OPENAI_API_KEY: false,
+	},
 	writable: true,
 })
 
@@ -92,7 +102,7 @@ describe("ApiKey Component", () => {
 
 	it("renders with basic props", () => {
 		render(<ApiKey {...defaultProps} />)
-		
+
 		expect(screen.getByText("Test API Key")).toBeInTheDocument()
 		expect(screen.getByPlaceholderText("Enter API key")).toBeInTheDocument()
 		expect(screen.getByText("API keys are stored locally")).toBeInTheDocument()
@@ -100,17 +110,17 @@ describe("ApiKey Component", () => {
 
 	it("shows environment variable checkbox", () => {
 		render(<ApiKey {...defaultProps} />)
-		
+
 		expect(screen.getByText("Use environment variable TEST_API_KEY")).toBeInTheDocument()
 		expect(screen.getByTestId("env-var-checkbox")).toBeInTheDocument()
 	})
 
 	it("calls setApiKey when input value changes", () => {
 		render(<ApiKey {...defaultProps} />)
-		
+
 		const input = screen.getByTestId("api-key-input")
 		fireEvent.change(input, { target: { value: "new-api-key" } })
-		
+
 		expect(defaultProps.setApiKey).toHaveBeenCalledWith("new-api-key")
 	})
 
@@ -119,12 +129,12 @@ describe("ApiKey Component", () => {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		fireEvent.click(checkbox)
-		
+
 		expect(props.setConfigUseEnvVars).toHaveBeenCalledWith(true)
 	})
 
@@ -134,9 +144,9 @@ describe("ApiKey Component", () => {
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const input = screen.getByTestId("api-key-input")
 		expect(input).toBeDisabled()
 	})
@@ -146,16 +156,16 @@ describe("ApiKey Component", () => {
 			...defaultProps,
 			disabled: true,
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const input = screen.getByTestId("api-key-input")
 		expect(input).toBeDisabled()
 	})
 
 	it("shows get API key button when no key is provided and URLs are given", () => {
 		render(<ApiKey {...defaultProps} />)
-		
+
 		expect(screen.getByText("Get API Key")).toBeInTheDocument()
 		expect(screen.getByTestId("get-api-key-link")).toHaveAttribute("href", "https://example.com/get-key")
 	})
@@ -165,9 +175,9 @@ describe("ApiKey Component", () => {
 			...defaultProps,
 			apiKey: "existing-key",
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		expect(screen.queryByText("Get API Key")).not.toBeInTheDocument()
 	})
 
@@ -177,9 +187,9 @@ describe("ApiKey Component", () => {
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		expect(screen.queryByText("Get API Key")).not.toBeInTheDocument()
 	})
 
@@ -188,9 +198,9 @@ describe("ApiKey Component", () => {
 			...defaultProps,
 			apiKeyEnvVar: "NONEXISTENT_API_KEY",
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		expect(checkbox).toBeDisabled()
 	})
@@ -200,9 +210,9 @@ describe("ApiKey Component", () => {
 			...defaultProps,
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		expect(checkbox).not.toBeDisabled()
 	})
@@ -213,9 +223,9 @@ describe("ApiKey Component", () => {
 			apiKeyEnvVar: "ANTHROPIC_API_KEY", // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		expect(checkbox).toBeChecked()
 		expect(screen.getByTestId("api-key-input")).toBeDisabled()
@@ -227,9 +237,9 @@ describe("ApiKey Component", () => {
 			apiKeyEnvVar: "NONEXISTENT_API_KEY",
 			configUseEnvVars: true,
 		}
-		
+
 		render(<ApiKey {...props} />)
-		
+
 		// The component should internally set useEnvVar to false when env var doesn't exist
 		const checkbox = screen.getByTestId("env-var-checkbox-input")
 		expect(checkbox).not.toBeChecked()
