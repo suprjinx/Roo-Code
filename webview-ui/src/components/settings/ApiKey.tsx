@@ -49,7 +49,7 @@ export const ApiKey = ({
 				disabled={useEnvVar || disabled}>
 				<div className="flex justify-between items-center mb-1">
 					<label className="block font-medium">{apiKeyLabel}</label>
-					{apiKey && balanceDisplay && balanceDisplay}
+					{apiKey && balanceDisplay}
 				</div>
 			</VSCodeTextField>
 			<div className="text-sm text-vscode-descriptionForeground -mt-2">

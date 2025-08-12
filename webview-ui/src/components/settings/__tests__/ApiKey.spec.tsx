@@ -221,7 +221,7 @@ describe("ApiKey Component", () => {
 	it("handles checkbox state correctly when env var exists and is initially checked", () => {
 		const props = {
 			...defaultProps,
-			apiKeyEnvVar: API_KEYSgy.ANTHROPIC, // This exists in mockProcessEnv
+			apiKeyEnvVar: API_KEYS.ANTHROPIC, // This exists in mockProcessEnv
 			configUseEnvVars: true,
 		}
 
