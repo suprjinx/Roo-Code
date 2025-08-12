@@ -234,6 +234,7 @@ const unboundSchema = baseProviderSettingsSchema.extend({
 })
 
 const requestySchema = baseProviderSettingsSchema.extend({
+	requestyBaseUrl: z.string().optional(),
 	requestyApiKey: z.string().optional(),
 	requestyConfigUseEnvVars: z.boolean().optional(),
 	requestyModelId: z.string().optional(),

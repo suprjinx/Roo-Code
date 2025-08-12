@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import { VSCodeCheckbox, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import { type ProviderSettings, type OrganizationAllowList, requestyDefaultModelId, API_KEYS } from "@roo-code/types"
 
@@ -11,6 +12,7 @@ import { Button } from "@src/components/ui"
 import { ModelPicker } from "../ModelPicker"
 import { RequestyBalanceDisplay } from "./RequestyBalanceDisplay"
 import { ApiKey } from "../ApiKey"
+import { inputEventTransform } from "../transforms"
 
 type RequestyProps = {
 	apiConfiguration: ProviderSettings
@@ -32,6 +34,23 @@ export const Requesty = ({
 	const { t } = useAppTranslation()
 
 	const [didRefetch, setDidRefetch] = useState<boolean>()
+	const [requestyEndpointSelected, setRequestyEndpointSelected] = useState(!!apiConfiguration.requestyBaseUrl)
+
+	// This ensures that the "Use custom URL" checkbox is hidden when the user deletes the URL.
+	useEffect(() => {
+		setRequestyEndpointSelected(!!apiConfiguration?.requestyBaseUrl)
+	}, [apiConfiguration?.requestyBaseUrl])
+
+	const handleInputChange = useCallback(
+		<K extends keyof ProviderSettings, E>(
+			field: K,
+			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
+		) =>
+			(event: E | Event) => {
+				setApiConfigurationField(field, transform(event as E))
+			},
+		[setApiConfigurationField],
+	)
 
 	return (
 		<>
@@ -50,6 +69,30 @@ export const Requesty = ({
 					)
 				}
 			/>
+			<VSCodeCheckbox
+				checked={requestyEndpointSelected}
+				onChange={(e: any) => {
+					const isChecked = e.target.checked === true
+					if (!isChecked) {
+						setApiConfigurationField("requestyBaseUrl", undefined)
+					}
+
+					setRequestyEndpointSelected(isChecked)
+				}}>
+				{t("settings:providers.requestyUseCustomBaseUrl")}
+			</VSCodeCheckbox>
+			{requestyEndpointSelected && (
+				<VSCodeTextField
+					value={apiConfiguration?.requestyBaseUrl || ""}
+					type="text"
+					onInput={handleInputChange("requestyBaseUrl")}
+					placeholder={t("settings:providers.getRequestyBaseUrl")}
+					className="w-full">
+					<div className="flex justify-between items-center mb-1">
+						<label className="block font-medium">{t("settings:providers.getRequestyBaseUrl")}</label>
+					</div>
+				</VSCodeTextField>
+			)}
 			<Button
 				variant="outline"
 				onClick={() => {
