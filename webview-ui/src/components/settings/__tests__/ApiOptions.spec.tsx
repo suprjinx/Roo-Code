@@ -276,7 +276,6 @@ const renderApiOptions = (props: Partial<ApiOptionsProps> = {}) => {
 					uriScheme={undefined}
 					apiConfiguration={{}}
 					setApiConfigurationField={() => {}}
-					env={{}} // Mock environment variables
 					{...props}
 				/>
 			</QueryClientProvider>
