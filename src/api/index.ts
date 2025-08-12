@@ -8,6 +8,7 @@ import {
 	GlamaHandler,
 	AnthropicHandler,
 	AwsBedrockHandler,
+	CerebrasHandler,
 	OpenRouterHandler,
 	VertexHandler,
 	AnthropicVertexHandler,
@@ -30,6 +31,11 @@ import {
 	ChutesHandler,
 	LiteLLMHandler,
 	ClaudeCodeHandler,
+	SambaNovaHandler,
+	IOIntelligenceHandler,
+	DoubaoHandler,
+	ZAiHandler,
+	FireworksHandler,
 } from "./providers"
 
 export interface SingleCompletionHandler {
@@ -39,6 +45,13 @@ export interface SingleCompletionHandler {
 export interface ApiHandlerCreateMessageMetadata {
 	mode?: string
 	taskId: string
+	previousResponseId?: string
+	/**
+	 * When true, the provider must NOT fall back to internal continuity state
+	 * (e.g., lastResponseId) if previousResponseId is absent.
+	 * Used to enforce "skip once" after a condense operation.
+	 */
+	suppressPreviousResponseId?: boolean
 }
 
 export interface ApiHandler {
@@ -126,6 +139,8 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				options.deepSeekApiKey = getEnvVar("DEEP_SEEK_API_KEY", options.deepSeekApiKey)
 			}
 			return new DeepSeekHandler(options)
+		case "doubao":
+			return new DoubaoHandler(options)
 		case "moonshot":
 			return new MoonshotHandler(options)
 		case "vscode-lm":
@@ -171,6 +186,16 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 				options.litellmApiKey = getEnvVar("LITELLM_API_KEY", options.litellmApiKey)
 			}
 			return new LiteLLMHandler(options)
+		case "cerebras":
+			return new CerebrasHandler(options)
+		case "sambanova":
+			return new SambaNovaHandler(options)
+		case "zai":
+			return new ZAiHandler(options)
+		case "fireworks":
+			return new FireworksHandler(options)
+		case "io-intelligence":
+			return new IOIntelligenceHandler(options)
 		default:
 			apiProvider satisfies "gemini-cli" | undefined
 			return new AnthropicHandler(options)

@@ -10,6 +10,8 @@ import pWaitFor from "p-wait-for"
 import * as vscode from "vscode"
 
 import {
+	type TaskProviderLike,
+	type TaskProviderEvents,
 	type GlobalState,
 	type ProviderName,
 	type ProviderSettings,
@@ -23,32 +25,35 @@ import {
 	type TerminalActionPromptType,
 	type HistoryItem,
 	type CloudUserInfo,
-	type MarketplaceItem,
+	RooCodeEventName,
 	requestyDefaultModelId,
 	openRouterDefaultModelId,
 	glamaDefaultModelId,
 	ORGANIZATION_ALLOW_ALL,
 	API_KEY_ENV_VAR_NAMES,
 	DEFAULT_TERMINAL_OUTPUT_CHARACTER_LIMIT,
+	DEFAULT_WRITE_DELAY_MS,
 } from "@roo-code/types"
 import { TelemetryService } from "@roo-code/telemetry"
 import { CloudService, getRooCodeApiUrl } from "@roo-code/cloud"
 
-import { t } from "../../i18n"
-import { setPanel } from "../../activate/registerCommands"
 import { Package } from "../../shared/package"
 import { findLast } from "../../shared/array"
 import { supportPrompt } from "../../shared/support-prompt"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { ExtensionMessage, MarketplaceInstalledMetadata } from "../../shared/ExtensionMessage"
-import { Mode, defaultModeSlug } from "../../shared/modes"
-import { experimentDefault, experiments, EXPERIMENT_IDS } from "../../shared/experiments"
+import { Mode, defaultModeSlug, getModeBySlug } from "../../shared/modes"
+import { experimentDefault } from "../../shared/experiments"
 import { formatLanguage } from "../../shared/language"
-import { DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
+import { WebviewMessage } from "../../shared/WebviewMessage"
+import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
+import { ProfileValidator } from "../../shared/ProfileValidator"
+
 import { Terminal } from "../../integrations/terminal/Terminal"
 import { downloadTask } from "../../integrations/misc/export-markdown"
 import { getTheme } from "../../integrations/theme/getTheme"
 import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
+
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { MarketplaceManager } from "../../services/marketplace"
@@ -56,41 +61,38 @@ import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckp
 import { CodeIndexManager } from "../../services/code-index/manager"
 import type { IndexProgressUpdate } from "../../services/code-index/interfaces/manager"
 import { MdmService } from "../../services/mdm/MdmService"
+
 import { fileExistsAtPath } from "../../utils/fs"
 import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
+import { getWorkspaceGitInfo } from "../../utils/git"
+import { getWorkspacePath } from "../../utils/path"
+import { isRemoteControlEnabled } from "../../utils/remoteControl"
+
+import { setPanel } from "../../activate/registerCommands"
+
+import { t } from "../../i18n"
+
+import { buildApiHandler } from "../../api"
+import { forceFullModelDetailsLoad, hasLoadedFullDetails } from "../../api/providers/fetchers/lmstudio"
+
 import { ContextProxy } from "../config/ContextProxy"
 import { ProviderSettingsManager } from "../config/ProviderSettingsManager"
 import { CustomModesManager } from "../config/CustomModesManager"
-import { buildApiHandler } from "../../api"
 import { Task, TaskOptions } from "../task/Task"
+import { getSystemPromptFilePath } from "../prompts/sections/custom-system-prompt"
+
+import { webviewMessageHandler } from "./webviewMessageHandler"
 import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
-import { getSystemPromptFilePath } from "../prompts/sections/custom-system-prompt"
-import { getWorkspacePath } from "../../utils/path"
-import { webviewMessageHandler } from "./webviewMessageHandler"
-import { WebviewMessage } from "../../shared/WebviewMessage"
-import { EMBEDDING_MODEL_PROFILES } from "../../shared/embeddingModels"
-import { ProfileValidator } from "../../shared/ProfileValidator"
-import { getWorkspaceGitInfo } from "../../utils/git"
 
 /**
  * https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
  * https://github.com/KumarVariable/vscode-extension-sidebar-html/blob/master/src/customSidebarViewProvider.ts
  */
 
-export type ClineProviderEvents = {
-	clineCreated: [cline: Task]
-}
-
-class OrganizationAllowListViolationError extends Error {
-	constructor(message: string) {
-		super(message)
-	}
-}
-
 export class ClineProvider
-	extends EventEmitter<ClineProviderEvents>
-	implements vscode.WebviewViewProvider, TelemetryPropertiesProvider
+	extends EventEmitter<TaskProviderEvents>
+	implements vscode.WebviewViewProvider, TelemetryPropertiesProvider, TaskProviderLike
 {
 	// Used in package.json as the view's id. This value cannot be changed due
 	// to how VSCode caches views based on their id, and updating the id would
@@ -103,6 +105,7 @@ export class ClineProvider
 	private view?: vscode.WebviewView | vscode.WebviewPanel
 	private clineStack: Task[] = []
 	private codeIndexStatusSubscription?: vscode.Disposable
+	private currentWorkspaceManager?: CodeIndexManager
 	private _workspaceTracker?: WorkspaceTracker // workSpaceTracker read-only for access outside this class
 	public get workspaceTracker(): WorkspaceTracker | undefined {
 		return this._workspaceTracker
@@ -110,10 +113,12 @@ export class ClineProvider
 	protected mcpHub?: McpHub // Change from private to protected
 	private marketplaceManager: MarketplaceManager
 	private mdmService?: MdmService
+	private taskCreationCallback: (task: Task) => void
+	private taskEventListeners: WeakMap<Task, Array<() => void>> = new WeakMap()
 
 	public isViewLaunched = false
 	public settingsImportedAt?: number
-	public readonly latestAnnouncementId = "jul-26-2025-3-24-0" // Update for v3.24.0 announcement
+	public readonly latestAnnouncementId = "jul-29-2025-3-25-0" // Update for v3.25.0 announcement
 	public readonly providerSettingsManager: ProviderSettingsManager
 	public readonly customModesManager: CustomModesManager
 
@@ -122,7 +127,6 @@ export class ClineProvider
 		private readonly outputChannel: vscode.OutputChannel,
 		private readonly renderContext: "sidebar" | "editor" = "sidebar",
 		public readonly contextProxy: ContextProxy,
-		public readonly codeIndexManager?: CodeIndexManager,
 		mdmService?: MdmService,
 	) {
 		super()
@@ -130,7 +134,6 @@ export class ClineProvider
 		this.log("ClineProvider instantiated")
 		ClineProvider.activeInstances.add(this)
 
-		this.codeIndexManager = codeIndexManager
 		this.mdmService = mdmService
 		this.updateGlobalState("codebaseIndexModels", EMBEDDING_MODEL_PROFILES)
 
@@ -160,22 +163,168 @@ export class ClineProvider
 			})
 
 		this.marketplaceManager = new MarketplaceManager(this.context, this.customModesManager)
+
+		this.taskCreationCallback = (instance: Task) => {
+			this.emit(RooCodeEventName.TaskCreated, instance)
+
+			// Create named listener functions so we can remove them later.
+			const onTaskStarted = () => this.emit(RooCodeEventName.TaskStarted, instance.taskId)
+			const onTaskCompleted = (taskId: string, tokenUsage: any, toolUsage: any) =>
+				this.emit(RooCodeEventName.TaskCompleted, taskId, tokenUsage, toolUsage)
+			const onTaskAborted = () => this.emit(RooCodeEventName.TaskAborted, instance.taskId)
+			const onTaskFocused = () => this.emit(RooCodeEventName.TaskFocused, instance.taskId)
+			const onTaskUnfocused = () => this.emit(RooCodeEventName.TaskUnfocused, instance.taskId)
+			const onTaskActive = (taskId: string) => this.emit(RooCodeEventName.TaskActive, taskId)
+			const onTaskIdle = (taskId: string) => this.emit(RooCodeEventName.TaskIdle, taskId)
+
+			// Attach the listeners.
+			instance.on(RooCodeEventName.TaskStarted, onTaskStarted)
+			instance.on(RooCodeEventName.TaskCompleted, onTaskCompleted)
+			instance.on(RooCodeEventName.TaskAborted, onTaskAborted)
+			instance.on(RooCodeEventName.TaskFocused, onTaskFocused)
+			instance.on(RooCodeEventName.TaskUnfocused, onTaskUnfocused)
+			instance.on(RooCodeEventName.TaskActive, onTaskActive)
+			instance.on(RooCodeEventName.TaskIdle, onTaskIdle)
+
+			// Store the cleanup functions for later removal.
+			this.taskEventListeners.set(instance, [
+				() => instance.off(RooCodeEventName.TaskStarted, onTaskStarted),
+				() => instance.off(RooCodeEventName.TaskCompleted, onTaskCompleted),
+				() => instance.off(RooCodeEventName.TaskAborted, onTaskAborted),
+				() => instance.off(RooCodeEventName.TaskFocused, onTaskFocused),
+				() => instance.off(RooCodeEventName.TaskUnfocused, onTaskUnfocused),
+				() => instance.off(RooCodeEventName.TaskActive, onTaskActive),
+				() => instance.off(RooCodeEventName.TaskIdle, onTaskIdle),
+			])
+		}
+
+		// Initialize Roo Code Cloud profile sync.
+		this.initializeCloudProfileSync().catch((error) => {
+			this.log(`Failed to initialize cloud profile sync: ${error}`)
+		})
 	}
 
-	// Adds a new Cline instance to clineStack, marking the start of a new task.
+	/**
+	 * Override EventEmitter's on method to match TaskProviderLike interface
+	 */
+	override on<K extends keyof TaskProviderEvents>(
+		event: K,
+		listener: (...args: TaskProviderEvents[K]) => void | Promise<void>,
+	): this {
+		return super.on(event, listener as any)
+	}
+
+	/**
+	 * Override EventEmitter's off method to match TaskProviderLike interface
+	 */
+	override off<K extends keyof TaskProviderEvents>(
+		event: K,
+		listener: (...args: TaskProviderEvents[K]) => void | Promise<void>,
+	): this {
+		return super.off(event, listener as any)
+	}
+
+	/**
+	 * Initialize cloud profile synchronization
+	 */
+	private async initializeCloudProfileSync() {
+		try {
+			// Check if authenticated and sync profiles
+			if (CloudService.hasInstance() && CloudService.instance.isAuthenticated()) {
+				await this.syncCloudProfiles()
+			}
+
+			// Set up listener for future updates
+			if (CloudService.hasInstance()) {
+				CloudService.instance.on("settings-updated", this.handleCloudSettingsUpdate)
+			}
+		} catch (error) {
+			this.log(`Error in initializeCloudProfileSync: ${error}`)
+		}
+	}
+
+	/**
+	 * Handle cloud settings updates
+	 */
+	private handleCloudSettingsUpdate = async () => {
+		try {
+			await this.syncCloudProfiles()
+		} catch (error) {
+			this.log(`Error handling cloud settings update: ${error}`)
+		}
+	}
+
+	/**
+	 * Synchronize cloud profiles with local profiles
+	 */
+	private async syncCloudProfiles() {
+		try {
+			const settings = CloudService.instance.getOrganizationSettings()
+			if (!settings?.providerProfiles) {
+				return
+			}
+
+			const currentApiConfigName = this.getGlobalState("currentApiConfigName")
+			const result = await this.providerSettingsManager.syncCloudProfiles(
+				settings.providerProfiles,
+				currentApiConfigName,
+			)
+
+			if (result.hasChanges) {
+				// Update list
+				await this.updateGlobalState("listApiConfigMeta", await this.providerSettingsManager.listConfig())
+
+				if (result.activeProfileChanged && result.activeProfileId) {
+					// Reload full settings for new active profile
+					const profile = await this.providerSettingsManager.getProfile({
+						id: result.activeProfileId,
+					})
+					await this.activateProviderProfile({ name: profile.name })
+				}
+
+				await this.postStateToWebview()
+			}
+		} catch (error) {
+			this.log(`Error syncing cloud profiles: ${error}`)
+		}
+	}
+
+	// Adds a new Task instance to clineStack, marking the start of a new task.
 	// The instance is pushed to the top of the stack (LIFO order).
 	// When the task is completed, the top instance is removed, reactivating the previous task.
-	async addClineToStack(cline: Task) {
-		console.log(`[subtasks] adding task ${cline.taskId}.${cline.instanceId} to stack`)
+	async addClineToStack(task: Task) {
+		console.log(`[subtasks] adding task ${task.taskId}.${task.instanceId} to stack`)
 
 		// Add this cline instance into the stack that represents the order of all the called tasks.
-		this.clineStack.push(cline)
+		this.clineStack.push(task)
+		task.emit(RooCodeEventName.TaskFocused)
+
+		// Perform special setup provider specific tasks.
+		await this.performPreparationTasks(task)
 
 		// Ensure getState() resolves correctly.
 		const state = await this.getState()
 
 		if (!state || typeof state.mode !== "string") {
 			throw new Error(t("common:errors.retrieve_current_mode"))
+		}
+	}
+
+	async performPreparationTasks(cline: Task) {
+		// LMStudio: We need to force model loading in order to read its context
+		// size; we do it now since we're starting a task with that model selected.
+		if (cline.apiConfiguration && cline.apiConfiguration.apiProvider === "lmstudio") {
+			try {
+				if (!hasLoadedFullDetails(cline.apiConfiguration.lmStudioModelId!)) {
+					await forceFullModelDetailsLoad(
+						cline.apiConfiguration.lmStudioBaseUrl ?? "http://localhost:1234",
+						cline.apiConfiguration.lmStudioModelId!,
+					)
+				}
+			} catch (error) {
+				this.log(`Failed to load full model details for LM Studio: ${error}`)
+				vscode.window.showErrorMessage(error.message)
+			}
 		}
 	}
 
@@ -187,24 +336,34 @@ export class ClineProvider
 		}
 
 		// Pop the top Cline instance from the stack.
-		let cline = this.clineStack.pop()
+		let task = this.clineStack.pop()
 
-		if (cline) {
-			console.log(`[subtasks] removing task ${cline.taskId}.${cline.instanceId} from stack`)
+		if (task) {
+			console.log(`[subtasks] removing task ${task.taskId}.${task.instanceId} from stack`)
 
 			try {
 				// Abort the running task and set isAbandoned to true so
 				// all running promises will exit as well.
-				await cline.abortTask(true)
+				await task.abortTask(true)
 			} catch (e) {
 				this.log(
-					`[subtasks] encountered error while aborting task ${cline.taskId}.${cline.instanceId}: ${e.message}`,
+					`[subtasks] encountered error while aborting task ${task.taskId}.${task.instanceId}: ${e.message}`,
 				)
+			}
+
+			task.emit(RooCodeEventName.TaskUnfocused)
+
+			// Remove event listeners before clearing the reference.
+			const cleanupFunctions = this.taskEventListeners.get(task)
+
+			if (cleanupFunctions) {
+				cleanupFunctions.forEach((cleanup) => cleanup())
+				this.taskEventListeners.delete(task)
 			}
 
 			// Make sure no reference kept, once promises end it will be
 			// garbage collected.
-			cline = undefined
+			task = undefined
 		}
 	}
 
@@ -259,8 +418,13 @@ export class ClineProvider
 
 	async dispose() {
 		this.log("Disposing ClineProvider...")
-		await this.removeClineFromStack()
-		this.log("Cleared task")
+
+		// Clear all tasks from the stack.
+		while (this.clineStack.length > 0) {
+			await this.removeClineFromStack()
+		}
+
+		this.log("Cleared all tasks")
 
 		if (this.view && "dispose" in this.view) {
 			this.view.dispose()
@@ -268,6 +432,11 @@ export class ClineProvider
 		}
 
 		this.clearWebviewResources()
+
+		// Clean up cloud service event listener
+		if (CloudService.hasInstance()) {
+			CloudService.instance.off("settings-updated", this.handleCloudSettingsUpdate)
+		}
 
 		while (this.disposables.length) {
 			const x = this.disposables.pop()
@@ -285,6 +454,9 @@ export class ClineProvider
 		this.customModesManager?.dispose()
 		this.log("Disposed all disposables")
 		ClineProvider.activeInstances.delete(this)
+
+		// Clean up any event listeners attached to this provider
+		this.removeAllListeners()
 
 		McpServerManager.unregisterProvider(this)
 	}
@@ -314,6 +486,7 @@ export class ClineProvider
 
 	public static async isActiveTask(): Promise<boolean> {
 		const visibleProvider = await ClineProvider.getInstance()
+
 		if (!visibleProvider) {
 			return false
 		}
@@ -381,6 +554,7 @@ export class ClineProvider
 				// Errors from terminal commands seem to get swallowed / ignored.
 				vscode.window.showErrorMessage(error.message)
 			}
+
 			throw error
 		}
 	}
@@ -448,16 +622,15 @@ export class ClineProvider
 		// and executes code based on the message that is received
 		this.setWebviewMessageListener(webviewView.webview)
 
-		// Subscribe to code index status updates if the manager exists
-		if (this.codeIndexManager) {
-			this.codeIndexStatusSubscription = this.codeIndexManager.onProgressUpdate((update: IndexProgressUpdate) => {
-				this.postMessageToWebview({
-					type: "indexingStatusUpdate",
-					values: update,
-				})
-			})
-			this.webviewDisposables.push(this.codeIndexStatusSubscription)
-		}
+		// Initialize code index status subscription for the current workspace
+		this.updateCodeIndexStatusSubscription()
+
+		// Listen for active editor changes to update code index status for the current workspace
+		const activeEditorSubscription = vscode.window.onDidChangeActiveTextEditor(() => {
+			// Update subscription when workspace might have changed
+			this.updateCodeIndexStatusSubscription()
+		})
+		this.webviewDisposables.push(activeEditorSubscription)
 
 		// Logs show up in bottom panel > Debug Console
 		//console.log("registering listener")
@@ -493,8 +666,8 @@ export class ClineProvider
 				} else {
 					this.log("Clearing webview resources for sidebar view")
 					this.clearWebviewResources()
-					this.codeIndexStatusSubscription?.dispose()
-					this.codeIndexStatusSubscription = undefined
+					// Reset current workspace manager reference when view is disposed
+					this.currentWorkspaceManager = undefined
 				}
 			},
 			null,
@@ -527,7 +700,7 @@ export class ClineProvider
 	// of tasks, each one being a sub task of the previous one until the main
 	// task is finished.
 	public async initClineWithTask(
-		task?: string,
+		text?: string,
 		images?: string[],
 		parentTask?: Task,
 		options: Partial<
@@ -544,40 +717,86 @@ export class ClineProvider
 			enableCheckpoints,
 			fuzzyMatchThreshold,
 			experiments,
+			cloudUserInfo,
+			remoteControlEnabled,
 		} = await this.getState()
 
 		if (!ProfileValidator.isProfileAllowed(apiConfiguration, organizationAllowList)) {
 			throw new OrganizationAllowListViolationError(t("common:errors.violated_organization_allowlist"))
 		}
 
-		const cline = new Task({
+		const task = new Task({
 			provider: this,
 			apiConfiguration,
 			enableDiff,
 			enableCheckpoints,
 			fuzzyMatchThreshold,
 			consecutiveMistakeLimit: apiConfiguration.consecutiveMistakeLimit,
-			task,
+			task: text,
 			images,
 			experiments,
 			rootTask: this.clineStack.length > 0 ? this.clineStack[0] : undefined,
 			parentTask,
 			taskNumber: this.clineStack.length + 1,
-			onCreated: (cline) => this.emit("clineCreated", cline),
+			onCreated: this.taskCreationCallback,
+			enableTaskBridge: isRemoteControlEnabled(cloudUserInfo, remoteControlEnabled),
 			...options,
 		})
 
-		await this.addClineToStack(cline)
+		await this.addClineToStack(task)
 
 		this.log(
-			`[subtasks] ${cline.parentTask ? "child" : "parent"} task ${cline.taskId}.${cline.instanceId} instantiated`,
+			`[subtasks] ${task.parentTask ? "child" : "parent"} task ${task.taskId}.${task.instanceId} instantiated`,
 		)
 
-		return cline
+		return task
 	}
 
 	public async initClineWithHistoryItem(historyItem: HistoryItem & { rootTask?: Task; parentTask?: Task }) {
 		await this.removeClineFromStack()
+
+		// If the history item has a saved mode, restore it and its associated API configuration
+		if (historyItem.mode) {
+			// Validate that the mode still exists
+			const customModes = await this.customModesManager.getCustomModes()
+			const modeExists = getModeBySlug(historyItem.mode, customModes) !== undefined
+
+			if (!modeExists) {
+				// Mode no longer exists, fall back to default mode
+				this.log(
+					`Mode '${historyItem.mode}' from history no longer exists. Falling back to default mode '${defaultModeSlug}'.`,
+				)
+				historyItem.mode = defaultModeSlug
+			}
+
+			await this.updateGlobalState("mode", historyItem.mode)
+
+			// Load the saved API config for the restored mode if it exists
+			const savedConfigId = await this.providerSettingsManager.getModeConfigId(historyItem.mode)
+			const listApiConfig = await this.providerSettingsManager.listConfig()
+
+			// Update listApiConfigMeta first to ensure UI has latest data
+			await this.updateGlobalState("listApiConfigMeta", listApiConfig)
+
+			// If this mode has a saved config, use it
+			if (savedConfigId) {
+				const profile = listApiConfig.find(({ id }) => id === savedConfigId)
+
+				if (profile?.name) {
+					try {
+						await this.activateProviderProfile({ name: profile.name })
+					} catch (error) {
+						// Log the error but continue with task restoration
+						this.log(
+							`Failed to restore API configuration for mode '${historyItem.mode}': ${
+								error instanceof Error ? error.message : String(error)
+							}. Continuing with default configuration.`,
+						)
+						// The task will continue with the current/default configuration
+					}
+				}
+			}
+		}
 
 		const {
 			apiConfiguration,
@@ -585,9 +804,14 @@ export class ClineProvider
 			enableCheckpoints,
 			fuzzyMatchThreshold,
 			experiments,
+			cloudUserInfo,
+			remoteControlEnabled,
 		} = await this.getState()
 
-		const cline = new Task({
+		// Determine if TaskBridge should be enabled
+		const enableTaskBridge = isRemoteControlEnabled(cloudUserInfo, remoteControlEnabled)
+
+		const task = new Task({
 			provider: this,
 			apiConfiguration,
 			enableDiff,
@@ -599,14 +823,17 @@ export class ClineProvider
 			rootTask: historyItem.rootTask,
 			parentTask: historyItem.parentTask,
 			taskNumber: historyItem.number,
-			onCreated: (cline) => this.emit("clineCreated", cline),
+			onCreated: this.taskCreationCallback,
+			enableTaskBridge,
 		})
 
-		await this.addClineToStack(cline)
+		await this.addClineToStack(task)
+
 		this.log(
-			`[subtasks] ${cline.parentTask ? "child" : "parent"} task ${cline.taskId}.${cline.instanceId} instantiated`,
+			`[subtasks] ${task.parentTask ? "child" : "parent"} task ${task.taskId}.${task.instanceId} instantiated`,
 		)
-		return cline
+
+		return task
 	}
 
 	public async postMessageToWebview(message: ExtensionMessage) {
@@ -825,7 +1052,32 @@ export class ClineProvider
 
 		if (cline) {
 			TelemetryService.instance.captureModeSwitch(cline.taskId, newMode)
-			cline.emit("taskModeSwitched", cline.taskId, newMode)
+			cline.emit(RooCodeEventName.TaskModeSwitched, cline.taskId, newMode)
+
+			// Store the current mode in case we need to rollback
+			const previousMode = (cline as any)._taskMode
+
+			try {
+				// Update the task history with the new mode first
+				const history = this.getGlobalState("taskHistory") ?? []
+				const taskHistoryItem = history.find((item) => item.id === cline.taskId)
+				if (taskHistoryItem) {
+					taskHistoryItem.mode = newMode
+					await this.updateTaskHistory(taskHistoryItem)
+				}
+
+				// Only update the task's mode after successful persistence
+				;(cline as any)._taskMode = newMode
+			} catch (error) {
+				// If persistence fails, log the error but don't update the in-memory state
+				this.log(
+					`Failed to persist mode switch for task ${cline.taskId}: ${error instanceof Error ? error.message : String(error)}`,
+				)
+
+				// Optionally, we could emit an event to notify about the failure
+				// This ensures the in-memory state remains consistent with persisted state
+				throw error
+			}
 		}
 
 		await this.updateGlobalState("mode", newMode)
@@ -1279,10 +1531,10 @@ export class ClineProvider
 	 */
 	async fetchMarketplaceData() {
 		try {
-			const [marketplaceItems, marketplaceInstalledMetadata] = await Promise.all([
-				this.marketplaceManager.getCurrentItems().catch((error) => {
+			const [marketplaceResult, marketplaceInstalledMetadata] = await Promise.all([
+				this.marketplaceManager.getMarketplaceItems().catch((error) => {
 					console.error("Failed to fetch marketplace items:", error)
-					return [] as MarketplaceItem[]
+					return { organizationMcps: [], marketplaceItems: [], errors: [error.message] }
 				}),
 				this.marketplaceManager.getInstallationMetadata().catch((error) => {
 					console.error("Failed to fetch installation metadata:", error)
@@ -1293,16 +1545,20 @@ export class ClineProvider
 			// Send marketplace data separately
 			this.postMessageToWebview({
 				type: "marketplaceData",
-				marketplaceItems: marketplaceItems || [],
+				organizationMcps: marketplaceResult.organizationMcps || [],
+				marketplaceItems: marketplaceResult.marketplaceItems || [],
 				marketplaceInstalledMetadata: marketplaceInstalledMetadata || { project: {}, global: {} },
+				errors: marketplaceResult.errors,
 			})
 		} catch (error) {
 			console.error("Failed to fetch marketplace data:", error)
 			// Send empty data on error to prevent UI from hanging
 			this.postMessageToWebview({
 				type: "marketplaceData",
+				organizationMcps: [],
 				marketplaceItems: [],
 				marketplaceInstalledMetadata: { project: {}, global: {} },
+				errors: [error instanceof Error ? error.message : String(error)],
 			})
 
 			// Show user-friendly error notification for network issues
@@ -1397,6 +1653,7 @@ export class ClineProvider
 			alwaysAllowSubtasks,
 			alwaysAllowUpdateTodoList,
 			allowedMaxRequests,
+			allowedMaxCost,
 			autoCondenseContext,
 			autoCondenseContextPercent,
 			soundEnabled,
@@ -1444,12 +1701,15 @@ export class ClineProvider
 			showRooIgnoredFiles,
 			language,
 			maxReadFileLine,
+			maxImageFileSize,
+			maxTotalImageSize,
 			terminalCompressProgressBar,
 			historyPreviewCollapsed,
 			cloudUserInfo,
 			cloudIsAuthenticated,
 			sharingEnabled,
 			organizationAllowList,
+			organizationSettingsVersion,
 			maxConcurrentFileReads,
 			condensingApiConfigId,
 			customCondensingPrompt,
@@ -1460,6 +1720,8 @@ export class ClineProvider
 			followupAutoApproveTimeoutMs,
 			includeDiagnosticMessages,
 			maxDiagnosticMessages,
+			includeTaskHistoryInEnhance,
+			remoteControlEnabled,
 		} = await this.getState()
 
 		const telemetryKey = process.env.POSTHOG_API_KEY
@@ -1488,6 +1750,7 @@ export class ClineProvider
 			alwaysAllowSubtasks: alwaysAllowSubtasks ?? false,
 			alwaysAllowUpdateTodoList: alwaysAllowUpdateTodoList ?? false,
 			allowedMaxRequests,
+			allowedMaxCost,
 			autoCondenseContext: autoCondenseContext ?? true,
 			autoCondenseContextPercent: autoCondenseContextPercent ?? 100,
 			uriScheme: vscode.env.uriScheme,
@@ -1551,6 +1814,8 @@ export class ClineProvider
 			language: language ?? formatLanguage(vscode.env.language),
 			renderContext: this.renderContext,
 			maxReadFileLine: maxReadFileLine ?? -1,
+			maxImageFileSize: maxImageFileSize ?? 5,
+			maxTotalImageSize: maxTotalImageSize ?? 20,
 			maxConcurrentFileReads: maxConcurrentFileReads ?? 5,
 			settingsImportedAt: this.settingsImportedAt,
 			terminalCompressProgressBar: terminalCompressProgressBar ?? true,
@@ -1560,6 +1825,7 @@ export class ClineProvider
 			cloudIsAuthenticated: cloudIsAuthenticated ?? false,
 			sharingEnabled: sharingEnabled ?? false,
 			organizationAllowList,
+			organizationSettingsVersion,
 			condensingApiConfigId,
 			customCondensingPrompt,
 			codebaseIndexModels: codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
@@ -1582,6 +1848,8 @@ export class ClineProvider
 			followupAutoApproveTimeoutMs: followupAutoApproveTimeoutMs ?? 60000,
 			includeDiagnosticMessages: includeDiagnosticMessages ?? true,
 			maxDiagnosticMessages: maxDiagnosticMessages ?? 50,
+			includeTaskHistoryInEnhance: includeTaskHistoryInEnhance ?? false,
+			remoteControlEnabled: remoteControlEnabled ?? false,
 		}
 
 		return stateToReturn
@@ -1648,6 +1916,19 @@ export class ClineProvider
 			)
 		}
 
+		let organizationSettingsVersion: number = -1
+
+		try {
+			if (CloudService.hasInstance()) {
+				const settings = CloudService.instance.getOrganizationSettings()
+				organizationSettingsVersion = settings?.version ?? -1
+			}
+		} catch (error) {
+			console.error(
+				`[getState] failed to get organization settings version: ${error instanceof Error ? error.message : String(error)}`,
+			)
+		}
+
 		// Return the same structure as before
 		return {
 			apiConfiguration: providerSettings,
@@ -1669,6 +1950,7 @@ export class ClineProvider
 			followupAutoApproveTimeoutMs: stateValues.followupAutoApproveTimeoutMs ?? 60000,
 			diagnosticsEnabled: stateValues.diagnosticsEnabled ?? true,
 			allowedMaxRequests: stateValues.allowedMaxRequests,
+			allowedMaxCost: stateValues.allowedMaxCost,
 			autoCondenseContext: stateValues.autoCondenseContext ?? true,
 			autoCondenseContextPercent: stateValues.autoCondenseContextPercent ?? 100,
 			taskHistory: stateValues.taskHistory,
@@ -1723,12 +2005,15 @@ export class ClineProvider
 			telemetrySetting: stateValues.telemetrySetting || "unset",
 			showRooIgnoredFiles: stateValues.showRooIgnoredFiles ?? true,
 			maxReadFileLine: stateValues.maxReadFileLine ?? -1,
+			maxImageFileSize: stateValues.maxImageFileSize ?? 5,
+			maxTotalImageSize: stateValues.maxTotalImageSize ?? 20,
 			maxConcurrentFileReads: stateValues.maxConcurrentFileReads ?? 5,
 			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
 			cloudUserInfo,
 			cloudIsAuthenticated,
 			sharingEnabled,
 			organizationAllowList,
+			organizationSettingsVersion,
 			// Explicitly add condensing settings
 			condensingApiConfigId: stateValues.condensingApiConfigId,
 			customCondensingPrompt: stateValues.customCondensingPrompt,
@@ -1752,6 +2037,10 @@ export class ClineProvider
 			// Add diagnostic message settings
 			includeDiagnosticMessages: stateValues.includeDiagnosticMessages ?? true,
 			maxDiagnosticMessages: stateValues.maxDiagnosticMessages ?? 50,
+			// Add includeTaskHistoryInEnhance setting
+			includeTaskHistoryInEnhance: stateValues.includeTaskHistoryInEnhance ?? false,
+			// Add remoteControlEnabled setting
+			remoteControlEnabled: stateValues.remoteControlEnabled ?? false,
 		}
 	}
 
@@ -1865,6 +2154,63 @@ export class ClineProvider
 	}
 
 	/**
+	 * Handle remote control enabled/disabled state changes
+	 * Manages UnifiedBridgeService lifecycle
+	 */
+	public async handleRemoteControlToggle(enabled: boolean) {
+		const { CloudService: CloudServiceImport, UnifiedBridgeService } = await import("@roo-code/cloud")
+
+		const userInfo = CloudServiceImport.instance.getUserInfo()
+
+		const bridgeConfig = await CloudServiceImport.instance.cloudAPI?.bridgeConfig().catch(() => undefined)
+
+		if (!bridgeConfig) {
+			this.log("[ClineProvider#handleRemoteControlToggle] Failed to get bridge config")
+			return
+		}
+
+		await UnifiedBridgeService.handleRemoteControlState(
+			userInfo,
+			enabled,
+			{ ...bridgeConfig, provider: this },
+			(message: string) => this.log(message),
+		)
+
+		if (isRemoteControlEnabled(userInfo, enabled)) {
+			const currentTask = this.getCurrentCline()
+
+			if (currentTask && !currentTask.bridgeService) {
+				try {
+					currentTask.bridgeService = UnifiedBridgeService.getInstance()
+
+					if (currentTask.bridgeService) {
+						await currentTask.bridgeService.subscribeToTask(currentTask)
+					}
+				} catch (error) {
+					const message = `[ClineProvider#handleRemoteControlToggle] subscribeToTask failed - ${error instanceof Error ? error.message : String(error)}`
+					this.log(message)
+					console.error(message)
+				}
+			}
+		} else {
+			for (const task of this.clineStack) {
+				if (task.bridgeService) {
+					try {
+						await task.bridgeService.unsubscribeFromTask(task.taskId)
+						task.bridgeService = null
+					} catch (error) {
+						const message = `[ClineProvider#handleRemoteControlToggle] unsubscribeFromTask failed - ${error instanceof Error ? error.message : String(error)}`
+						this.log(message)
+						console.error(message)
+					}
+				}
+			}
+
+			UnifiedBridgeService.resetInstance()
+		}
+	}
+
+	/**
 	 * Returns properties to be included in every telemetry event
 	 * This method is called by the telemetry service to get context information
 	 * like the current mode, API provider, git repository information, etc.
@@ -1920,5 +2266,66 @@ export class ClineProvider
 			...(todos && { todos }),
 			...gitInfo,
 		}
+	}
+
+	/**
+	 * Gets the CodeIndexManager for the current active workspace
+	 * @returns CodeIndexManager instance for the current workspace or the default one
+	 */
+	public getCurrentWorkspaceCodeIndexManager(): CodeIndexManager | undefined {
+		return CodeIndexManager.getInstance(this.context)
+	}
+
+	/**
+	 * Updates the code index status subscription to listen to the current workspace manager
+	 */
+	private updateCodeIndexStatusSubscription(): void {
+		// Get the current workspace manager
+		const currentManager = this.getCurrentWorkspaceCodeIndexManager()
+
+		// If the manager hasn't changed, no need to update subscription
+		if (currentManager === this.currentWorkspaceManager) {
+			return
+		}
+
+		// Dispose the old subscription if it exists
+		if (this.codeIndexStatusSubscription) {
+			this.codeIndexStatusSubscription.dispose()
+			this.codeIndexStatusSubscription = undefined
+		}
+
+		// Update the current workspace manager reference
+		this.currentWorkspaceManager = currentManager
+
+		// Subscribe to the new manager's progress updates if it exists
+		if (currentManager) {
+			this.codeIndexStatusSubscription = currentManager.onProgressUpdate((update: IndexProgressUpdate) => {
+				// Only send updates if this manager is still the current one
+				if (currentManager === this.getCurrentWorkspaceCodeIndexManager()) {
+					// Get the full status from the manager to ensure we have all fields correctly formatted
+					const fullStatus = currentManager.getCurrentStatus()
+					this.postMessageToWebview({
+						type: "indexingStatusUpdate",
+						values: fullStatus,
+					})
+				}
+			})
+
+			if (this.view) {
+				this.webviewDisposables.push(this.codeIndexStatusSubscription)
+			}
+
+			// Send initial status for the current workspace
+			this.postMessageToWebview({
+				type: "indexingStatusUpdate",
+				values: currentManager.getCurrentStatus(),
+			})
+		}
+	}
+}
+
+class OrganizationAllowListViolationError extends Error {
+	constructor(message: string) {
+		super(message)
 	}
 }

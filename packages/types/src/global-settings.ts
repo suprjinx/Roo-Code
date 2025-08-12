@@ -30,6 +30,13 @@ export const DEFAULT_WRITE_DELAY_MS = 1000
 export const DEFAULT_TERMINAL_OUTPUT_CHARACTER_LIMIT = 50_000
 
 /**
+ * Default timeout for background usage collection in milliseconds.
+ * This timeout prevents the background task from running indefinitely
+ * when collecting usage data from streaming API responses.
+ */
+export const DEFAULT_USAGE_COLLECTION_TIMEOUT_MS = 30_000
+
+/**
  * GlobalSettings
  */
 
@@ -68,6 +75,7 @@ export const globalSettingsSchema = z.object({
 	commandTimeoutAllowlist: z.array(z.string()).optional(),
 	preventCompletionWithOpenTodos: z.boolean().optional(),
 	allowedMaxRequests: z.number().nullish(),
+	allowedMaxCost: z.number().nullish(),
 	autoCondenseContext: z.boolean().optional(),
 	autoCondenseContextPercent: z.number().optional(),
 	maxConcurrentFileReads: z.number().optional(),
@@ -101,6 +109,8 @@ export const globalSettingsSchema = z.object({
 	maxWorkspaceFiles: z.number().optional(),
 	showRooIgnoredFiles: z.boolean().optional(),
 	maxReadFileLine: z.number().optional(),
+	maxImageFileSize: z.number().optional(),
+	maxTotalImageSize: z.number().optional(),
 
 	terminalOutputLineLimit: z.number().optional(),
 	terminalOutputCharacterLimit: z.number().optional(),
@@ -131,12 +141,15 @@ export const globalSettingsSchema = z.object({
 	mcpEnabled: z.boolean().optional(),
 	enableMcpServerCreation: z.boolean().optional(),
 
+	remoteControlEnabled: z.boolean().optional(),
+
 	mode: z.string().optional(),
 	modeApiConfigs: z.record(z.string(), z.string()).optional(),
 	customModes: z.array(modeConfigSchema).optional(),
 	customModePrompts: customModePromptsSchema.optional(),
 	customSupportPrompts: customSupportPromptsSchema.optional(),
 	enhancementApiConfigId: z.string().optional(),
+	includeTaskHistoryInEnhance: z.boolean().optional(),
 	historyPreviewCollapsed: z.boolean().optional(),
 	profileThresholds: z.record(z.string(), z.number()).optional(),
 	hasOpenedModeSelector: z.boolean().optional(),
@@ -170,6 +183,7 @@ export const SECRET_STATE_KEYS = [
 	"openAiApiKey",
 	"geminiApiKey",
 	"openAiNativeApiKey",
+	"cerebrasApiKey",
 	"deepSeekApiKey",
 	"moonshotApiKey",
 	"mistralApiKey",
@@ -185,6 +199,9 @@ export const SECRET_STATE_KEYS = [
 	"codebaseIndexGeminiApiKey",
 	"codebaseIndexMistralApiKey",
 	"huggingFaceApiKey",
+	"sambaNovaApiKey",
+	"fireworksApiKey",
+	"ioIntelligenceApiKey",
 ] as const satisfies readonly (keyof ProviderSettings)[]
 export type SecretState = Pick<ProviderSettings, (typeof SECRET_STATE_KEYS)[number]>
 
@@ -281,6 +298,8 @@ export const EVALS_SETTINGS: RooCodeSettings = {
 	telemetrySetting: "enabled",
 
 	mcpEnabled: false,
+
+	remoteControlEnabled: false,
 
 	mode: "code", // "architect",
 

@@ -94,6 +94,48 @@ vi.mock("../../../utils/fs")
 vi.mock("../../../utils/path")
 vi.mock("../../../utils/globalContext")
 
+describe("webviewMessageHandler - requestLmStudioModels", () => {
+	beforeEach(() => {
+		vi.clearAllMocks()
+		mockClineProvider.getState = vi.fn().mockResolvedValue({
+			apiConfiguration: {
+				lmStudioModelId: "model-1",
+				lmStudioBaseUrl: "http://localhost:1234",
+			},
+		})
+	})
+
+	it("successfully fetches models from LMStudio", async () => {
+		const mockModels: ModelRecord = {
+			"model-1": {
+				maxTokens: 4096,
+				contextWindow: 8192,
+				supportsPromptCache: false,
+				description: "Test model 1",
+			},
+			"model-2": {
+				maxTokens: 8192,
+				contextWindow: 16384,
+				supportsPromptCache: false,
+				description: "Test model 2",
+			},
+		}
+
+		mockGetModels.mockResolvedValue(mockModels)
+
+		await webviewMessageHandler(mockClineProvider, {
+			type: "requestLmStudioModels",
+		})
+
+		expect(mockGetModels).toHaveBeenCalledWith({ provider: "lmstudio", baseUrl: "http://localhost:1234" })
+
+		expect(mockClineProvider.postMessageToWebview).toHaveBeenCalledWith({
+			type: "lmStudioModels",
+			lmStudioModels: mockModels,
+		})
+	})
+})
+
 describe("webviewMessageHandler - requestRouterModels", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
@@ -532,5 +574,57 @@ describe("webviewMessageHandler - message dialog preferences", () => {
 				text: "edited content",
 			})
 		})
+	})
+})
+
+describe("webviewMessageHandler - mcpEnabled", () => {
+	let mockMcpHub: any
+
+	beforeEach(() => {
+		vi.clearAllMocks()
+
+		// Create a mock McpHub instance
+		mockMcpHub = {
+			handleMcpEnabledChange: vi.fn().mockResolvedValue(undefined),
+		}
+
+		// Ensure provider exposes getMcpHub and returns our mock
+		;(mockClineProvider as any).getMcpHub = vi.fn().mockReturnValue(mockMcpHub)
+	})
+
+	it("delegates enable=true to McpHub and posts updated state", async () => {
+		await webviewMessageHandler(mockClineProvider, {
+			type: "mcpEnabled",
+			bool: true,
+		})
+
+		expect((mockClineProvider as any).getMcpHub).toHaveBeenCalledTimes(1)
+		expect(mockMcpHub.handleMcpEnabledChange).toHaveBeenCalledTimes(1)
+		expect(mockMcpHub.handleMcpEnabledChange).toHaveBeenCalledWith(true)
+		expect(mockClineProvider.postStateToWebview).toHaveBeenCalledTimes(1)
+	})
+
+	it("delegates enable=false to McpHub and posts updated state", async () => {
+		await webviewMessageHandler(mockClineProvider, {
+			type: "mcpEnabled",
+			bool: false,
+		})
+
+		expect((mockClineProvider as any).getMcpHub).toHaveBeenCalledTimes(1)
+		expect(mockMcpHub.handleMcpEnabledChange).toHaveBeenCalledTimes(1)
+		expect(mockMcpHub.handleMcpEnabledChange).toHaveBeenCalledWith(false)
+		expect(mockClineProvider.postStateToWebview).toHaveBeenCalledTimes(1)
+	})
+
+	it("handles missing McpHub instance gracefully and still posts state", async () => {
+		;(mockClineProvider as any).getMcpHub = vi.fn().mockReturnValue(undefined)
+
+		await webviewMessageHandler(mockClineProvider, {
+			type: "mcpEnabled",
+			bool: true,
+		})
+
+		expect((mockClineProvider as any).getMcpHub).toHaveBeenCalledTimes(1)
+		expect(mockClineProvider.postStateToWebview).toHaveBeenCalledTimes(1)
 	})
 })

@@ -305,7 +305,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 				],
 				stream: true,
 				...(isGrokXAI ? {} : { stream_options: { include_usage: true } }),
-				reasoning_effort: modelInfo.reasoningEffort,
+				reasoning_effort: modelInfo.reasoningEffort as "low" | "medium" | "high" | undefined,
 				temperature: undefined,
 			}
 
@@ -330,7 +330,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 					},
 					...convertToOpenAiMessages(messages),
 				],
-				reasoning_effort: modelInfo.reasoningEffort,
+				reasoning_effort: modelInfo.reasoningEffort as "low" | "medium" | "high" | undefined,
 				temperature: undefined,
 			}
 
@@ -416,7 +416,10 @@ export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiH
 			return []
 		}
 
-		if (!URL.canParse(baseUrl)) {
+		// Trim whitespace from baseUrl to handle cases where users accidentally include spaces
+		const trimmedBaseUrl = baseUrl.trim()
+
+		if (!URL.canParse(trimmedBaseUrl)) {
 			return []
 		}
 
@@ -434,7 +437,7 @@ export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiH
 			config["headers"] = headers
 		}
 
-		const response = await axios.get(`${baseUrl}/models`, config)
+		const response = await axios.get(`${trimmedBaseUrl}/models`, config)
 		const modelsArray = response.data?.data?.map((model: any) => model.id) || []
 		return [...new Set<string>(modelsArray)]
 	} catch (error) {

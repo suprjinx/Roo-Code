@@ -21,13 +21,20 @@ import {
 	PopoverTrigger,
 	Button,
 } from "@src/components/ui"
+import { useEscapeKey } from "@src/hooks/useEscapeKey"
 
 import { ModelInfoView } from "./ModelInfoView"
 import { ApiErrorMessage } from "./ApiErrorMessage"
 
 type ModelIdKey = keyof Pick<
 	ProviderSettings,
-	"glamaModelId" | "openRouterModelId" | "unboundModelId" | "requestyModelId" | "openAiModelId" | "litellmModelId"
+	| "glamaModelId"
+	| "openRouterModelId"
+	| "unboundModelId"
+	| "requestyModelId"
+	| "openAiModelId"
+	| "litellmModelId"
+	| "ioIntelligenceModelId"
 >
 
 interface ModelPickerProps {
@@ -132,6 +139,9 @@ export const ModelPicker = ({
 			}
 		}
 	}, [])
+
+	// Use the shared ESC key handler hook
+	useEscapeKey(open, () => setOpen(false))
 
 	return (
 		<>

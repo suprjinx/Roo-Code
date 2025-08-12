@@ -45,6 +45,26 @@ export const clineAskSchema = z.enum(clineAsks)
 export type ClineAsk = z.infer<typeof clineAskSchema>
 
 /**
+ * BlockingAsk
+ */
+
+export const blockingAsks: ClineAsk[] = [
+	"api_req_failed",
+	"mistake_limit_reached",
+	"completion_result",
+	"resume_task",
+	"resume_completed_task",
+	"command_output",
+	"auto_approval_max_req_reached",
+] as const
+
+export type BlockingAsk = (typeof blockingAsks)[number]
+
+export function isBlockingAsk(ask: ClineAsk): ask is BlockingAsk {
+	return blockingAsks.includes(ask)
+}
+
+/**
  * ClineSay
  */
 
@@ -156,6 +176,17 @@ export const clineMessageSchema = z.object({
 	contextCondense: contextCondenseSchema.optional(),
 	isProtected: z.boolean().optional(),
 	apiProtocol: z.union([z.literal("openai"), z.literal("anthropic")]).optional(),
+	metadata: z
+		.object({
+			gpt5: z
+				.object({
+					previous_response_id: z.string().optional(),
+					instructions: z.string().optional(),
+					reasoning_summary: z.string().optional(),
+				})
+				.optional(),
+		})
+		.optional(),
 })
 
 export type ClineMessage = z.infer<typeof clineMessageSchema>
