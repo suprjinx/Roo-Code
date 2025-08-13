@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { type ProviderSettings, type OrganizationAllowList, glamaDefaultModelId, API_KEYS } from "@roo-code/types"
+import { type ProviderSettings, glamaDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { OrganizationAllowList } from "@roo/cloud"
 import type { RouterModels } from "@roo/api"
