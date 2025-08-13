@@ -6,9 +6,9 @@ import {
 	type CustomModePrompts,
 	type ModeConfig,
 	type ExperimentId,
-	type OrganizationAllowList,
-	ORGANIZATION_ALLOW_ALL,
 } from "@roo-code/types"
+
+import { type OrganizationAllowList, ORGANIZATION_ALLOW_ALL } from "@roo/cloud"
 
 import { ExtensionMessage, ExtensionState, MarketplaceInstalledMetadata, Command } from "@roo/ExtensionMessage"
 import { findLastIndex } from "@roo/array"

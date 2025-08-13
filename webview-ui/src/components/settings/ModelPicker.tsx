@@ -3,7 +3,9 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { Trans } from "react-i18next"
 import { ChevronsUpDown, Check, X } from "lucide-react"
 
-import type { ProviderSettings, ModelInfo, OrganizationAllowList } from "@roo-code/types"
+import type { ProviderSettings, ModelInfo } from "@roo-code/types"
+
+import type { OrganizationAllowList } from "@roo/cloud"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useSelectedModel } from "@/components/ui/hooks/useSelectedModel"
@@ -194,7 +196,9 @@ export const ModelPicker = ({
 											value={model}
 											onSelect={onSelect}
 											data-testid={`model-option-${model}`}>
-<span className="truncate" title={model}>{model}</span>
+											<span className="truncate" title={model}>
+												{model}
+											</span>
 											<Check
 												className={cn(
 													"size-4 p-0.5 ml-auto",

@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { type ProviderSettings, type OrganizationAllowList, unboundDefaultModelId, API_KEYS } from "@roo-code/types"
+import { type ProviderSettings, unboundDefaultModelId, API_KEYS } from "@roo-code/types"
 
+import type { OrganizationAllowList } from "@roo/cloud"
 import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
