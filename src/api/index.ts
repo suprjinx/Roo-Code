@@ -37,8 +37,8 @@ import {
 	FireworksHandler,
 	RooHandler,
 	FeatherlessHandler,
+	OllamaHandler,
 } from "./providers"
-import { NativeOllamaHandler } from "./providers/native-ollama"
 
 export interface SingleCompletionHandler {
 	completePrompt(prompt: string): Promise<string>
@@ -123,7 +123,7 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			}
 			return new OpenAiHandler(options)
 		case "ollama":
-			return new NativeOllamaHandler(options)
+			return new OllamaHandler(options)
 		case "lmstudio":
 			return new LmStudioHandler(options)
 		case "gemini":

@@ -85,7 +85,7 @@ describe("API Environment Variable Integration", () => {
 		describe("anthropic provider", () => {
 			it("should use environment variable when anthropicConfigUseEnvVars is true", () => {
 				process.env.ANTHROPIC_API_KEY = "env-anthropic-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: "config-key",
@@ -98,7 +98,7 @@ describe("API Environment Variable Integration", () => {
 
 			it("should use config value when anthropicConfigUseEnvVars is false", () => {
 				process.env.ANTHROPIC_API_KEY = "env-anthropic-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: "config-key",
@@ -111,7 +111,7 @@ describe("API Environment Variable Integration", () => {
 
 			it("should fallback to config value when env var not set", () => {
 				delete process.env.ANTHROPIC_API_KEY
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: "config-key",
@@ -126,7 +126,7 @@ describe("API Environment Variable Integration", () => {
 		describe("glama provider", () => {
 			it("should use environment variable when glamaConfigUseEnvVars is true", () => {
 				process.env.GLAMA_API_KEY = "env-glama-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "glama",
 					glamaApiKey: "config-key",
@@ -139,7 +139,7 @@ describe("API Environment Variable Integration", () => {
 
 			it("should use config value when glamaConfigUseEnvVars is false", () => {
 				process.env.GLAMA_API_KEY = "env-glama-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "glama",
 					glamaApiKey: "config-key",
@@ -154,7 +154,7 @@ describe("API Environment Variable Integration", () => {
 		describe("openrouter provider", () => {
 			it("should use environment variable when openRouterConfigUseEnvVars is true", () => {
 				process.env.OPEN_ROUTER_API_KEY = "env-openrouter-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "openrouter",
 					openRouterApiKey: "config-key",
@@ -169,7 +169,7 @@ describe("API Environment Variable Integration", () => {
 		describe("openai provider", () => {
 			it("should use environment variable when openAiConfigUseEnvVars is true", () => {
 				process.env.OPENAI_API_KEY = "env-openai-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "openai",
 					openAiApiKey: "config-key",
@@ -184,7 +184,7 @@ describe("API Environment Variable Integration", () => {
 		describe("gemini provider", () => {
 			it("should use environment variable when geminiConfigUseEnvVars is true", () => {
 				process.env.GEMINI_API_KEY = "env-gemini-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "gemini",
 					geminiApiKey: "config-key",
@@ -199,7 +199,7 @@ describe("API Environment Variable Integration", () => {
 		describe("openai-native provider", () => {
 			it("should use environment variable when openAiNativeConfigUseEnvVars is true", () => {
 				process.env.OPENAI_API_KEY = "env-openai-native-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "openai-native",
 					openAiNativeApiKey: "config-key",
@@ -214,7 +214,7 @@ describe("API Environment Variable Integration", () => {
 		describe("mistral provider", () => {
 			it("should use environment variable when mistralConfigUseEnvVars is true", () => {
 				process.env.MISTRAL_API_KEY = "env-mistral-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "mistral",
 					mistralApiKey: "config-key",
@@ -229,7 +229,7 @@ describe("API Environment Variable Integration", () => {
 		describe("deepseek provider", () => {
 			it("should use environment variable when deepSeekConfigUseEnvVars is true", () => {
 				process.env.DEEP_SEEK_API_KEY = "env-deepseek-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "deepseek",
 					deepSeekApiKey: "config-key",
@@ -244,7 +244,7 @@ describe("API Environment Variable Integration", () => {
 		describe("unbound provider", () => {
 			it("should use environment variable when unboundConfigUseEnvVars is true", () => {
 				process.env.UNBOUND_API_KEY = "env-unbound-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "unbound",
 					unboundApiKey: "config-key",
@@ -259,7 +259,7 @@ describe("API Environment Variable Integration", () => {
 		describe("requesty provider", () => {
 			it("should use environment variable when requestyConfigUseEnvVars is true", () => {
 				process.env.REQUESTY_API_KEY = "env-requesty-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "requesty",
 					requestyApiKey: "config-key",
@@ -274,7 +274,7 @@ describe("API Environment Variable Integration", () => {
 		describe("xai provider", () => {
 			it("should use environment variable when xaiConfigUseEnvVars is true", () => {
 				process.env.XAI_API_KEY = "env-xai-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "xai",
 					xaiApiKey: "config-key",
@@ -289,7 +289,7 @@ describe("API Environment Variable Integration", () => {
 		describe("groq provider", () => {
 			it("should use environment variable when groqConfigUseEnvVars is true", () => {
 				process.env.GROQ_API_KEY = "env-groq-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "groq",
 					groqApiKey: "config-key",
@@ -304,7 +304,7 @@ describe("API Environment Variable Integration", () => {
 		describe("chutes provider", () => {
 			it("should use environment variable when chutesConfigUseEnvVars is true", () => {
 				process.env.CHUTES_API_KEY = "env-chutes-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "chutes",
 					chutesApiKey: "config-key",
@@ -319,7 +319,7 @@ describe("API Environment Variable Integration", () => {
 		describe("litellm provider", () => {
 			it("should use environment variable when litellmConfigUseEnvVars is true", () => {
 				process.env.LITELLM_API_KEY = "env-litellm-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "litellm",
 					litellmApiKey: "config-key",
@@ -364,7 +364,7 @@ describe("API Environment Variable Integration", () => {
 		describe("edge cases", () => {
 			it("should handle missing apiKeyUseEnvVar flag gracefully", () => {
 				process.env.ANTHROPIC_API_KEY = "env-anthropic-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: "config-key",
@@ -390,7 +390,7 @@ describe("API Environment Variable Integration", () => {
 					"XAI_API_KEY",
 					"GROQ_API_KEY",
 					"CHUTES_API_KEY",
-					"LITELLM_API_KEY"
+					"LITELLM_API_KEY",
 				]
 
 				envVars.forEach((envVar, index) => {
@@ -406,7 +406,7 @@ describe("API Environment Variable Integration", () => {
 
 			it("should not mutate original config object", () => {
 				process.env.ANTHROPIC_API_KEY = "env-anthropic-key"
-				
+
 				const originalConfig: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: "config-key",
@@ -423,7 +423,7 @@ describe("API Environment Variable Integration", () => {
 
 			it("should handle undefined config values gracefully", () => {
 				process.env.ANTHROPIC_API_KEY = "env-anthropic-key"
-				
+
 				const config: ProviderSettings = {
 					apiProvider: "anthropic",
 					apiKey: undefined as any,
