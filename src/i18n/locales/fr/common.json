@@ -100,6 +100,9 @@
 			"genericError": "Erreur de l'API Cerebras ({{status}}) : {{message}}",
 			"noResponseBody": "Erreur de l'API Cerebras : Aucun corps de réponse",
 			"completionError": "Erreur d'achèvement de Cerebras : {{error}}"
+		},
+		"roo": {
+			"authenticationRequired": "Le fournisseur Roo nécessite une authentification cloud. Veuillez vous connecter à Roo Code Cloud."
 		}
 	},
 	"warnings": {
@@ -188,6 +191,9 @@
 			"cloud_auth_required": "Votre organisation nécessite une authentification Roo Code Cloud. Veuillez vous connecter pour continuer.",
 			"organization_mismatch": "Vous devez être authentifié avec le compte Roo Code Cloud de votre organisation.",
 			"verification_failed": "Impossible de vérifier l'authentification de l'organisation."
+		},
+		"info": {
+			"organization_requires_auth": "Votre organisation nécessite une authentification."
 		}
 	},
 	"prompts": {

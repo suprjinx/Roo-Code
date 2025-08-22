@@ -100,6 +100,9 @@
 			"genericError": "Ошибка Cerebras API ({{status}}): {{message}}",
 			"noResponseBody": "Ошибка Cerebras API: Нет тела ответа",
 			"completionError": "Ошибка завершения Cerebras: {{error}}"
+		},
+		"roo": {
+			"authenticationRequired": "Провайдер Roo требует облачной аутентификации. Войдите в Roo Code Cloud."
 		}
 	},
 	"warnings": {
@@ -188,6 +191,9 @@
 			"cloud_auth_required": "Ваша организация требует аутентификации Roo Code Cloud. Войдите в систему, чтобы продолжить.",
 			"organization_mismatch": "Вы должны быть аутентифицированы с учетной записью Roo Code Cloud вашей организации.",
 			"verification_failed": "Не удается проверить аутентификацию организации."
+		},
+		"info": {
+			"organization_requires_auth": "Ваша организация требует аутентификации."
 		}
 	},
 	"prompts": {

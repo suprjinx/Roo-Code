@@ -87,6 +87,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const {
 		clineMessages: messages,
 		currentTaskItem,
+		currentTaskTodos,
 		taskHistory,
 		apiConfiguration,
 		organizationAllowList,
@@ -144,8 +145,20 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const task = useMemo(() => messages.at(0), [messages])
 
 	const latestTodos = useMemo(() => {
+		// First check if we have initial todos from the state (for new subtasks)
+		if (currentTaskTodos && currentTaskTodos.length > 0) {
+			// Check if there are any todo updates in messages
+			const messageBasedTodos = getLatestTodo(messages)
+			// If there are message-based todos, they take precedence (user has updated them)
+			if (messageBasedTodos && messageBasedTodos.length > 0) {
+				return messageBasedTodos
+			}
+			// Otherwise use the initial todos from state
+			return currentTaskTodos
+		}
+		// Fall back to extracting from messages
 		return getLatestTodo(messages)
-	}, [messages])
+	}, [messages, currentTaskTodos])
 
 	const modifiedMessages = useMemo(() => combineApiRequests(combineCommandSequences(messages.slice(1))), [messages])
 
@@ -434,9 +447,12 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	}, [messages.length])
 
 	useEffect(() => {
+		// Reset UI states
 		setExpandedRows({})
 		everVisibleMessagesTsRef.current.clear() // Clear for new task
 		setCurrentFollowUpTs(null) // Clear follow-up answered state for new task
+		setIsCondensing(false) // Reset condensing state when switching tasks
+		// Note: sendingDisabled is not reset here as it's managed by message effects
 
 		// Clear any pending auto-approval timeout from previous task
 		if (autoApproveTimeoutRef.current) {
@@ -897,11 +913,9 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	useMount(() => textAreaRef.current?.focus())
 
 	const visibleMessages = useMemo(() => {
-		const currentMessageCount = modifiedMessages.length
-		const startIndex = Math.max(0, currentMessageCount - 500)
-		const recentMessages = modifiedMessages.slice(startIndex)
-
-		const newVisibleMessages = recentMessages.filter((message: ClineMessage) => {
+		// Remove the 500-message limit to prevent array index shifting
+		// Virtuoso is designed to efficiently handle large lists through virtualization
+		const newVisibleMessages = modifiedMessages.filter((message: ClineMessage) => {
 			if (everVisibleMessagesTsRef.current.has(message.ts)) {
 				const alwaysHiddenOnceProcessedAsk: ClineAsk[] = [
 					"api_req_failed",

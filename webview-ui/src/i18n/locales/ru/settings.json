@@ -269,6 +269,8 @@
 		"getChutesApiKey": "Получить Chutes API-ключ",
 		"fireworksApiKey": "Fireworks API-ключ",
 		"getFireworksApiKey": "Получить Fireworks API-ключ",
+		"featherlessApiKey": "Featherless API-ключ",
+		"getFeatherlessApiKey": "Получить Featherless API-ключ",
 		"ioIntelligenceApiKey": "IO Intelligence API-ключ",
 		"ioIntelligenceApiKeyPlaceholder": "Введите свой ключ API IO Intelligence",
 		"getIoIntelligenceApiKey": "Получить IO Intelligence API-ключ",
@@ -376,6 +378,10 @@
 		"humanRelay": {
 			"description": "API-ключ не требуется, но пользователю нужно вручную копировать и вставлять информацию в веб-чат ИИ.",
 			"instructions": "Во время использования появится диалоговое окно, и текущее сообщение будет скопировано в буфер обмена автоматически. Вам нужно вставить его в веб-версию ИИ (например, ChatGPT или Claude), затем скопировать ответ ИИ обратно в диалоговое окно и нажать кнопку подтверждения."
+		},
+		"roo": {
+			"authenticatedMessage": "Безопасно аутентифицирован через твой аккаунт Roo Code Cloud.",
+			"connectButton": "Подключиться к Roo Code Cloud"
 		},
 		"openRouter": {
 			"providerRouting": {
@@ -715,6 +721,10 @@
 		"ASSISTANT_MESSAGE_PARSER": {
 			"name": "Использовать новый парсер сообщений",
 			"description": "Включите экспериментальный потоковый парсер сообщений, который ускоряет длинные ответы благодаря более эффективной обработке сообщений."
+		},
+		"NEW_TASK_REQUIRE_TODOS": {
+			"name": "Требовать список 'todos' для новых задач",
+			"description": "Если включено, инструмент new_task будет требовать предоставления параметра todos. Это гарантирует, что все новые задачи начинаются с четкого списка целей. Когда отключено (по умолчанию), параметр todos остается необязательным для обратной совместимости."
 		}
 	},
 	"promptCaching": {

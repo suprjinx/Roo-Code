@@ -269,6 +269,8 @@
 		"getChutesApiKey": "Obtenir la clé API Chutes",
 		"fireworksApiKey": "Clé API Fireworks",
 		"getFireworksApiKey": "Obtenir la clé API Fireworks",
+		"featherlessApiKey": "Clé API Featherless",
+		"getFeatherlessApiKey": "Obtenir la clé API Featherless",
 		"ioIntelligenceApiKey": "Clé API IO Intelligence",
 		"ioIntelligenceApiKeyPlaceholder": "Saisissez votre clé d'API IO Intelligence",
 		"getIoIntelligenceApiKey": "Obtenir la clé API IO Intelligence",
@@ -376,6 +378,10 @@
 		"humanRelay": {
 			"description": "Aucune clé API n'est requise, mais l'utilisateur doit aider à copier et coller les informations dans le chat web de l'IA.",
 			"instructions": "Pendant l'utilisation, une boîte de dialogue apparaîtra et le message actuel sera automatiquement copié dans le presse-papiers. Vous devez le coller dans les versions web de l'IA (comme ChatGPT ou Claude), puis copier la réponse de l'IA dans la boîte de dialogue et cliquer sur le bouton de confirmation."
+		},
+		"roo": {
+			"authenticatedMessage": "Authentifié de manière sécurisée via ton compte Roo Code Cloud.",
+			"connectButton": "Se connecter à Roo Code Cloud"
 		},
 		"openRouter": {
 			"providerRouting": {
@@ -714,6 +720,10 @@
 		"ASSISTANT_MESSAGE_PARSER": {
 			"name": "Utiliser le nouveau parseur de messages",
 			"description": "Active le parseur de messages en streaming expérimental qui accélère nettement les longues réponses en traitant les messages plus efficacement."
+		},
+		"NEW_TASK_REQUIRE_TODOS": {
+			"name": "Exiger la liste 'todos' pour les nouvelles tâches",
+			"description": "Lorsqu'il est activé, l'outil new_task exigera qu'un paramètre todos soit fourni. Cela garantit que toutes les nouvelles tâches commencent avec une liste claire d'objectifs. Lorsqu'il est désactivé (par défaut), le paramètre todos reste facultatif pour la compatibilité descendante."
 		}
 	},
 	"promptCaching": {
