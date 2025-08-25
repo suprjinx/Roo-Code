@@ -79,7 +79,7 @@ export const Requesty = ({
 				balanceDisplay={
 					apiConfiguration?.requestyApiKey && (
 						<RequestyBalanceDisplay apiKey={apiConfiguration.requestyApiKey}
- 									baseUrl={apiConfiguration.requestyBaseUrl
+ 									baseUrl={apiConfiguration.requestyBaseUrl}
 						/>
 					)
 				}
