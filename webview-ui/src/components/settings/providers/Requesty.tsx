@@ -15,6 +15,7 @@ import { RequestyBalanceDisplay } from "./RequestyBalanceDisplay"
 import { ApiKey } from "../ApiKey"
 import { getCallbackUrl } from "@/oauth/urls"
 import { toRequestyServiceUrl } from "@roo/utils/requesty"
+import { inputEventTransform } from "../transforms"
 
 type RequestyProps = {
 	apiConfiguration: ProviderSettings
