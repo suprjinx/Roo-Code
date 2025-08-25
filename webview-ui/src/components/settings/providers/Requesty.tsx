@@ -74,7 +74,7 @@ export const Requesty = ({
 				setApiKey={(value: string) => setApiConfigurationField("requestyApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("requestyConfigUseEnvVars", value)}
 				apiKeyLabel={t("settings:providers.requestyApiKey")}
-				getApiKeyUrl=getApiKeyUrl()
+				getApiKeyUrl={getApiKeyUrl()}
 				getApiKeyLabel={t("settings:providers.getRequestyApiKey")}
 				balanceDisplay={
 					apiConfiguration?.requestyApiKey && (
