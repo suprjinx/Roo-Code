@@ -13,7 +13,8 @@ import { Button } from "@src/components/ui"
 import { ModelPicker } from "../ModelPicker"
 import { RequestyBalanceDisplay } from "./RequestyBalanceDisplay"
 import { ApiKey } from "../ApiKey"
-import { inputEventTransform } from "../transforms"
+import { getCallbackUrl } from "@/oauth/urls"
+import { toRequestyServiceUrl } from "@roo/utils/requesty"
 
 type RequestyProps = {
 	apiConfiguration: ProviderSettings
@@ -22,6 +23,7 @@ type RequestyProps = {
 	refetchRouterModels: () => void
 	organizationAllowList: OrganizationAllowList
 	modelValidationError?: string
+	uriScheme?: string
 }
 
 export const Requesty = ({
@@ -31,6 +33,7 @@ export const Requesty = ({
 	refetchRouterModels,
 	organizationAllowList,
 	modelValidationError,
+	uriScheme,
 }: RequestyProps) => {
 	const { t } = useAppTranslation()
 
@@ -53,6 +56,15 @@ export const Requesty = ({
 		[setApiConfigurationField],
 	)
 
+	const getApiKeyUrl = () => {
+		const callbackUrl = getCallbackUrl("requesty", uriScheme)
+		const baseUrl = toRequestyServiceUrl(apiConfiguration.requestyBaseUrl, "app")
+
+		const authUrl = new URL(`oauth/authorize?callback_url=${callbackUrl}`, baseUrl)
+
+		return authUrl.toString()
+	}
+
 	return (
 		<>
 			<ApiKey
@@ -66,7 +78,9 @@ export const Requesty = ({
 				getApiKeyLabel={t("settings:providers.getRequestyApiKey")}
 				balanceDisplay={
 					apiConfiguration?.requestyApiKey && (
-						<RequestyBalanceDisplay apiKey={apiConfiguration.requestyApiKey} />
+						<RequestyBalanceDisplay apiKey={apiConfiguration.requestyApiKey}
+ 									baseUrl={apiConfiguration.requestyBaseUrl
+						/>
 					)
 				}
 			/>
