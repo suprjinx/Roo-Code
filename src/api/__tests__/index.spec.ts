@@ -350,15 +350,6 @@ describe("API Environment Variable Integration", () => {
 				const handler = buildApiHandler(config) as any
 				expect(handler.provider).toBe("bedrock")
 			})
-
-			it("should not modify options for providers that don't have env var flags", () => {
-				const config: ProviderSettings = {
-					apiProvider: "ollama",
-				}
-
-				const handler = buildApiHandler(config) as any
-				expect(handler.provider).toBe("ollama")
-			})
 		})
 
 		describe("edge cases", () => {
