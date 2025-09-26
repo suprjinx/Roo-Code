@@ -119,7 +119,7 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new GlamaHandler(options)
 		case "openrouter":
 			if (options.openRouterConfigUseEnvVars) {
-				options.openRouterApiKey = getEnvVar("OPEN_ROUTER_API_KEY", options.openRouterApiKey)
+				options.openRouterApiKey = getEnvVar("OPENROUTER_API_KEY", options.openRouterApiKey)
 			}
 			return new OpenRouterHandler(options)
 		case "bedrock":

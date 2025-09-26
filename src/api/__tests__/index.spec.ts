@@ -153,7 +153,7 @@ describe("API Environment Variable Integration", () => {
 
 		describe("openrouter provider", () => {
 			it("should use environment variable when openRouterConfigUseEnvVars is true", () => {
-				process.env.OPEN_ROUTER_API_KEY = "env-openrouter-key"
+				process.env.OPENROUTER_API_KEY = "env-openrouter-key"
 
 				const config: ProviderSettings = {
 					apiProvider: "openrouter",
@@ -371,7 +371,7 @@ describe("API Environment Variable Integration", () => {
 				const envVars = [
 					"ANTHROPIC_API_KEY",
 					"GLAMA_API_KEY",
-					"OPEN_ROUTER_API_KEY",
+					"OPENROUTER_API_KEY",
 					"OPENAI_API_KEY",
 					"GEMINI_API_KEY",
 					"MISTRAL_API_KEY",
