@@ -1,6 +1,5 @@
 import { useCallback, useState, useEffect, useMemo } from "react"
 import { useEvent } from "react-use"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
 import { API_KEYS } from "@roo-code/types"
@@ -8,12 +7,10 @@ import { API_KEYS } from "@roo-code/types"
 import { ExtensionMessage } from "@roo/ExtensionMessage"
 import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 import { SearchableSelect, type SearchableSelectOption } from "@src/components/ui"
 import { cn } from "@src/lib/utils"
 import { formatPrice } from "@/utils/formatPrice"
 
-import { inputEventTransform } from "../transforms"
 import { ApiKey } from "../ApiKey"
 
 type HuggingFaceModel = {
@@ -51,16 +48,6 @@ export const HuggingFace = ({ apiConfiguration, setApiConfigurationField }: Hugg
 		apiConfiguration?.huggingFaceInferenceProvider || "auto",
 	)
 
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	// Fetch models when component mounts.
 	useEffect(() => {

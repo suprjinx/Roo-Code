@@ -1,10 +1,9 @@
 import { useCallback } from "react"
-import { VSCodeTextField, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 
 import { zaiApiLineConfigs, zaiApiLineSchema, type ProviderSettings, API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
 import { inputEventTransform } from "../transforms"
 import { cn } from "@/lib/utils"

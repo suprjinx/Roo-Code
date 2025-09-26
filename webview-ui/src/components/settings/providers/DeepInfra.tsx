@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
+import { useEffect, useState } from "react"
 
 import { OrganizationAllowList, type ProviderSettings, deepInfraDefaultModelId, API_KEYS } from "@roo-code/types"
 
@@ -9,7 +8,6 @@ import { vscode } from "@src/utils/vscode"
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { Button } from "@src/components/ui"
 
-import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { ApiKey } from "../ApiKey"
 
@@ -34,16 +32,6 @@ export const DeepInfra = ({
 
 	const [didRefetch, setDidRefetch] = useState<boolean>()
 
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	useEffect(() => {
 		// When base URL or API key changes, trigger a silent refresh of models

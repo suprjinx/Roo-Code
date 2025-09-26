@@ -37,7 +37,6 @@ export const Requesty = ({
 }: RequestyProps) => {
 	const { t } = useAppTranslation()
 
-	const [didRefetch, setDidRefetch] = useState<boolean>()
 	const [requestyEndpointSelected, setRequestyEndpointSelected] = useState(!!apiConfiguration.requestyBaseUrl)
 
 	// This ensures that the "Use custom URL" checkbox is hidden when the user deletes the URL.

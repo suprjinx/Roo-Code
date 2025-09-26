@@ -6,7 +6,6 @@ import type { ModelInfo, ProviderSettings } from "@roo-code/types"
 import { API_KEYS } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StandardTooltip } from "@src/components/ui"
 
 import { inputEventTransform } from "../transforms"

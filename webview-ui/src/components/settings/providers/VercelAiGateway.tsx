@@ -1,14 +1,9 @@
-import { useCallback } from "react"
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
-
 import { type ProviderSettings, type OrganizationAllowList, vercelAiGatewayDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
-import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
 
-import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { ApiKey } from "../ApiKey"
 
@@ -29,16 +24,6 @@ export const VercelAiGateway = ({
 }: VercelAiGatewayProps) => {
 	const { t } = useAppTranslation()
 
-	const handleInputChange = useCallback(
-		<K extends keyof ProviderSettings, E>(
-			field: K,
-			transform: (event: E) => ProviderSettings[K] = inputEventTransform,
-		) =>
-			(event: E | Event) => {
-				setApiConfigurationField(field, transform(event as E))
-			},
-		[setApiConfigurationField],
-	)
 
 	return (
 		<>
