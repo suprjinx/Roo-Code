@@ -31,6 +31,15 @@ vi.mock("../providers", () => ({
 	HumanRelayHandler: vi.fn().mockImplementation(() => ({ provider: "human-relay" })),
 	FakeAIHandler: vi.fn().mockImplementation((options) => ({ provider: "fake-ai", options })),
 	HuggingFaceHandler: vi.fn().mockImplementation((options) => ({ provider: "huggingface", options })),
+	CerebrasHandler: vi.fn().mockImplementation((options) => ({ provider: "cerebras", options })),
+	SambaNovaHandler: vi.fn().mockImplementation((options) => ({ provider: "sambanova", options })),
+	ZAiHandler: vi.fn().mockImplementation((options) => ({ provider: "zai", options })),
+	FireworksHandler: vi.fn().mockImplementation((options) => ({ provider: "fireworks", options })),
+	FeatherlessHandler: vi.fn().mockImplementation((options) => ({ provider: "featherless", options })),
+	IOIntelligenceHandler: vi.fn().mockImplementation((options) => ({ provider: "io-intelligence", options })),
+	VercelAiGatewayHandler: vi.fn().mockImplementation((options) => ({ provider: "vercel-ai-gateway", options })),
+	DoubaoHandler: vi.fn().mockImplementation((options) => ({ provider: "doubao", options })),
+	DeepInfraHandler: vi.fn().mockImplementation((options) => ({ provider: "deepinfra", options })),
 }))
 
 describe("API Environment Variable Integration", () => {
@@ -331,6 +340,171 @@ describe("API Environment Variable Integration", () => {
 			})
 		})
 
+		describe("cerebras provider", () => {
+			it("should use environment variable when cerebrasConfigUseEnvVars is true", () => {
+				process.env.CEREBRAS_API_KEY = "env-cerebras-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "cerebras",
+					cerebrasApiKey: "config-key",
+					cerebrasConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.cerebrasApiKey).toBe("env-cerebras-key")
+			})
+		})
+
+		describe("sambanova provider", () => {
+			it("should use environment variable when sambaNovaConfigUseEnvVars is true", () => {
+				process.env.SAMBANOVA_API_KEY = "env-sambanova-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "sambanova",
+					sambaNovaApiKey: "config-key",
+					sambaNovaConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.sambaNovaApiKey).toBe("env-sambanova-key")
+			})
+		})
+
+		describe("zai provider", () => {
+			it("should use environment variable when zaiConfigUseEnvVars is true", () => {
+				process.env.ZAI_API_KEY = "env-zai-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "zai",
+					zaiApiKey: "config-key",
+					zaiConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.zaiApiKey).toBe("env-zai-key")
+			})
+		})
+
+		describe("fireworks provider", () => {
+			it("should use environment variable when fireworksConfigUseEnvVars is true", () => {
+				process.env.FIREWORKS_API_KEY = "env-fireworks-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "fireworks",
+					fireworksApiKey: "config-key",
+					fireworksConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.fireworksApiKey).toBe("env-fireworks-key")
+			})
+		})
+
+		describe("featherless provider", () => {
+			it("should use environment variable when featherlessConfigUseEnvVars is true", () => {
+				process.env.FEATHERLESS_API_KEY = "env-featherless-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "featherless",
+					featherlessApiKey: "config-key",
+					featherlessConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.featherlessApiKey).toBe("env-featherless-key")
+			})
+		})
+
+		describe("io-intelligence provider", () => {
+			it("should use environment variable when ioIntelligenceConfigUseEnvVars is true", () => {
+				process.env.IOINTELLIGENCE_API_KEY = "env-iointelligence-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "io-intelligence",
+					ioIntelligenceApiKey: "config-key",
+					ioIntelligenceConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.ioIntelligenceApiKey).toBe("env-iointelligence-key")
+			})
+		})
+
+		describe("vercel-ai-gateway provider", () => {
+			it("should use environment variable when vercelConfigUseEnvVars is true", () => {
+				process.env.VERCEL_API_KEY = "env-vercel-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "vercel-ai-gateway",
+					vercelAiGatewayApiKey: "config-key",
+					vercelConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.vercelAiGatewayApiKey).toBe("env-vercel-key")
+			})
+		})
+
+		describe("doubao provider", () => {
+			it("should use environment variable when doubaoConfigUseEnvVars is true", () => {
+				process.env.DOUBAO_API_KEY = "env-doubao-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "doubao",
+					doubaoApiKey: "config-key",
+					doubaoConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.doubaoApiKey).toBe("env-doubao-key")
+			})
+		})
+
+		describe("moonshot provider", () => {
+			it("should use environment variable when moonshotConfigUseEnvVars is true", () => {
+				process.env.MOONSHOT_API_KEY = "env-moonshot-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "moonshot",
+					moonshotApiKey: "config-key",
+					moonshotConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.moonshotApiKey).toBe("env-moonshot-key")
+			})
+		})
+
+		describe("huggingface provider", () => {
+			it("should use environment variable when huggingFaceConfigUseEnvVars is true", () => {
+				process.env.HUGGINGFACE_API_KEY = "env-huggingface-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "huggingface",
+					huggingFaceApiKey: "config-key",
+					huggingFaceConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.huggingFaceApiKey).toBe("env-huggingface-key")
+			})
+		})
+
+		describe("deepinfra provider", () => {
+			it("should use environment variable when deepInfraConfigUseEnvVars is true", () => {
+				process.env.DEEPINFRA_API_KEY = "env-deepinfra-key"
+
+				const config: ProviderSettings = {
+					apiProvider: "deepinfra",
+					deepInfraApiKey: "config-key",
+					deepInfraConfigUseEnvVars: true,
+				}
+
+				const handler = buildApiHandler(config) as any
+				expect(handler.options.deepInfraApiKey).toBe("env-deepinfra-key")
+			})
+		})
+
 		describe("providers without environment variable support", () => {
 			it("should not modify options for claude-code provider", () => {
 				const config: ProviderSettings = {
@@ -382,6 +556,17 @@ describe("API Environment Variable Integration", () => {
 					"GROQ_API_KEY",
 					"CHUTES_API_KEY",
 					"LITELLM_API_KEY",
+					"CEREBRAS_API_KEY",
+					"SAMBANOVA_API_KEY",
+					"ZAI_API_KEY",
+					"FIREWORKS_API_KEY",
+					"FEATHERLESS_API_KEY",
+					"IOINTELLIGENCE_API_KEY",
+					"VERCEL_API_KEY",
+					"DOUBAO_API_KEY",
+					"MOONSHOT_API_KEY",
+					"HUGGINGFACE_API_KEY",
+					"DEEPINFRA_API_KEY",
 				]
 
 				envVars.forEach((envVar, index) => {

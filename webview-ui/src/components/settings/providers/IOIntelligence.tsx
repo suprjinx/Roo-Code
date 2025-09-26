@@ -6,6 +6,7 @@ import {
 	type OrganizationAllowList,
 	ioIntelligenceDefaultModelId,
 	ioIntelligenceModels,
+	API_KEYS,
 } from "@roo-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
@@ -15,6 +16,7 @@ import { useExtensionState } from "@src/context/ExtensionStateContext"
 import { ModelPicker } from "../ModelPicker"
 
 import { inputEventTransform } from "../transforms"
+import { ApiKey } from "../ApiKey"
 
 type IOIntelligenceProps = {
 	apiConfiguration: ProviderSettings
@@ -45,22 +47,16 @@ export const IOIntelligence = ({
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.ioIntelligenceApiKey || ""}
-				type="password"
-				onInput={handleInputChange("ioIntelligenceApiKey")}
-				placeholder={t("settings:providers.ioIntelligenceApiKeyPlaceholder")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.ioIntelligenceApiKey")}</label>
-			</VSCodeTextField>
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-			{!apiConfiguration?.ioIntelligenceApiKey && (
-				<VSCodeButtonLink href="https://ai.io.net/ai/api-keys" appearance="secondary">
-					{t("settings:providers.getIoIntelligenceApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.ioIntelligenceApiKey || ""}
+				apiKeyEnvVar={API_KEYS.IO_INTELLIGENCE}
+				configUseEnvVars={!!apiConfiguration?.ioIntelligenceConfigUseEnvVars}
+				setApiKey={(value: string) => setApiConfigurationField("ioIntelligenceApiKey", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("ioIntelligenceConfigUseEnvVars", value)}
+				apiKeyLabel={t("settings:providers.ioIntelligenceApiKey")}
+				getApiKeyUrl="https://ai.io.net/ai/api-keys"
+				getApiKeyLabel={t("settings:providers.getIoIntelligenceApiKey")}
+			/>
 			<ModelPicker
 				apiConfiguration={apiConfiguration}
 				defaultModelId={ioIntelligenceDefaultModelId}

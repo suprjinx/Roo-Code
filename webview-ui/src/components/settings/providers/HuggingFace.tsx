@@ -3,6 +3,7 @@ import { useEvent } from "react-use"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
 import type { ProviderSettings } from "@roo-code/types"
+import { API_KEYS } from "@roo-code/types"
 
 import { ExtensionMessage } from "@roo/ExtensionMessage"
 import { vscode } from "@src/utils/vscode"
@@ -13,6 +14,7 @@ import { cn } from "@src/lib/utils"
 import { formatPrice } from "@/utils/formatPrice"
 
 import { inputEventTransform } from "../transforms"
+import { ApiKey } from "../ApiKey"
 
 type HuggingFaceModel = {
 	id: string
@@ -166,24 +168,16 @@ export const HuggingFace = ({ apiConfiguration, setApiConfigurationField }: Hugg
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.huggingFaceApiKey || ""}
-				type="password"
-				onInput={handleInputChange("huggingFaceApiKey")}
-				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.huggingFaceApiKey")}</label>
-			</VSCodeTextField>
-
-			<div className="text-sm text-vscode-descriptionForeground -mt-2">
-				{t("settings:providers.apiKeyStorageNotice")}
-			</div>
-
-			{!apiConfiguration?.huggingFaceApiKey && (
-				<VSCodeButtonLink href="https://huggingface.co/settings/tokens" appearance="secondary">
-					{t("settings:providers.getHuggingFaceApiKey")}
-				</VSCodeButtonLink>
-			)}
+			<ApiKey
+				apiKey={apiConfiguration?.huggingFaceApiKey || ""}
+				apiKeyEnvVar={API_KEYS.HUGGING_FACE}
+				configUseEnvVars={!!apiConfiguration?.huggingFaceConfigUseEnvVars}
+				setApiKey={(value: string) => setApiConfigurationField("huggingFaceApiKey", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("huggingFaceConfigUseEnvVars", value)}
+				apiKeyLabel={t("settings:providers.huggingFaceApiKey")}
+				getApiKeyUrl="https://huggingface.co/settings/tokens"
+				getApiKeyLabel={t("settings:providers.getHuggingFaceApiKey")}
+			/>
 
 			<div className="flex flex-col gap-2">
 				<label className="block font-medium text-sm">

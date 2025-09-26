@@ -320,12 +320,14 @@ const deepSeekSchema = apiModelIdProviderModelSchema.extend({
 const deepInfraSchema = apiModelIdProviderModelSchema.extend({
 	deepInfraBaseUrl: z.string().optional(),
 	deepInfraApiKey: z.string().optional(),
+	deepInfraConfigUseEnvVars: z.boolean().optional(),
 	deepInfraModelId: z.string().optional(),
 })
 
 const doubaoSchema = apiModelIdProviderModelSchema.extend({
 	doubaoBaseUrl: z.string().optional(),
 	doubaoApiKey: z.string().optional(),
+	doubaoConfigUseEnvVars: z.boolean().optional(),
 })
 
 const moonshotSchema = apiModelIdProviderModelSchema.extend({
@@ -333,6 +335,7 @@ const moonshotSchema = apiModelIdProviderModelSchema.extend({
 		.union([z.literal("https://api.moonshot.ai/v1"), z.literal("https://api.moonshot.cn/v1")])
 		.optional(),
 	moonshotApiKey: z.string().optional(),
+	moonshotConfigUseEnvVars: z.boolean().optional(),
 })
 
 const unboundSchema = baseProviderSettingsSchema.extend({
@@ -366,6 +369,7 @@ const groqSchema = apiModelIdProviderModelSchema.extend({
 
 const huggingFaceSchema = baseProviderSettingsSchema.extend({
 	huggingFaceApiKey: z.string().optional(),
+	huggingFaceConfigUseEnvVars: z.boolean().optional(),	
 	huggingFaceModelId: z.string().optional(),
 	huggingFaceInferenceProvider: z.string().optional(),
 })
@@ -385,10 +389,12 @@ const litellmSchema = baseProviderSettingsSchema.extend({
 
 const cerebrasSchema = apiModelIdProviderModelSchema.extend({
 	cerebrasApiKey: z.string().optional(),
+	cerebrasConfigUseEnvVars: z.boolean().optional(),
 })
 
 const sambaNovaSchema = apiModelIdProviderModelSchema.extend({
 	sambaNovaApiKey: z.string().optional(),
+	sambaNovaConfigUseEnvVars: z.boolean().optional(),	
 })
 
 export const zaiApiLineSchema = z.enum(["international_coding", "international", "china_coding", "china"])
@@ -397,20 +403,24 @@ export type ZaiApiLine = z.infer<typeof zaiApiLineSchema>
 
 const zaiSchema = apiModelIdProviderModelSchema.extend({
 	zaiApiKey: z.string().optional(),
+	zaiConfigUseEnvVars: z.boolean().optional(),
 	zaiApiLine: zaiApiLineSchema.optional(),
 })
 
 const fireworksSchema = apiModelIdProviderModelSchema.extend({
 	fireworksApiKey: z.string().optional(),
+	fireworksConfigUseEnvVars: z.boolean().optional(),
 })
 
 const featherlessSchema = apiModelIdProviderModelSchema.extend({
 	featherlessApiKey: z.string().optional(),
+	featherlessConfigUseEnvVars: z.boolean().optional(),	
 })
 
 const ioIntelligenceSchema = apiModelIdProviderModelSchema.extend({
 	ioIntelligenceModelId: z.string().optional(),
 	ioIntelligenceApiKey: z.string().optional(),
+	ioIntelligenceConfigUseEnvVars: z.boolean().optional(),
 })
 
 const qwenCodeSchema = apiModelIdProviderModelSchema.extend({
@@ -423,6 +433,7 @@ const rooSchema = apiModelIdProviderModelSchema.extend({
 
 const vercelAiGatewaySchema = baseProviderSettingsSchema.extend({
 	vercelAiGatewayApiKey: z.string().optional(),
+	vercelConfigUseEnvVars: z.boolean().optional(),
 	vercelAiGatewayModelId: z.string().optional(),
 })
 

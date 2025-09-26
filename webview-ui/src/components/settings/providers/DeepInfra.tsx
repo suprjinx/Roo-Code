@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { OrganizationAllowList, type ProviderSettings, deepInfraDefaultModelId } from "@roo-code/types"
+import { OrganizationAllowList, type ProviderSettings, deepInfraDefaultModelId, API_KEYS } from "@roo-code/types"
 
 import type { RouterModels } from "@roo/api"
 
@@ -11,6 +11,7 @@ import { Button } from "@src/components/ui"
 
 import { inputEventTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
+import { ApiKey } from "../ApiKey"
 
 type DeepInfraProps = {
 	apiConfiguration: ProviderSettings
@@ -51,14 +52,14 @@ export const DeepInfra = ({
 
 	return (
 		<>
-			<VSCodeTextField
-				value={apiConfiguration?.deepInfraApiKey || ""}
-				type="password"
-				onInput={handleInputChange("deepInfraApiKey")}
-				placeholder={t("settings:placeholders.apiKey")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.apiKey")}</label>
-			</VSCodeTextField>
+			<ApiKey
+				apiKey={apiConfiguration?.deepInfraApiKey || ""}
+				apiKeyEnvVar={API_KEYS.DEEP_INFRA}
+				configUseEnvVars={!!apiConfiguration?.deepInfraConfigUseEnvVars}
+				setApiKey={(value: string) => setApiConfigurationField("deepInfraApiKey", value)}
+				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("deepInfraConfigUseEnvVars", value)}
+				apiKeyLabel={t("settings:providers.apiKey")}
+			/>
 
 			<Button
 				variant="outline"

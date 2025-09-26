@@ -153,10 +153,16 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			}
 			return new DeepSeekHandler(options)
 		case "doubao":
+			if (options.doubaoConfigUseEnvVars) {
+				options.doubaoApiKey = getEnvVar("DOUBAO_API_KEY", options.doubaoApiKey)
+			}
 			return new DoubaoHandler(options)
 		case "qwen-code":
 			return new QwenCodeHandler(options)
 		case "moonshot":
+			if (options.moonshotConfigUseEnvVars) {
+				options.moonshotApiKey = getEnvVar("MOONSHOT_API_KEY", options.moonshotApiKey)
+			}
 			return new MoonshotHandler(options)
 		case "vscode-lm":
 			return new VsCodeLmHandler(options)
@@ -190,8 +196,14 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			}
 			return new GroqHandler(options)
 		case "deepinfra":
+			if (options.deepInfraConfigUseEnvVars) {
+				options.deepInfraApiKey = getEnvVar("DEEPINFRA_API_KEY", options.deepInfraApiKey)
+			}
 			return new DeepInfraHandler(options)
 		case "huggingface":
+			if (options.huggingFaceConfigUseEnvVars) {
+				options.huggingFaceApiKey = getEnvVar("HUGGINGFACE_API_KEY", options.huggingFaceApiKey)
+			}
 			return new HuggingFaceHandler(options)
 		case "chutes":
 			if (options.chutesConfigUseEnvVars) {
@@ -204,22 +216,43 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			}
 			return new LiteLLMHandler(options)
 		case "cerebras":
+			if (options.cerebrasConfigUseEnvVars) {
+				options.cerebrasApiKey = getEnvVar("CEREBRAS_API_KEY", options.cerebrasApiKey)
+			}
 			return new CerebrasHandler(options)
 		case "sambanova":
+			if (options.sambaNovaConfigUseEnvVars) {
+				options.sambaNovaApiKey = getEnvVar("SAMBANOVA_API_KEY", options.sambaNovaApiKey)
+			}
 			return new SambaNovaHandler(options)
 		case "zai":
+			if (options.zaiConfigUseEnvVars) {
+				options.zaiApiKey = getEnvVar("ZAI_API_KEY", options.zaiApiKey)
+			}
 			return new ZAiHandler(options)
 		case "fireworks":
+			if (options.fireworksConfigUseEnvVars) {
+				options.fireworksApiKey = getEnvVar("FIREWORKS_API_KEY", options.fireworksApiKey)
+			}
 			return new FireworksHandler(options)
 		case "io-intelligence":
+			if (options.ioIntelligenceConfigUseEnvVars) {
+				options.ioIntelligenceApiKey = getEnvVar("IOINTELLIGENCE_API_KEY", options.ioIntelligenceApiKey)
+			}
 			return new IOIntelligenceHandler(options)
 		case "roo":
 			// Never throw exceptions from provider constructors
 			// The provider-proxy server will handle authentication and return appropriate error codes
 			return new RooHandler(options)
 		case "featherless":
+			if (options.featherlessConfigUseEnvVars) {
+				options.featherlessApiKey = getEnvVar("FEATHERLESS_API_KEY", options.featherlessApiKey)
+			}
 			return new FeatherlessHandler(options)
 		case "vercel-ai-gateway":
+			if (options.vercelConfigUseEnvVars) {
+				options.vercelAiGatewayApiKey = getEnvVar("VERCEL_API_KEY", options.vercelAiGatewayApiKey)
+			}
 			return new VercelAiGatewayHandler(options)
 		default:
 			apiProvider satisfies "gemini-cli" | undefined
