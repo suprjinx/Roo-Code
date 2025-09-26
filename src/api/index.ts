@@ -149,7 +149,7 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new OpenAiNativeHandler(options)
 		case "deepseek":
 			if (options.deepSeekConfigUseEnvVars) {
-				options.deepSeekApiKey = getEnvVar("DEEP_SEEK_API_KEY", options.deepSeekApiKey)
+				options.deepSeekApiKey = getEnvVar("DEEPSEEK_API_KEY", options.deepSeekApiKey)
 			}
 			return new DeepSeekHandler(options)
 		case "doubao":

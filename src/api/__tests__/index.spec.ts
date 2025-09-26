@@ -228,7 +228,7 @@ describe("API Environment Variable Integration", () => {
 
 		describe("deepseek provider", () => {
 			it("should use environment variable when deepSeekConfigUseEnvVars is true", () => {
-				process.env.DEEP_SEEK_API_KEY = "env-deepseek-key"
+				process.env.DEEPSEEK_API_KEY = "env-deepseek-key"
 
 				const config: ProviderSettings = {
 					apiProvider: "deepseek",
@@ -375,7 +375,7 @@ describe("API Environment Variable Integration", () => {
 					"OPENAI_API_KEY",
 					"GEMINI_API_KEY",
 					"MISTRAL_API_KEY",
-					"DEEP_SEEK_API_KEY",
+					"DEEPSEEK_API_KEY",
 					"UNBOUND_API_KEY",
 					"REQUESTY_API_KEY",
 					"XAI_API_KEY",
