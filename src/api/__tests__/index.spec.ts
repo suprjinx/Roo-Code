@@ -1,4 +1,4 @@
-// npx vitest run src/api/__tests__/env-var-integration.spec.ts
+// npx vitest run src/api/__tests__/index.spec.ts
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { getEnvVar, buildApiHandler } from "../index"
