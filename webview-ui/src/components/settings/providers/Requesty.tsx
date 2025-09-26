@@ -113,18 +113,12 @@ export const Requesty = ({
 				onClick={() => {
 					vscode.postMessage({ type: "flushRouterModels", text: "requesty" })
 					refetchRouterModels()
-					setDidRefetch(true)
 				}}>
 				<div className="flex items-center gap-2">
 					<span className="codicon codicon-refresh" />
 					{t("settings:providers.refreshModels.label")}
 				</div>
 			</Button>
-			{didRefetch && (
-				<div className="flex items-center text-vscode-errorForeground">
-					{t("settings:providers.refreshModels.hint")}
-				</div>
-			)}
 			<ModelPicker
 				apiConfiguration={apiConfiguration}
 				setApiConfigurationField={setApiConfigurationField}

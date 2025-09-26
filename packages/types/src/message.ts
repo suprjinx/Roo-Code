@@ -89,6 +89,7 @@ export function isResumableAsk(ask: ClineAsk): ask is ResumableAsk {
  */
 
 export const interactiveAsks = [
+	"followup",
 	"command",
 	"tool",
 	"browser_action_launch",
@@ -214,6 +215,7 @@ export const clineMessageSchema = z.object({
 	contextCondense: contextCondenseSchema.optional(),
 	isProtected: z.boolean().optional(),
 	apiProtocol: z.union([z.literal("openai"), z.literal("anthropic")]).optional(),
+	isAnswered: z.boolean().optional(),
 	metadata: z
 		.object({
 			gpt5: z

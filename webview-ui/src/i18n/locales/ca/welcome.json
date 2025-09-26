@@ -10,18 +10,18 @@
 		},
 		"openrouter": {
 			"description": "Una interfície unificada per a LLMs"
+		},
+		"roo": {
+			"description": "Els millors models gratuïts per començar",
+			"incentive": "Prova Roo gratis"
 		}
 	},
 	"chooseProvider": "Per fer la seva màgia, Roo necessita una clau API.",
 	"startRouter": "Recomanem utilitzar un router LLM:",
 	"startCustom": "O pots utilitzar la teva pròpia clau API:",
 	"telemetry": {
-		"title": "Ajuda a millorar Roo Code",
-		"anonymousTelemetry": "Envia dades d'ús i errors anònims per ajudar-nos a corregir errors i millorar l'extensió. No s'envia mai cap codi, text o informació personal.",
-		"changeSettings": "Sempre pots canviar això a la part inferior de la <settingsLink>configuració</settingsLink>",
-		"settings": "configuració",
-		"allow": "Permetre",
-		"deny": "Denegar"
+		"helpImprove": "Ajuda a millorar Roo Code",
+		"helpImproveMessage": "Roo Code recopila dades d'errors i d'ús per ajudar-nos a corregir errors i millorar l'extensió. Aquesta telemetria no recopila codi, prompts o informació personal. Pots desactivar això a la <settingsLink>configuració</settingsLink>."
 	},
 	"importSettings": "Importar configuració"
 }

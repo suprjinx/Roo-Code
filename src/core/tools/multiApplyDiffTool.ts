@@ -172,6 +172,7 @@ Original error: ${errorMessage}`
 			TelemetryService.instance.captureDiffApplicationError(cline.taskId, cline.consecutiveMistakeCount)
 			await cline.say("diff_error", `Failed to parse apply_diff XML: ${errorMessage}`)
 			pushToolResult(detailedError)
+			cline.processQueuedMessages()
 			return
 		}
 	} else if (legacyPath && typeof legacyDiffContent === "string") {
@@ -195,6 +196,7 @@ Original error: ${errorMessage}`
 			"args (or legacy 'path' and 'diff' parameters)",
 		)
 		pushToolResult(errorMsg)
+		cline.processQueuedMessages()
 		return
 	}
 
@@ -210,6 +212,7 @@ Original error: ${errorMessage}`
 					: "args (must contain at least one valid file element)",
 			),
 		)
+		cline.processQueuedMessages()
 		return
 	}
 
@@ -460,7 +463,7 @@ Error: ${failPart.error}
 Suggested fixes:
 1. Verify the search content exactly matches the file content (including whitespace and case)
 2. Check for correct indentation and line endings
-3. Use <read_file> to see the current file content
+3. Use the read_file tool to verify the file's current contents
 4. Consider breaking complex changes into smaller diffs
 5. Ensure start_line parameter matches the actual content location
 ${errorDetails ? `\nDetailed error information:\n${errorDetails}\n` : ""}
@@ -473,7 +476,7 @@ Unable to apply diffs to file: ${absolutePath}
 Error: ${diffResult.error}
 
 Recovery suggestions:
-1. Use <read_file> to examine the current file content
+1. Use the read_file tool to verify the file's current contents
 2. Verify the diff format matches the expected search/replace pattern
 3. Check that the search content exactly matches what's in the file
 4. Consider using line numbers with start_line parameter
@@ -675,10 +678,12 @@ ${errorDetails ? `\nTechnical details:\n${errorDetails}\n` : ""}
 
 		// Push the final result combining all operation results
 		pushToolResult(results.join("\n\n") + singleBlockNotice)
+		cline.processQueuedMessages()
 		return
 	} catch (error) {
 		await handleError("applying diff", error)
 		await cline.diffViewProvider.reset()
+		cline.processQueuedMessages()
 		return
 	}
 }

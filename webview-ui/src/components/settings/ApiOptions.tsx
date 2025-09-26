@@ -36,6 +36,7 @@ import {
 	ioIntelligenceDefaultModelId,
 	rooDefaultModelId,
 	vercelAiGatewayDefaultModelId,
+	deepInfraDefaultModelId,
 } from "@roo-code/types"
 
 import { vscode } from "@src/utils/vscode"
@@ -93,6 +94,7 @@ import {
 	Fireworks,
 	Featherless,
 	VercelAiGateway,
+	DeepInfra,
 } from "./providers"
 
 import { MODELS_BY_PROVIDER, PROVIDERS } from "./constants"
@@ -214,7 +216,7 @@ const ApiOptions = ({
 					values: {
 						baseUrl: apiConfiguration?.openAiBaseUrl,
 						apiKey: apiConfiguration?.openAiApiKey,
-						customHeaders: {}, // Reserved for any additional headers
+						customHeaders: {}, // Reserved for any additional headers.
 						openAiHeaders: headerObject,
 					},
 				})
@@ -224,7 +226,7 @@ const ApiOptions = ({
 				vscode.postMessage({ type: "requestLmStudioModels" })
 			} else if (selectedProvider === "vscode-lm") {
 				vscode.postMessage({ type: "requestVsCodeLmModels" })
-			} else if (selectedProvider === "litellm") {
+			} else if (selectedProvider === "litellm" || selectedProvider === "deepinfra") {
 				vscode.postMessage({ type: "requestRouterModels" })
 			}
 		},
@@ -238,6 +240,8 @@ const ApiOptions = ({
 			apiConfiguration?.lmStudioBaseUrl,
 			apiConfiguration?.litellmBaseUrl,
 			apiConfiguration?.litellmApiKey,
+			apiConfiguration?.deepInfraApiKey,
+			apiConfiguration?.deepInfraBaseUrl,
 			customHeaders,
 		],
 	)
@@ -305,6 +309,7 @@ const ApiOptions = ({
 					}
 				>
 			> = {
+				deepinfra: { field: "deepInfraModelId", default: deepInfraDefaultModelId },
 				openrouter: { field: "openRouterModelId", default: openRouterDefaultModelId },
 				glama: { field: "glamaModelId", default: glamaDefaultModelId },
 				unbound: { field: "unboundModelId", default: unboundDefaultModelId },
@@ -487,6 +492,17 @@ const ApiOptions = ({
 				/>
 			)}
 
+			{selectedProvider === "deepinfra" && (
+				<DeepInfra
+					apiConfiguration={apiConfiguration}
+					setApiConfigurationField={setApiConfigurationField}
+					routerModels={routerModels}
+					refetchRouterModels={refetchRouterModels}
+					organizationAllowList={organizationAllowList}
+					modelValidationError={modelValidationError}
+				/>
+			)}
+
 			{selectedProvider === "anthropic" && (
 				<Anthropic apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
 			)}
@@ -496,7 +512,11 @@ const ApiOptions = ({
 			)}
 
 			{selectedProvider === "openai-native" && (
-				<OpenAI apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
+				<OpenAI
+					apiConfiguration={apiConfiguration}
+					setApiConfigurationField={setApiConfigurationField}
+					selectedModelInfo={selectedModelInfo}
+				/>
 			)}
 
 			{selectedProvider === "mistral" && (

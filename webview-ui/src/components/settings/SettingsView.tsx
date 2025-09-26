@@ -23,6 +23,8 @@ import {
 	Info,
 	MessageSquare,
 	LucideIcon,
+	SquareSlash,
+	Glasses,
 } from "lucide-react"
 
 import type { ProviderSettings, ExperimentId, TelemetrySetting } from "@roo-code/types"
@@ -64,6 +66,8 @@ import { LanguageSettings } from "./LanguageSettings"
 import { About } from "./About"
 import { Section } from "./Section"
 import PromptsSettings from "./PromptsSettings"
+import { SlashCommandsSettings } from "./SlashCommandsSettings"
+import { UISettings } from "./UISettings"
 
 export const settingsTabsContainer = "flex flex-1 overflow-hidden [&.narrow_.tab-label]:hidden"
 export const settingsTabList =
@@ -79,12 +83,14 @@ export interface SettingsViewRef {
 const sectionNames = [
 	"providers",
 	"autoApprove",
+	"slashCommands",
 	"browser",
 	"checkpoints",
 	"notifications",
 	"contextManagement",
 	"terminal",
 	"prompts",
+	"ui",
 	"experimental",
 	"language",
 	"about",
@@ -111,6 +117,11 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			? (targetSection as SectionName)
 			: "providers",
 	)
+
+	const scrollPositions = useRef<Record<SectionName, number>>(
+		Object.fromEntries(sectionNames.map((s) => [s, 0])) as Record<SectionName, number>,
+	)
+	const contentRef = useRef<HTMLDivElement | null>(null)
 
 	const prevApiConfigName = useRef(currentApiConfigName)
 	const confirmDialogHandler = useRef<() => void>()
@@ -183,6 +194,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		includeTaskHistoryInEnhance,
 		openRouterImageApiKey,
 		openRouterImageGenerationSelectedModel,
+		reasoningBlockCollapsed,
 	} = cachedState
 
 	const apiConfiguration = useMemo(() => cachedState.apiConfiguration ?? {}, [cachedState.apiConfiguration])
@@ -356,6 +368,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "updateCondensingPrompt", text: customCondensingPrompt || "" })
 			vscode.postMessage({ type: "updateSupportPrompt", values: customSupportPrompts || {} })
 			vscode.postMessage({ type: "includeTaskHistoryInEnhance", bool: includeTaskHistoryInEnhance ?? true })
+			vscode.postMessage({ type: "setReasoningBlockCollapsed", bool: reasoningBlockCollapsed ?? true })
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
 			vscode.postMessage({ type: "profileThresholds", values: profileThresholds })
@@ -398,11 +411,19 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	// Handle tab changes with unsaved changes check
 	const handleTabChange = useCallback(
 		(newTab: SectionName) => {
-			// Directly switch tab without checking for unsaved changes
+			if (contentRef.current) {
+				scrollPositions.current[activeTab] = contentRef.current.scrollTop
+			}
 			setActiveTab(newTab)
 		},
-		[], // No dependency on isChangeDetected needed anymore
+		[activeTab],
 	)
+
+	useLayoutEffect(() => {
+		if (contentRef.current) {
+			contentRef.current.scrollTop = scrollPositions.current[activeTab] ?? 0
+		}
+	}, [activeTab])
 
 	// Store direct DOM element refs for each tab
 	const tabRefs = useRef<Record<SectionName, HTMLButtonElement | null>>(
@@ -435,12 +456,14 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		() => [
 			{ id: "providers", icon: Webhook },
 			{ id: "autoApprove", icon: CheckCheck },
+			{ id: "slashCommands", icon: SquareSlash },
 			{ id: "browser", icon: SquareMousePointer },
 			{ id: "checkpoints", icon: GitBranch },
 			{ id: "notifications", icon: Bell },
 			{ id: "contextManagement", icon: Database },
 			{ id: "terminal", icon: SquareTerminal },
 			{ id: "prompts", icon: MessageSquare },
+			{ id: "ui", icon: Glasses },
 			{ id: "experimental", icon: FlaskConical },
 			{ id: "language", icon: Globe },
 			{ id: "about", icon: Info },
@@ -579,7 +602,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 				</TabList>
 
 				{/* Content area */}
-				<TabContent className="p-0 flex-1 overflow-auto">
+				<TabContent ref={contentRef} className="p-0 flex-1 overflow-auto">
 					{/* Providers Section */}
 					{activeTab === "providers" && (
 						<div>
@@ -654,6 +677,9 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							setCachedStateField={setCachedStateField}
 						/>
 					)}
+
+					{/* Slash Commands Section */}
+					{activeTab === "slashCommands" && <SlashCommandsSettings />}
 
 					{/* Browser Section */}
 					{activeTab === "browser" && (
@@ -734,6 +760,14 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							setIncludeTaskHistoryInEnhance={(value) =>
 								setCachedStateField("includeTaskHistoryInEnhance", value)
 							}
+						/>
+					)}
+
+					{/* UI Section */}
+					{activeTab === "ui" && (
+						<UISettings
+							reasoningBlockCollapsed={reasoningBlockCollapsed ?? true}
+							setCachedStateField={setCachedStateField}
 						/>
 					)}
 

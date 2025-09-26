@@ -28,10 +28,15 @@
 		"notifications": "Notificações",
 		"contextManagement": "Contexto",
 		"terminal": "Terminal",
+		"slashCommands": "Comandos de Barra",
 		"prompts": "Prompts",
+		"ui": "UI",
 		"experimental": "Experimental",
 		"language": "Idioma",
 		"about": "Sobre"
+	},
+	"slashCommands": {
+		"description": "Gerencie seus comandos de barra para executar rapidamente fluxos de trabalho e ações personalizadas. <DocsLink>Saiba mais</DocsLink>"
 	},
 	"prompts": {
 		"description": "Configure prompts de suporte usados para ações rápidas como melhorar prompts, explicar código e corrigir problemas. Esses prompts ajudam o Roo a fornecer melhor assistência para tarefas comuns de desenvolvimento."
@@ -130,6 +135,7 @@
 		"resetToDefault": "Redefinir para o padrão"
 	},
 	"autoApprove": {
+		"toggleShortcut": "Você pode configurar um atalho global para esta configuração <SettingsLink>nas preferências do seu IDE</SettingsLink>.",
 		"description": "Permitir que o Roo realize operações automaticamente sem exigir aprovação. Ative essas configurações apenas se confiar totalmente na IA e compreender os riscos de segurança associados.",
 		"enabled": "Aprovação automática habilitada",
 		"toggleAriaLabel": "Alternar aprovação automática",
@@ -376,6 +382,8 @@
 			"modelId": "ID do Modelo",
 			"apiKey": "Chave API Ollama",
 			"apiKeyHelp": "Chave API opcional para instâncias Ollama autenticadas ou serviços em nuvem. Deixe vazio para instalações locais.",
+			"numCtx": "Tamanho da janela de contexto (num_ctx)",
+			"numCtxHelp": "Substitui o tamanho da janela de contexto padrão do modelo. Deixe em branco para usar a configuração do Modelfile do modelo. O valor mínimo é 128.",
 			"description": "O Ollama permite que você execute modelos localmente em seu computador. Para instruções sobre como começar, veja o guia de início rápido deles.",
 			"warning": "Nota: O Roo Code usa prompts complexos e funciona melhor com modelos Claude. Modelos menos capazes podem não funcionar como esperado."
 		},
@@ -744,6 +752,10 @@
 			"modelSelectionDescription": "Selecione o modelo para geração de imagens",
 			"warningMissingKey": "⚠️ A chave de API do OpenRouter é necessária para geração de imagens. Configure-a acima.",
 			"successConfigured": "✓ A geração de imagens está configurada e pronta para uso"
+		},
+		"RUN_SLASH_COMMAND": {
+			"name": "Ativar comandos slash iniciados pelo modelo",
+			"description": "Quando ativado, Roo pode executar seus comandos slash para executar fluxos de trabalho."
 		}
 	},
 	"promptCaching": {
@@ -790,7 +802,7 @@
 		"feedback": "Se tiver alguma dúvida ou feedback, sinta-se à vontade para abrir um problema em <githubLink>github.com/RooCodeInc/Roo-Code</githubLink> ou juntar-se a <redditLink>reddit.com/r/RooCode</redditLink> ou <discordLink>discord.gg/roocode</discordLink>",
 		"telemetry": {
 			"label": "Permitir relatórios anônimos de erros e uso",
-			"description": "Ajude a melhorar o Roo Code enviando dados de uso anônimos e relatórios de erros. Nunca são enviados código, prompts ou informações pessoais. Consulte nossa política de privacidade para mais detalhes."
+			"description": "Ajude a melhorar o Roo Code enviando dados de uso anônimos e relatórios de erros. Esta telemetria não coleta código, prompts ou informações pessoais. Consulte nossa <privacyLink>política de privacidade</privacyLink> para mais detalhes."
 		},
 		"settings": {
 			"import": "Importar",
@@ -856,5 +868,25 @@
 	"includeMaxOutputTokensDescription": "Enviar parâmetro de tokens máximos de saída nas solicitações de API. Alguns provedores podem não suportar isso.",
 	"limitMaxTokensDescription": "Limitar o número máximo de tokens na resposta",
 	"maxOutputTokensLabel": "Tokens máximos de saída",
-	"maxTokensGenerateDescription": "Tokens máximos para gerar na resposta"
+	"maxTokensGenerateDescription": "Tokens máximos para gerar na resposta",
+	"serviceTier": {
+		"label": "Nível de serviço",
+		"tooltip": "Para um processamento mais rápido das solicitações de API, experimente o nível de serviço de processamento prioritário. Para preços mais baixos com maior latência, experimente o nível de processamento flexível.",
+		"standard": "Padrão",
+		"flex": "Flexível",
+		"priority": "Prioritário",
+		"pricingTableTitle": "Preços por nível de serviço (preço por 1 milhão de tokens)",
+		"columns": {
+			"tier": "Nível",
+			"input": "Entrada",
+			"output": "Saída",
+			"cacheReads": "Leituras de cache"
+		}
+	},
+	"ui": {
+		"collapseThinking": {
+			"label": "Recolher mensagens de pensamento por padrão",
+			"description": "Quando ativado, os blocos de pensamento serão recolhidos por padrão até que você interaja com eles"
+		}
+	}
 }
