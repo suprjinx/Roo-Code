@@ -29,7 +29,7 @@ export const VercelAiGateway = ({
 		<>
 			<ApiKey
 				apiKey={apiConfiguration?.vercelAiGatewayApiKey || ""}
-				apiKeyEnvVar={API_KEYS.VERCEL_NOVA}
+				apiKeyEnvVar={API_KEYS.VERCEL}
 				configUseEnvVars={!!apiConfiguration?.vercelConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("vercelAiGatewayApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("vercelConfigUseEnvVars", value)}
