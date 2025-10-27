@@ -51,11 +51,10 @@ import {
 	ioIntelligenceDefaultModelId,
 	ioIntelligenceModels,
 	rooDefaultModelId,
-	rooModels,
 	qwenCodeDefaultModelId,
 	qwenCodeModels,
 	vercelAiGatewayDefaultModelId,
-	BEDROCK_CLAUDE_SONNET_4_MODEL_ID,
+	BEDROCK_1M_CONTEXT_MODEL_IDS,
 	deepInfraDefaultModelId,
 } from "@roo-code/types"
 
@@ -200,8 +199,8 @@ function getSelectedModel({
 				}
 			}
 
-			// Apply 1M context for Claude Sonnet 4 when enabled
-			if (id === BEDROCK_CLAUDE_SONNET_4_MODEL_ID && apiConfiguration.awsBedrock1MContext && baseInfo) {
+			// Apply 1M context for Claude Sonnet 4 / 4.5 when enabled
+			if (BEDROCK_1M_CONTEXT_MODEL_IDS.includes(id as any) && apiConfiguration.awsBedrock1MContext && baseInfo) {
 				// Create a new ModelInfo object with updated context window
 				const info: ModelInfo = {
 					...baseInfo,
@@ -238,7 +237,7 @@ function getSelectedModel({
 			return { id, info }
 		}
 		case "zai": {
-			const isChina = apiConfiguration.zaiApiLine === "china"
+			const isChina = apiConfiguration.zaiApiLine === "china_coding"
 			const models = isChina ? mainlandZAiModels : internationalZAiModels
 			const defaultModelId = isChina ? mainlandZAiDefaultModelId : internationalZAiDefaultModelId
 			const id = apiConfiguration.apiModelId ?? defaultModelId
@@ -330,21 +329,10 @@ function getSelectedModel({
 			return { id, info }
 		}
 		case "roo": {
-			const requestedId = apiConfiguration.apiModelId
-
-			// Check if the requested model exists in rooModels
-			if (requestedId && rooModels[requestedId as keyof typeof rooModels]) {
-				return {
-					id: requestedId,
-					info: rooModels[requestedId as keyof typeof rooModels],
-				}
-			}
-
-			// Fallback to default model if requested model doesn't exist or is not specified
-			return {
-				id: rooDefaultModelId,
-				info: rooModels[rooDefaultModelId as keyof typeof rooModels],
-			}
+			// Roo is a dynamic provider - models are loaded from API
+			const id = apiConfiguration.apiModelId ?? rooDefaultModelId
+			const info = routerModels.roo[id]
+			return { id, info }
 		}
 		case "qwen-code": {
 			const id = apiConfiguration.apiModelId ?? qwenCodeDefaultModelId
@@ -367,11 +355,11 @@ function getSelectedModel({
 			// Apply 1M context beta tier pricing for Claude Sonnet 4
 			if (
 				provider === "anthropic" &&
-				id === "claude-sonnet-4-20250514" &&
+				(id === "claude-sonnet-4-20250514" || id === "claude-sonnet-4-5") &&
 				apiConfiguration.anthropicBeta1MContext &&
 				baseInfo
 			) {
-				// Type assertion since we know claude-sonnet-4-20250514 has tiers
+				// Type assertion since we know claude-sonnet-4-20250514 and claude-sonnet-4-5 have tiers
 				const modelWithTiers = baseInfo as typeof baseInfo & {
 					tiers?: Array<{
 						contextWindow: number
