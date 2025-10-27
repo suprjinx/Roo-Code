@@ -369,7 +369,7 @@ const groqSchema = apiModelIdProviderModelSchema.extend({
 
 const huggingFaceSchema = baseProviderSettingsSchema.extend({
 	huggingFaceApiKey: z.string().optional(),
-	huggingFaceConfigUseEnvVars: z.boolean().optional(),	
+	huggingFaceConfigUseEnvVars: z.boolean().optional(),
 	huggingFaceModelId: z.string().optional(),
 	huggingFaceInferenceProvider: z.string().optional(),
 })
@@ -394,7 +394,7 @@ const cerebrasSchema = apiModelIdProviderModelSchema.extend({
 
 const sambaNovaSchema = apiModelIdProviderModelSchema.extend({
 	sambaNovaApiKey: z.string().optional(),
-	sambaNovaConfigUseEnvVars: z.boolean().optional(),	
+	sambaNovaConfigUseEnvVars: z.boolean().optional(),
 })
 
 export const zaiApiLineSchema = z.enum(["international_coding", "china_coding"])
@@ -414,7 +414,7 @@ const fireworksSchema = apiModelIdProviderModelSchema.extend({
 
 const featherlessSchema = apiModelIdProviderModelSchema.extend({
 	featherlessApiKey: z.string().optional(),
-	featherlessConfigUseEnvVars: z.boolean().optional(),	
+	featherlessConfigUseEnvVars: z.boolean().optional(),
 })
 
 const ioIntelligenceSchema = apiModelIdProviderModelSchema.extend({
