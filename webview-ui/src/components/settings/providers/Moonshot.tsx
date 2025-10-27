@@ -47,7 +47,7 @@ export const Moonshot = ({ apiConfiguration, setApiConfigurationField }: Moonsho
 			</div>
 			<ApiKey
 				apiKey={apiConfiguration?.moonshotApiKey || ""}
-				apiKeyEnvVar={API_KEYS.MOONSHOOT}
+				apiKeyEnvVar={API_KEYS.MOONSHOT}
 				configUseEnvVars={!!apiConfiguration?.moonshotConfigUseEnvVars}
 				setApiKey={(value: string) => setApiConfigurationField("moonshotApiKey", value)}
 				setConfigUseEnvVars={(value: boolean) => setApiConfigurationField("moonshotConfigUseEnvVars", value)}

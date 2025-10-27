@@ -162,7 +162,7 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new QwenCodeHandler(options)
 		case "moonshot":
 			if (options.moonshotConfigUseEnvVars) {
-				options.moonshotApiKey = getEnvVar(API_KEYS.MOONSHOOT, options.moonshotApiKey)
+				options.moonshotApiKey = getEnvVar(API_KEYS.MOONSHOT, options.moonshotApiKey)
 			}
 			return new MoonshotHandler(options)
 		case "vscode-lm":

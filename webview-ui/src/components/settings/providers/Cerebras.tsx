@@ -13,7 +13,6 @@ type CerebrasProps = {
 export const Cerebras = ({ apiConfiguration, setApiConfigurationField }: CerebrasProps) => {
 	const { t } = useAppTranslation()
 
-
 	return (
 		<>
 			<ApiKey
