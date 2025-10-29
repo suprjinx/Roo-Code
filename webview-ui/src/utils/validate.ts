@@ -59,7 +59,7 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 			}
 			break
 		case "deepinfra":
-			if (!apiConfiguration.deepInfraApiKey) {
+			if (!(apiConfiguration.deepInfraApiKey || apiConfiguration.deepInfraConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
@@ -121,7 +121,7 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 			}
 			break
 		case "huggingface":
-			if (!apiConfiguration.huggingFaceApiKey) {
+			if (!(apiConfiguration.huggingFaceApiKey || apiConfiguration.huggingFaceConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			if (!apiConfiguration.huggingFaceModelId) {
@@ -129,22 +129,22 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 			}
 			break
 		case "cerebras":
-			if (!apiConfiguration.cerebrasApiKey) {
+			if (!(apiConfiguration.cerebrasApiKey || apiConfiguration.cerebrasConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
 		case "fireworks":
-			if (!apiConfiguration.fireworksApiKey) {
+			if (!(apiConfiguration.fireworksApiKey || apiConfiguration.fireworksConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
 		case "io-intelligence":
-			if (!apiConfiguration.ioIntelligenceApiKey) {
+			if (!(apiConfiguration.ioIntelligenceApiKey || apiConfiguration.ioIntelligenceConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
 		case "featherless":
-			if (!apiConfiguration.featherlessApiKey) {
+			if (!(apiConfiguration.featherlessApiKey || apiConfiguration.featherlessConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
@@ -154,7 +154,47 @@ function validateModelsAndKeysProvided(apiConfiguration: ProviderSettings): stri
 			}
 			break
 		case "vercel-ai-gateway":
-			if (!apiConfiguration.vercelAiGatewayApiKey) {
+			if (!(apiConfiguration.vercelAiGatewayApiKey || apiConfiguration.vercelConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "deepseek":
+			if (!(apiConfiguration.deepSeekApiKey || apiConfiguration.deepSeekConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "doubao":
+			if (!(apiConfiguration.doubaoApiKey || apiConfiguration.doubaoConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "moonshot":
+			if (!(apiConfiguration.moonshotApiKey || apiConfiguration.moonshotConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "xai":
+			if (!(apiConfiguration.xaiApiKey || apiConfiguration.xaiConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "groq":
+			if (!(apiConfiguration.groqApiKey || apiConfiguration.groqConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "chutes":
+			if (!(apiConfiguration.chutesApiKey || apiConfiguration.chutesConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "sambanova":
+			if (!(apiConfiguration.sambaNovaApiKey || apiConfiguration.sambaNovaConfigUseEnvVars)) {
+				return i18next.t("settings:validation.apiKey")
+			}
+			break
+		case "zai":
+			if (!(apiConfiguration.zaiApiKey || apiConfiguration.zaiConfigUseEnvVars)) {
 				return i18next.t("settings:validation.apiKey")
 			}
 			break
