@@ -8,7 +8,6 @@ import { ApiKey } from "../ApiKey"
 import type { RouterModels } from "@roo/api"
 
 import { ModelPicker } from "../ModelPicker"
-import { inputEventTransform } from "../transforms"
 
 type ChutesProps = {
 	apiConfiguration: ProviderSettings
