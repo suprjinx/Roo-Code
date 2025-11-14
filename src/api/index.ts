@@ -1,8 +1,9 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
-import type { ProviderSettings, ModelInfo, ToolProtocol, API_KEYS } from "@roo-code/types"
+import type { ProviderSettings, ModelInfo, ToolProtocol } from "@roo-code/types"
 
+import { API_KEYS } from "@roo-code/types"
 import { ApiStream } from "./transform/stream"
 
 import {
